@@ -1,0 +1,52 @@
+name: SSQ Guangdong five-year raw evidence
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Guangdong official SSQ archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/body evidence/headers evidence/status
+          : > evidence/issues.txt
+          for n in $(seq -w 133 150); do echo 2021$n >> evidence/issues.txt; done
+          for n in $(seq -w 1 150); do echo 2022$(printf '%03d' $((10#$n))) >> evidence/issues.txt; done
+          for n in $(seq -w 1 151); do echo 2023$(printf '%03d' $((10#$n))) >> evidence/issues.txt; done
+          for n in $(seq -w 1 151); do echo 2024$(printf '%03d' $((10#$n))) >> evidence/issues.txt; done
+          for n in $(seq -w 1 151); do echo 2025$(printf '%03d' $((10#$n))) >> evidence/issues.txt; done
+          for n in $(seq -w 1 132); do echo 2026$(printf '%03d' $((10#$n))) >> evidence/issues.txt; done
+          export -f true 2>/dev/null || true
+          cat evidence/issues.txt | xargs -P 6 -I{} bash -c '
+            issue="{}"; url="https://www.gdfc.org.cn/datas/drawinfo/twocolorball/draw_${issue}.html";
+            code=$(curl -sS -L --compressed --retry 2 --retry-delay 1 --connect-timeout 15 --max-time 60 -A "Mozilla/5.0" -D "evidence/headers/${issue}.headers" -o "evidence/body/${issue}.html" -w "%{http_code}" "$url" || true);
+            echo "$code" > "evidence/status/${issue}.txt";
+            if [ "$code" != 200 ]; then rm -f "evidence/body/${issue}.html"; fi
+          '
+          python - <<'PY'
+          import pathlib,re,json,hashlib,datetime
+          root=pathlib.Path('evidence'); rows=[]; ok=0
+          for issue in root.joinpath('issues.txt').read_text().split():
+              st=(root/'status'/f'{issue}.txt').read_text().strip() if (root/'status'/f'{issue}.txt').exists() else 'MISSING'
+              body=root/'body'/f'{issue}.html'; hdr=root/'headers'/f'{issue}.headers'
+              row={'issue':issue,'url':f'https://www.gdfc.org.cn/datas/drawinfo/twocolorball/draw_{issue}.html','http_status':st}
+              if body.exists():
+                  ok+=1; b=body.read_bytes(); row.update({'body_file':str(body.relative_to(root)),'body_size':len(b),'body_sha256':hashlib.sha256(b).hexdigest()})
+              if hdr.exists(): row['headers_sha256']=hashlib.sha256(hdr.read_bytes()).hexdigest()
+              rows.append(row)
+          meta={'schema':'SSQ-GUANGDONG-FIVE-YEAR-RAW-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'requested':len(rows),'http_200':ok,'records':rows}
+          (root/'GUANGDONG_RAW_MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps({'requested':len(rows),'http_200':ok},ensure_ascii=False))
+          PY
+          find evidence -type f -print0 | sort -z | xargs -0 sha256sum > evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-guangdong-five-year-evidence
+          path: evidence/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
