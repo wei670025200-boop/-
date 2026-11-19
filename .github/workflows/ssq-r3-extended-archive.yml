@@ -1,0 +1,33 @@
+name: SSQ R3 extended archive evidence
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch official multi-year HTML and Sichuan PDF sources
+        shell: bash
+        run: |
+          mkdir -p evidence
+          python -u scripts/ssq_fetch_extended_v3.py | tee evidence/EXECUTION_OUTPUT.txt
+          python - <<'PY'
+          import hashlib,pathlib
+          root=pathlib.Path('evidence')
+          with (root/'SHA256SUMS.txt').open('w') as f:
+              for p in sorted(root.iterdir()):
+                  if p.is_file() and p.name!='SHA256SUMS.txt':
+                      f.write(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n')
+          PY
+      - name: Preserve artifacts even if some sources fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssq-r3-extended-evidence
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
