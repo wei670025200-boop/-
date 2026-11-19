@@ -1,0 +1,76 @@
+name: SSQ Jiangsu five-year raw evidence
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Jiangsu official SSQ archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/list evidence/detail
+          base='https://www.jslottery.com'
+          for p in $(seq 1 45); do
+            url="$base/winning_history_a?locale=zh-CN&lottery_type_id=10&page=$p&periods="
+            curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 60 -A 'Mozilla/5.0' -D "evidence/list/page_${p}.headers" -o "evidence/list/page_${p}.html" "$url"
+          done
+          python - <<'PY'
+          import pathlib,re,json
+          ids=[]
+          for p in sorted(pathlib.Path('evidence/list').glob('page_*.html')):
+              s=p.read_text(encoding='utf-8',errors='ignore')
+              ids += re.findall(r'winning_detail\?id=(\d+)',s)
+          seen=[]
+          for x in ids:
+              if x not in seen: seen.append(x)
+          pathlib.Path('evidence/detail_ids.txt').write_text('\n'.join(seen)+'\n')
+          pathlib.Path('evidence/list_manifest.json').write_text(json.dumps({'unique_detail_ids':len(seen),'first_ids':seen[:5],'last_ids':seen[-5:]},ensure_ascii=False,indent=2)+'\n')
+          print('DETAIL_IDS',len(seen))
+          PY
+          cat evidence/detail_ids.txt | xargs -P 6 -I{} bash -c 'curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 60 -A "Mozilla/5.0" -D "evidence/detail/{}.headers" -o "evidence/detail/{}.html" "https://www.jslottery.com/winning_detail?id={}&locale=zh-CN"'
+          python - <<'PY'
+          import pathlib,re,json,hashlib,datetime,csv
+          root=pathlib.Path('evidence'); rows=[]
+          def clean(x): return re.sub(r'<[^>]+>',' ',x).replace('&nbsp;',' ')
+          for p in sorted((root/'detail').glob('*.html'),key=lambda x:int(x.stem)):
+              s=p.read_text(encoding='utf-8',errors='ignore'); txt=re.sub(r'\s+',' ',clean(s))
+              m_issue=re.search(r'第\s*(20\d{5})\s*期',txt)
+              if not m_issue: continue
+              issue=m_issue.group(1)
+              # date phrase: 于M月D日开奖, year from issue
+              md=re.search(r'于\s*(\d{1,2})月(\d{1,2})日开奖',txt)
+              date=None
+              if md: date=f"{issue[:4]}-{int(md.group(1)):02d}-{int(md.group(2)):02d}"
+              reds=[]; blue=None
+              # HTML table cells around red/blue labels
+              redsec=re.search(r'红色球号码(.{0,1200}?)蓝色球号码',s,re.S)
+              if redsec: reds=[int(x) for x in re.findall(r'>\s*(\d{1,2})\s*<',redsec.group(1))][-6:]
+              bluesec=re.search(r'蓝色球号码(.{0,500}?)中奖情况',s,re.S)
+              if bluesec:
+                  nums=re.findall(r'>\s*(\d{1,2})\s*<',bluesec.group(1)); blue=int(nums[-1]) if nums else None
+              # prize rows from text: first and second prize counts/amounts
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',txt)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',txt)
+              sales=re.search(r'本期全国投注总额\s*([\d.]+)\s*万元',txt)
+              pool=re.search(r'奖池资金累计\s*([\d.]+)\s*万元',txt)
+              row={'source_id':p.stem,'issue':issue,'date':date,'reds':reds,'blue':blue,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'sales_rmb':int(float(sales.group(1))*10000) if sales else None,'pool_after_rmb':int(float(pool.group(1))*10000) if pool else None,'url':f'https://www.jslottery.com/winning_detail?id={p.stem}&locale=zh-CN','body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256((p.with_suffix('.headers')).read_bytes()).hexdigest() if p.with_suffix('.headers').exists() else None}
+              rows.append(row)
+          rows.sort(key=lambda r:r['issue'])
+          five=[r for r in rows if r['date'] and '2021-11-19' <= r['date'] <= '2026-11-19']
+          pathlib.Path('evidence/parsed_rows.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n')
+          pathlib.Path('evidence/five_year_rows.json').write_text(json.dumps(five,ensure_ascii=False,indent=2)+'\n')
+          meta={'schema':'SSQ-JIANGSU-RAW-ARCHIVE-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'list_pages':45,'detail_files':len(list((root/'detail').glob('*.html'))),'parsed_rows':len(rows),'five_year_rows':len(five),'first_issue':five[0]['issue'] if five else None,'last_issue':five[-1]['issue'] if five else None,'complete_core_rows':sum(1 for r in five if len(r['reds'])==6 and r['blue'] is not None and all(r[k] is not None for k in ('date','first_count','first_money','second_count','sales_rmb','pool_after_rmb')))}
+          pathlib.Path('evidence/JIANGSU_MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(meta,ensure_ascii=False))
+          PY
+          find evidence -type f -print0 | sort -z | xargs -0 sha256sum > evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-jiangsu-five-year-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
