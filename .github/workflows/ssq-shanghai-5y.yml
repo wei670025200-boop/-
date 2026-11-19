@@ -1,0 +1,37 @@
+name: SSQ Shanghai full history fetch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          url='https://appsh.swlc.net.cn/shfcoc_ldatacenter/aword/execQueryAllAnalysis.ctl'
+          curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 180 \
+            -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+            -H 'X-Requested-With: XMLHttpRequest' \
+            -H 'Referer: https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html' \
+            --data 'lottcode=01&num=999&ttype=3&beginnum=20211119&ebdinnum=20261119' \
+            --dump-header evidence/shanghai_ssq_5y.headers \
+            --output evidence/shanghai_ssq_5y.json "$url"
+          python - <<'PY'
+          import json,hashlib,datetime,pathlib
+          p=pathlib.Path('evidence/shanghai_ssq_5y.json'); obj=json.loads(p.read_text(encoding='utf-8-sig'))
+          result=obj.get('result') or []
+          meta={'schema':'SSQ-SHANGHAI-5Y-RAW-v1','url':'https://appsh.swlc.net.cn/shfcoc_ldatacenter/aword/execQueryAllAnalysis.ctl','request_form':{'lottcode':'01','num':'999','ttype':'3','beginnum':'20211119','ebdinnum':'20261119'},'fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(pathlib.Path('evidence/shanghai_ssq_5y.headers').read_bytes()).hexdigest(),'code':obj.get('code'),'result_count':len(result),'first':result[0] if result else None,'last':result[-1] if result else None}
+          pathlib.Path('evidence/SHANGHAI_5Y_MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps({'code':obj.get('code'),'count':len(result),'first':meta['first'],'last':meta['last']},ensure_ascii=False))
+          PY
+          sha256sum evidence/* > evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-shanghai-5y
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
