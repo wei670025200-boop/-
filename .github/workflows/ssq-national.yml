@@ -1,0 +1,37 @@
+name: SSQ national data fetch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch national official and secondary history
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 90 -A 'Mozilla/5.0' -c evidence/cwl.cookies --dump-header evidence/cwl_home.headers --output evidence/cwl_home.body 'https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/'
+          url='https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1000&pageNo=1&pageSize=1000&systemType=PC'
+          curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 120 -A 'Mozilla/5.0' -b evidence/cwl.cookies -H 'Accept: application/json' -H 'Referer: https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/' --dump-header evidence/national_cwl_1000.headers --output evidence/national_cwl_1000.json "$url"
+          curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 120 -A 'Mozilla/5.0' --dump-header evidence/public_500_history.headers --output evidence/public_500_history.html 'https://datachart.500.com/ssq/history/newinc/history.php?start=2021001&end=2026132' || true
+          python - <<'PY'
+          import hashlib,json,datetime,pathlib
+          root=pathlib.Path('evidence'); now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          files=[]
+          for p in sorted(root.iterdir()):
+              if p.is_file(): files.append({'file':p.name,'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+          obj=json.loads((root/'national_cwl_1000.json').read_text(encoding='utf-8-sig'))
+          result=obj.get('result') or []
+          meta={'fetched_at_utc':now,'national_url':"https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1000&pageNo=1&pageSize=1000&systemType=PC",'national_result_count':len(result),'first_code':result[0].get('code') if result else None,'last_code':result[-1].get('code') if result else None,'files':files}
+          (root/'NATIONAL_MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
+          PY
+          sha256sum evidence/* | tee evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-national-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
