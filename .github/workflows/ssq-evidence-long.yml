@@ -31,6 +31,8 @@ jobs:
           fetch sichuan_history_page2 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=2'
           fetch sichuan_history_page3 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=3'
           fetch sichuan_content_api_1000 'https://www.scflcp.com.cn/content/page?size=1000&channelIds=2565&orderBy=1'
+          fetch national_cwl_1000 'https://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&issueCount=1000'
+          fetch national_cwl_page1000 'https://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&pageNo=1&pageSize=1000&week=&systemType=PC'
           for i in $(seq 2 26); do fetch "sichuan_ssqinfo_${i}" "https://www.scflcp.com.cn/ssqinfo_${i}.jhtml?page=2"; done
           python - <<'PY'
           import hashlib,json,datetime,pathlib,re
