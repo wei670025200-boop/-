@@ -1,0 +1,1 @@
+Trigger indexed Guangdong official SSQ five-year archive fetch.
