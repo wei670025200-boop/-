@@ -1,0 +1,53 @@
+name: SSQ Guangdong indexed five-year evidence
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch indexed Guangdong official SSQ archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/index evidence/body evidence/headers
+          base='https://www.gdfc.org.cn'
+          for p in $(seq 1 28); do
+            curl -fsSL --retry 2 --retry-delay 1 --connect-timeout 15 --max-time 45 -A 'Mozilla/5.0' -D "evidence/index/history_${p}.headers" -o "evidence/index/history_${p}.html" "$base/datas/history/twocolorball/history_${p}.html"
+          done
+          python - <<'PY'
+          import pathlib,re
+          links=[]
+          for p in sorted(pathlib.Path('evidence/index').glob('history_*.html')):
+              s=p.read_text(encoding='utf-8',errors='ignore')
+              links += re.findall(r'(?:https?://www\.gdfc\.org\.cn)?(/datas/drawinfo/twocolorball/draw_(20\d{5})\.html)',s)
+          uniq={issue:path for path,issue in links}
+          issues=sorted(uniq)
+          pathlib.Path('evidence/issues_all.txt').write_text('\n'.join(issues)+'\n')
+          # Issue threshold safely includes frozen five-year window; exact date filter happens after parsing.
+          keep=[x for x in issues if int(x)>=2021130]
+          pathlib.Path('evidence/issues_keep.txt').write_text('\n'.join(keep)+'\n')
+          pathlib.Path('evidence/urls_keep.txt').write_text('\n'.join('https://www.gdfc.org.cn'+uniq[x] for x in keep)+'\n')
+          print('INDEXED',len(issues),'KEEP',len(keep),'FIRST',keep[0] if keep else None,'LAST',keep[-1] if keep else None)
+          PY
+          paste evidence/issues_keep.txt evidence/urls_keep.txt | xargs -P 10 -n 2 bash -c 'issue="$0"; url="$1"; curl -fsSL --retry 2 --retry-delay 1 --connect-timeout 15 --max-time 45 -A "Mozilla/5.0" -D "evidence/headers/${issue}.headers" -o "evidence/body/${issue}.html" "$url"' 
+          python - <<'PY'
+          import pathlib,json,hashlib,datetime
+          root=pathlib.Path('evidence'); rec=[]
+          for p in sorted((root/'body').glob('*.html')):
+              h=root/'headers'/f'{p.stem}.headers'
+              rec.append({'issue':p.stem,'url':f'https://www.gdfc.org.cn/datas/drawinfo/twocolorball/draw_{p.stem}.html','body_file':str(p.relative_to(root)),'body_size':p.stat().st_size,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(h.read_bytes()).hexdigest()})
+          meta={'schema':'SSQ-GUANGDONG-INDEXED-RAW-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'records':rec}
+          (root/'GUANGDONG_INDEXED_MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n')
+          print('FETCHED',len(rec))
+          PY
+          find evidence -type f -print0 | sort -z | xargs -0 sha256sum > evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-guangdong-indexed-five-year-evidence
+          path: evidence/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 30
