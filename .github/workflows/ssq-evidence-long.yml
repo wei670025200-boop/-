@@ -1,0 +1,48 @@
+name: SSQ extended evidence fetch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch extended official raw responses
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          fetch() {
+            name="$1"; url="$2"
+            echo "FETCH $name $url"
+            if curl --fail --location --compressed --retry 2 --retry-delay 2 --connect-timeout 20 --max-time 90 --dump-header "evidence/${name}.headers" --output "evidence/${name}.body" "$url"; then
+              echo OK > "evidence/${name}.status"
+            else
+              code=$?; echo "FAIL:$code" > "evidence/${name}.status"; : > "evidence/${name}.body"; : > "evidence/${name}.headers"
+            fi
+          }
+          fetch shanghai_previous_1000 'https://www.swlc.net.cn/lottery/ssq.html?limit=1000&view=previous'
+          fetch shanghai_previous_page2 'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous&page=2'
+          fetch shanghai_previous_offset100 'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous&offset=100'
+          fetch shanghai_lskj_js 'https://appsh.swlc.net.cn/shfcoc_datachart/js/v2.0/datachart/ssq/lskj.js?v=20261119'
+          fetch shanghai_lskj_1000 'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html?num=1000'
+          fetch shanghai_lskj_date 'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html?staDate=2021-11-19&endDate=2026-11-19'
+          fetch sichuan_history_page2 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=2'
+          fetch sichuan_history_page3 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=3'
+          python - <<'PY'
+          import hashlib,json,datetime,pathlib,re
+          root=pathlib.Path('evidence'); rows=[]; now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          for status in sorted(root.glob('*.status')):
+              name=status.stem; body=root/f'{name}.body'; headers=root/f'{name}.headers'
+              b=body.read_bytes(); ids=sorted(set(re.findall(rb'20\d{5}',b)))
+              rows.append({'name':name,'fetched_at_utc':now,'status':status.read_text().strip(),'body_size':len(b),'body_sha256':hashlib.sha256(b).hexdigest(),'headers_sha256':hashlib.sha256(headers.read_bytes()).hexdigest(),'issue_id_count':len(ids),'min_issue':ids[0].decode() if ids else None,'max_issue':ids[-1].decode() if ids else None})
+          (root/'EXTENDED_MANIFEST.json').write_text(json.dumps({'schema':'SSQ-OFFICIAL-EXTENDED-EVIDENCE-v1','records':rows},ensure_ascii=False,indent=2)+'\n')
+          PY
+          sha256sum evidence/* | tee evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-extended-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
