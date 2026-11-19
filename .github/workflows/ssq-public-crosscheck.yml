@@ -1,0 +1,22 @@
+name: SSQ public crosscheck data
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 90 -A 'Mozilla/5.0' \
+            -D evidence/17500_ssq_asc.headers -o evidence/17500_ssq_asc.txt 'https://data.17500.cn/ssq_asc.txt'
+          sha256sum evidence/* > evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-public-crosscheck
+          path: evidence/
+          retention-days: 30
