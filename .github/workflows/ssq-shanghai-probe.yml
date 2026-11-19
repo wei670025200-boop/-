@@ -20,6 +20,10 @@ jobs:
               echo "$url | $form | HTTP=$code | size=$(wc -c < probe/$tag.body)" | tee "probe/$tag.status"
             done
           done
+          for scheme in https http; do
+            code=$(curl -sS -L --compressed --connect-timeout 10 --max-time 30 -A 'Mozilla/5.0' -o "probe/cwl_${scheme}_2026132.body" -D "probe/cwl_${scheme}_2026132.headers" -w '%{http_code}' "$scheme://www.cwl.gov.cn/c/2026/11/17/673575.shtml" || true)
+            echo "CWL $scheme HTTP=$code size=$(wc -c < probe/cwl_${scheme}_2026132.body)" > "probe/cwl_${scheme}_2026132.status"
+          done
           sha256sum probe/* > probe/SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
