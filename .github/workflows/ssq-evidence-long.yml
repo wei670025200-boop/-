@@ -35,6 +35,10 @@ jobs:
           fetch national_cwl_page1000 'https://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&pageNo=1&pageSize=1000&week=&systemType=PC'
           fetch public_500_history 'https://datachart.500.com/ssq/history/newinc/history.php?start=2021001&end=2026132'
           for i in $(seq 2 26); do fetch "sichuan_ssqinfo_${i}" "https://www.scflcp.com.cn/ssqinfo_${i}.jhtml?page=2"; done
+          # China Welfare Lottery national official API requires a session cookie on some edges.
+          curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 90 -A 'Mozilla/5.0' -c evidence/cwl.cookies --dump-header evidence/cwl_home.headers --output evidence/cwl_home.body 'https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/' || true
+          cwl_url='https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=1000&pageNo=1&pageSize=1000&systemType=PC'
+          if curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 120 -A 'Mozilla/5.0' -b evidence/cwl.cookies -H 'Accept: application/json' -H 'Referer: https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/' --dump-header evidence/national_cwl_front_1000.headers --output evidence/national_cwl_front_1000.body "$cwl_url"; then echo OK > evidence/national_cwl_front_1000.status; else code=$?; echo "FAIL:$code" > evidence/national_cwl_front_1000.status; : > evidence/national_cwl_front_1000.body; fi
           python - <<'PY'
           import hashlib,json,datetime,pathlib,re
           root=pathlib.Path('evidence'); rows=[]; now=datetime.datetime.now(datetime.timezone.utc).isoformat()
