@@ -1,0 +1,28 @@
+name: SSQ Shanghai endpoint probe
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          set -u
+          mkdir -p probe
+          for scheme in https http; do
+            url="$scheme://appsh.swlc.net.cn/shfcoc_ldatacenter/aword/execQueryAllAnalysis.ctl"
+            for form in 'lottcode=01&num=9&ttype=1&beginnum=&ebdinnum=' 'lottcode=01&num=699&ttype=1&beginnum=&ebdinnum=' 'lottcode=01&num=29&ttype=3&beginnum=20211119&ebdinnum=20261119'; do
+              tag="${scheme}_$(echo "$form" | sha256sum | cut -c1-8)"
+              code=$(curl -sS -L --compressed --connect-timeout 10 --max-time 30 -o "probe/$tag.body" -D "probe/$tag.headers" -w '%{http_code}' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'X-Requested-With: XMLHttpRequest' --data "$form" "$url" || true)
+              echo "$url | $form | HTTP=$code | size=$(wc -c < probe/$tag.body)" | tee "probe/$tag.status"
+            done
+          done
+          sha256sum probe/* > probe/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-shanghai-endpoint-probe
+          path: probe/
+          retention-days: 30
