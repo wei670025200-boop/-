@@ -1,0 +1,60 @@
+name: SSQ official evidence fetch
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch official raw responses
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          fetch() {
+            name="$1"; url="$2"
+            echo "FETCH $name $url"
+            curl --fail --location --compressed --retry 3 --retry-delay 2 \
+              --connect-timeout 20 --max-time 90 \
+              --dump-header "evidence/${name}.headers" \
+              --output "evidence/${name}.body" "$url"
+          }
+          fetch shanghai_ssq_previous 'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous'
+          fetch shanghai_ssq_data 'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html'
+          fetch sichuan_ssq_current 'https://www.scflcp.com.cn/ssq'
+          fetch sichuan_ssq_history 'https://www.scflcp.com.cn/ssqinfo.jhtml'
+          fetch sichuan_2026131_pdf 'https://www.scflcp.com.cn/assets/u/cms/www/202611/16085846kktj.pdf'
+          python - <<'PY'
+          import hashlib,json,datetime,pathlib
+          root=pathlib.Path('evidence')
+          rows=[]
+          urls={
+            'shanghai_ssq_previous':'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous',
+            'shanghai_ssq_data':'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html',
+            'sichuan_ssq_current':'https://www.scflcp.com.cn/ssq',
+            'sichuan_ssq_history':'https://www.scflcp.com.cn/ssqinfo.jhtml',
+            'sichuan_2026131_pdf':'https://www.scflcp.com.cn/assets/u/cms/www/202611/16085846kktj.pdf',
+          }
+          now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          for name,url in urls.items():
+              body=root/f'{name}.body'
+              headers=root/f'{name}.headers'
+              rows.append({
+                  'name':name,'url':url,'fetched_at_utc':now,
+                  'body_file':body.name,'body_size':body.stat().st_size,
+                  'body_sha256':hashlib.sha256(body.read_bytes()).hexdigest(),
+                  'headers_file':headers.name,'headers_size':headers.stat().st_size,
+                  'headers_sha256':hashlib.sha256(headers.read_bytes()).hexdigest(),
+              })
+          (root/'EVIDENCE_MANIFEST.json').write_text(json.dumps({'schema':'SSQ-OFFICIAL-RAW-EVIDENCE-v1','records':rows},ensure_ascii=False,indent=2)+'\n')
+          PY
+          sha256sum evidence/* | tee evidence/SHA256SUMS.txt
+      - name: Upload evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssq-official-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
