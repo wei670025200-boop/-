@@ -1,0 +1,27 @@
+name: SSQ Shanghai query scripts
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p scripts
+          base='https://appsh.swlc.net.cn/shfcoc_datachart/js/v2.0'
+          curl -fsSL "$base/datachart/datachart_index_common.js?v=20261119" -o scripts/datachart_index_common.js
+          curl -fsSL "$base/datacenter/datechartcommon.js?v=20261119" -o scripts/datechartcommon.js
+          curl -fsSL "$base/datachart/zdy.js?v=20261119" -o scripts/zdy.js
+          curl -fsSL "$base/commtools/procommon.js?v=20261119" -o scripts/procommon.js
+          curl -fsSL "$base/datachart/ssq/lskj.js?v=20261119" -o scripts/lskj.js
+          grep -RniE 'query_lottery|ajax|url|issue|staDate|endDate|lottcode|HW_LOAD_DATA' scripts > scripts/discovery.txt || true
+          sha256sum scripts/*.js > scripts/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-shanghai-query-scripts
+          path: scripts/
+          retention-days: 30
