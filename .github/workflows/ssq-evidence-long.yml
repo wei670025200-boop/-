@@ -30,6 +30,8 @@ jobs:
           fetch shanghai_lskj_date 'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html?staDate=2021-11-19&endDate=2026-11-19'
           fetch sichuan_history_page2 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=2'
           fetch sichuan_history_page3 'https://www.scflcp.com.cn/ssqinfo.jhtml?page=3'
+          fetch sichuan_content_api_1000 'https://www.scflcp.com.cn/content/page?size=1000&channelIds=2565&orderBy=1'
+          for i in $(seq 2 26); do fetch "sichuan_ssqinfo_${i}" "https://www.scflcp.com.cn/ssqinfo_${i}.jhtml?page=2"; done
           python - <<'PY'
           import hashlib,json,datetime,pathlib,re
           root=pathlib.Path('evidence'); rows=[]; now=datetime.datetime.now(datetime.timezone.utc).isoformat()
