@@ -1,0 +1,93 @@
+name: SSQ CWL five-year evidence
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch CWL official five-year raw JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/119.0 Safari/537.36'
+          INDEX='https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/'
+          curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 90 \
+            -A "$UA" -c evidence/cookies.txt -D evidence/index.headers -o evidence/index.html "$INDEX"
+          BASE='https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=&issueStart=&issueEnd=&dayStart=2021-11-19&dayEnd=2026-11-19&week=&systemType=PC&pageSize=100'
+          fetch_page() {
+            p="$1"
+            curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 90 \
+              -A "$UA" -b evidence/cookies.txt -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+              -H 'X-Requested-With: XMLHttpRequest' -H "Referer: $INDEX" \
+              -D "evidence/cwl_page_${p}.headers" -o "evidence/cwl_page_${p}.json" "${BASE}&pageNo=${p}"
+          }
+          fetch_page 1
+          pages=$(python - <<'PY'
+          import json
+          d=json.load(open('evidence/cwl_page_1.json',encoding='utf-8'))
+          print(d.get('pageCount') or 1)
+          PY
+          )
+          echo "pageCount=$pages"
+          for p in $(seq 2 "$pages"); do fetch_page "$p"; sleep 0.2; done
+          python - <<'PY'
+          import csv,datetime,hashlib,json,pathlib,re,sys
+          root=pathlib.Path('evidence')
+          rows=[]; manifests=[]
+          for jf in sorted(root.glob('cwl_page_*.json'), key=lambda p:int(re.search(r'(\d+)',p.stem).group(1))):
+              raw=jf.read_bytes(); data=json.loads(raw.decode('utf-8'))
+              hf=jf.with_suffix('.headers')
+              manifests.append({'file':jf.name,'sha256':hashlib.sha256(raw).hexdigest(),'size':len(raw),'headers_file':hf.name,'headers_sha256':hashlib.sha256(hf.read_bytes()).hexdigest()})
+              if data.get('state')!=0: raise SystemExit(f'API state failure in {jf}: {data.get("state")} {data.get("message")}')
+              for item in data.get('result') or []:
+                  pg=item.get('prizegrades') or []
+                  def g(i,k):
+                      try:return pg[i].get(k)
+                      except:return None
+                  reds=[int(x) for x in str(item.get('red','')).split(',') if x]
+                  rows.append({
+                    'issue':str(item.get('code')),'date':str(item.get('date')).split('(')[0],
+                    'sales_rmb':str(item.get('sales','')).replace(',',''),
+                    **{f'red{i+1}':reds[i] if len(reds)>i else '' for i in range(6)},
+                    'blue':item.get('blue'),'first_prize_winners':g(0,'typenum'),'first_prize_money':g(0,'typemoney'),
+                    'second_prize_winners':g(1,'typenum'),'second_prize_money':g(1,'typemoney'),
+                    'pool_after_draw_rmb':item.get('poolmoney'),
+                    'source_page':jf.name,'source_page_sha256':hashlib.sha256(raw).hexdigest()
+                  })
+          rows.sort(key=lambda r:r['issue'])
+          fields=list(rows[0])
+          with open(root/'official_five_year.csv','w',encoding='utf-8-sig',newline='') as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
+          # strict structural checks
+          errors=[]
+          allowed={1,3,6}
+          for i,r in enumerate(rows):
+              try:
+                  reds=[int(r[f'red{j}']) for j in range(1,7)]; blue=int(r['blue']); sales=int(float(r['sales_rmb'])); first=int(r['first_prize_winners']); firstmoney=int(float(r['first_prize_money']))
+              except Exception as e: errors.append([r['issue'],'parse',str(e)]); continue
+              if reds!=sorted(reds) or len(set(reds))!=6 or not all(1<=x<=33 for x in reds):errors.append([r['issue'],'reds','invalid'])
+              if not 1<=blue<=16:errors.append([r['issue'],'blue','invalid'])
+              wd=datetime.date.fromisoformat(r['date']).weekday()
+              if wd not in allowed:errors.append([r['issue'],'weekday',wd])
+              if sales%2:errors.append([r['issue'],'sales_div2','odd'])
+              if firstmoney>10000000:errors.append([r['issue'],'first_money_cap',firstmoney])
+              if int(r['issue'])>=2026014 and first*firstmoney>100000000:errors.append([r['issue'],'first_total_cap',first*firstmoney])
+          issues=[int(r['issue']) for r in rows]
+          # continuity only within returned chronological record sequence; year rollover allowed.
+          result={'schema':'SSQ-CWL-FIVE-YEAR-EVIDENCE-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'row_count':len(rows),'first_issue':rows[0]['issue'] if rows else None,'last_issue':rows[-1]['issue'] if rows else None,'api_pages':manifests,'structural_errors':errors,'structural_pass':not errors}
+          (root/'FIVE_YEAR_MANIFEST.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False))
+          if len(rows)<600 or errors: sys.exit(2)
+          PY
+          sha256sum evidence/* | tee evidence/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-cwl-five-year-evidence
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
