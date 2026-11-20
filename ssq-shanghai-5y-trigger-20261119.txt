@@ -1,0 +1,1 @@
+Trigger official Shanghai SSQ five-year raw history fetch.
