@@ -1,0 +1,73 @@
+name: SSQ R3 Xuzhou early12 official HTML
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths:
+      - '.github/workflows/ssq-r3-xuzhou-early12.yml'
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Xuzhou official SSQ detail pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/html
+          python - <<'PY'
+          import pathlib,subprocess,hashlib,json,re,html,datetime
+          rows=[
+            ("2025001","https://www.xzflcp.com/html/2025/202501021601.html"),
+            ("2025004","https://www.xzflcp.com/html/2025/202501091604.html"),
+            ("2025006","https://www.xzflcp.com/html/2025/202501141647.html"),
+            ("2025007","https://www.xzflcp.com/html/2025/202501161648.html"),
+            ("2025009","https://www.xzflcp.com/html/2025/202501211650.html"),
+            ("2025010","https://www.xzflcp.com/html/2025/202501231651.html"),
+            ("2025011","https://www.xzflcp.com/html/2025/202501261706.html"),
+            ("2025012","https://www.xzflcp.com/html/2025/202502061707.html"),
+            ("2025013","https://www.xzflcp.com/html/2025/202502091708.html"),
+            ("2025014","https://www.xzflcp.com/html/2025/202502111709.html"),
+            ("2025020","https://www.xzflcp.com/html/2025/202502251762.html"),
+            ("2025025","https://www.xzflcp.com/html/2025/202503091834.html"),
+          ]
+          out=[]
+          for issue,url in rows:
+              body=pathlib.Path('evidence/html')/(issue+'.html')
+              hdr=pathlib.Path('evidence/html')/(issue+'.headers')
+              p=subprocess.run(['curl','-fsSL','--retry','3','--connect-timeout','10','--max-time','30','-A','Mozilla/5.0','-D',str(hdr),'-o',str(body),url],capture_output=True,text=True)
+              r={'issue':issue,'url':url,'curl_exit':p.returncode}
+              if p.returncode==0 and body.exists():
+                  raw=body.read_text(encoding='utf-8',errors='ignore')
+                  plain=re.sub(r'<[^>]+>',' ',html.unescape(raw))
+                  plain=re.sub(r'\s+',' ',plain)
+                  r['body_sha256']=hashlib.sha256(body.read_bytes()).hexdigest()
+                  r['headers_sha256']=hashlib.sha256(hdr.read_bytes()).hexdigest()
+                  r['body_size_bytes']=body.stat().st_size
+                  r['issue_match']=issue in plain
+                  # tolerate commas / Chinese punctuation between columns
+                  m2=re.search(r'二等奖\s+([\d,]+)\s+([\d,]+)',plain)
+                  if not m2:
+                      # Some pages include currency formatting/extra labels between winner count and amount
+                      m2=re.search(r'二等奖.{0,80}?([0-9]{1,5})\s*注?.{0,80}?([0-9][0-9,]{2,})',plain)
+                  r['second_prize_winners']=int(m2.group(1).replace(',','')) if m2 else None
+                  m1=re.search(r'一等奖\s+([\d,]+)\s+([\d,]+)',plain)
+                  r['first_prize_winners']=int(m1.group(1).replace(',','')) if m1 else None
+                  md=re.search(r'(20\d{2})[-年](\d{1,2})[-月](\d{1,2})',plain)
+                  r['date']=f"{md.group(1)}-{int(md.group(2)):02d}-{int(md.group(3)):02d}" if md else None
+                  # Store small evidence excerpt hash too
+                  pos=plain.find('二等奖')
+                  excerpt=plain[max(0,pos-200):pos+500] if pos>=0 else ''
+                  r['prize_excerpt_sha256']=hashlib.sha256(excerpt.encode()).hexdigest() if excerpt else None
+                  r['status']='OK' if r['issue_match'] and r['second_prize_winners'] is not None else 'PARSE_FAIL'
+              else:
+                  r['status']='FETCH_FAIL'; r['stderr']=p.stderr[-500:]
+              out.append(r); print(issue,r['status'],r.get('second_prize_winners'))
+          man={'schema':'SSQ-R3-XUZHOU-EARLY12-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':out,'ok_count':sum(r['status']=='OK' for r in out)}
+          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('OK_COUNT',man['ok_count'])
+          if man['ok_count'] != len(rows): raise SystemExit(2)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-xuzhou-early12
+          path: evidence
