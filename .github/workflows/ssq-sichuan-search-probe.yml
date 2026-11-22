@@ -17,6 +17,32 @@ jobs:
             echo "QUERY=${q}"
             grep -Eo 'https?://[^"]+|/ssq/[0-9]+\.jhtml' "probe/${q}.html" | grep -E '/ssq/' | head -20 || true
           done
+          echo "=== HEBEI_PAGINATION_PROBE ==="
+          base='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093'
+          declare -A urls
+          urls[ps1000]="$base&ps=1000"
+          urls[pn2]="$base&ps=500&pn=2"
+          urls[page2]="$base&ps=500&page=2"
+          urls[pageNo2]="$base&ps=500&pageNo=2"
+          urls[p2]="$base&ps=500&p=2"
+          urls[offset500]="$base&ps=500&offset=500"
+          urls[start500]="$base&ps=500&start=500"
+          for k in "${!urls[@]}"; do
+            u="${urls[$k]}"
+            curl -fsSL --retry 2 --connect-timeout 10 --max-time 30 -A 'Mozilla/5.0' -D "probe/hebei_$k.headers" -o "probe/hebei_$k.json" "$u" || true
+          done
+          python - <<'PY'
+          import json,glob,os
+          out={}
+          for p in sorted(glob.glob('probe/hebei_*.json')):
+              k=os.path.basename(p)[6:-5]
+              try:
+                  o=json.load(open(p,encoding='utf-8')); d=o.get('data') or {}; rows=d.get('rows') or []
+                  out[k]={'code':o.get('code'),'total':d.get('total'),'rows':len(rows),'first_issue':rows[0].get('issueNo') if rows else None,'last_issue':rows[-1].get('issueNo') if rows else None}
+              except Exception as e: out[k]={'error':repr(e)}
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          open('probe/HEBEI_RESULT.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: ssq-sichuan-search-probe
