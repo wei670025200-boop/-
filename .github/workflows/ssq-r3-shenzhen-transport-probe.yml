@@ -1,0 +1,35 @@
+name: SSQ R3 Shenzhen transport probe
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-shenzhen-transport-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe transport variants
+        shell: bash
+        run: |
+          set -u
+          mkdir -p probe
+          p='/fcw/kjxx/szzjxx/ssq/content/post_1483717.html'
+          i=0
+          for base in 'https://www.szlottery.org' 'https://szlottery.org' 'http://www.szlottery.org' 'http://szlottery.org'; do
+            for opt in default h1 tls12 h1tls12; do
+              i=$((i+1)); key=$(printf '%02d_%s' "$i" "$opt")
+              args=(-L -sS --connect-timeout 7 --max-time 20 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158 Safari/537.36' -H 'Accept-Language: zh-CN,zh;q=0.9' -H 'Accept: text/html,application/xhtml+xml' -e 'https://www.szlottery.org/' -D "probe/$key.headers" -o "probe/$key.html" -w '%{http_code}')
+              [ "$opt" = h1 ] && args+=(--http1.1)
+              [ "$opt" = tls12 ] && args+=(--tlsv1.2 --tls-max 1.2)
+              [ "$opt" = h1tls12 ] && args+=(--http1.1 --tlsv1.2 --tls-max 1.2)
+              out=$(curl "${args[@]}" "$base$p" 2>"probe/$key.err" || true)
+              ec=$?
+              bytes=$(wc -c < "probe/$key.html" 2>/dev/null || echo 0)
+              issue=$(grep -c '2025001' "probe/$key.html" 2>/dev/null || true)
+              echo "$key|$base|$opt|code=$out|bytes=$bytes|issue=$issue|ec=$ec|err=$(tr '\n' ' ' < probe/$key.err)" | tee -a probe/status.txt
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-shenzhen-transport-probe
+          path: probe
