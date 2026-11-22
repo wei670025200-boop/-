@@ -1,0 +1,96 @@
+name: SSQ R3 Hebei add12 official evidence
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-hebei-add12.yml']
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch official API and 12 detail pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/api evidence/body evidence/headers
+          api='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093&ps=500'
+          fetched=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          curl -fsSL --connect-timeout 8 --max-time 30 -A 'Mozilla/5.0'             -D evidence/api/lottery500.headers -o evidence/api/lottery500.json "$api"
+          python - <<'PY'
+          import json,pathlib,subprocess,hashlib,re,html,datetime
+          API='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093&ps=500'
+          root=pathlib.Path('evidence')
+          raw=(root/'api/lottery500.json').read_bytes()
+          obj=json.loads(raw)
+          rows=(obj.get('data') or {}).get('rows') or []
+          by={str(r.get('issueNo')):r for r in rows}
+          targets=[f'2024{i:03d}' for i in range(16,28)]
+          out=[]
+          for issue in targets:
+              src=by.get(issue)
+              rec={'issue':issue,'api_row':src}
+              if not src or not src.get('link'):
+                  rec['status']='API_ROW_MISSING'; out.append(rec); print(issue,rec['status']); continue
+              link=src['link']
+              url='https://www.yzfcw.com'+link if link.startswith('/') else link
+              body=root/'body'/f'{issue}.html'; hdr=root/'headers'/f'{issue}.headers'
+              p=subprocess.run(['curl','-fsSL','--connect-timeout','8','--max-time','25','-A','Mozilla/5.0','-D',str(hdr),'-o',str(body),url],capture_output=True,text=True)
+              rec.update({'url':url,'curl_exit':p.returncode})
+              if p.returncode or not body.exists():
+                  rec['status']='FETCH_FAIL'; rec['stderr']=p.stderr[-500:]; out.append(rec); print(issue,rec['status']); continue
+              b=body.read_bytes()
+              text=b.decode('utf-8','ignore')
+              plain=re.sub(r'<[^>]+>',' ',html.unescape(text)); plain=re.sub(r'\s+',' ',plain)
+              rec['body_sha256']=hashlib.sha256(b).hexdigest()
+              rec['headers_sha256']=hashlib.sha256(hdr.read_bytes()).hexdigest()
+              rec['body_size_bytes']=len(b)
+              rec['issue_match']=issue in plain
+              # numbers: use API kjNumbers as authoritative cross-check convenience
+              nums=[int(x.strip()) for x in str(src.get('kjNumbers') or '').split(',') if x.strip().isdigit()]
+              if len(nums)==7:
+                  rec['reds']=nums[:6]; rec['blue']=nums[6]
+              # parse national second-prize row from detail table
+              # HTML usually: 二等奖 | 6+0 | N注 | Hebei N注 | amount
+              m=re.search(r'二等奖\s*</?[^>]*>?.{0,500}?全国中奖注数',text,re.S)
+              # robust table extraction by stripping tags around row
+              rowmatch=re.search(r'<tr[^>]*>.*?二等奖.*?</tr>',text,re.S)
+              if rowmatch:
+                  cells=[re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',html.unescape(x))).strip() for x in re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>',rowmatch.group(0),re.S)]
+                  rec['second_row_cells']=cells
+                  vals=[]
+                  for c in cells:
+                      mm=re.fullmatch(r'([0-9,]+)\s*注?',c)
+                      if mm: vals.append(int(mm.group(1).replace(',','')))
+                  # cells usually [二等奖,6+0,全国,河北,单注奖金], choose first numeric count after condition
+                  if len(cells)>=3:
+                      mm=re.search(r'([0-9,]+)',cells[2])
+                      if mm: rec['second_prize_winners']=int(mm.group(1).replace(',',''))
+              if rec.get('second_prize_winners') is None:
+                  # fallback plain text around 二等奖
+                  pos=plain.find('二等奖')
+                  chunk=plain[pos:pos+250] if pos>=0 else ''
+                  mm=re.search(r'二等奖\s+6\+0\s+([0-9,]+)注',chunk)
+                  if mm: rec['second_prize_winners']=int(mm.group(1).replace(',',''))
+                  rec['second_plain_chunk']=chunk
+              rec['status']='OK' if rec['issue_match'] and len(rec.get('reds',[]))==6 and rec.get('blue') is not None and rec.get('second_prize_winners') is not None else 'PARSE_FAIL'
+              out.append(rec); print(issue,rec['status'],rec.get('second_prize_winners'),rec.get('reds'),rec.get('blue'))
+          manifest={
+            'schema':'SSQ-R3-HEBEI-ADD12-v1',
+            'publisher':'河北省福利彩票发行管理中心',
+            'api_url':API,
+            'fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'api_body_sha256':hashlib.sha256(raw).hexdigest(),
+            'api_headers_sha256':hashlib.sha256((root/'api/lottery500.headers').read_bytes()).hexdigest(),
+            'api_rows':len(rows),
+            'targets':targets,
+            'rows':out,
+            'ok_count':sum(r.get('status')=='OK' for r in out)
+          }
+          (root/'MANIFEST.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('API_ROWS',len(rows),'OK_COUNT',manifest['ok_count'])
+          if manifest['ok_count'] != 12: raise SystemExit(2)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-hebei-add12
+          path: evidence
