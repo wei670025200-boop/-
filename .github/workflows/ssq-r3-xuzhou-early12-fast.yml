@@ -1,0 +1,62 @@
+name: SSQ R3 Xuzhou early12 fast
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-xuzhou-early12-fast.yml']
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch in parallel
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/html
+          python - <<'PY'
+          import concurrent.futures,pathlib,subprocess,hashlib,json,re,html,datetime
+          rows=[
+              ("2025001","https://www.xzflcp.com/html/2025/202501021601.html"),
+              ("2025004","https://www.xzflcp.com/html/2025/202501091604.html"),
+              ("2025006","https://www.xzflcp.com/html/2025/202501141647.html"),
+              ("2025007","https://www.xzflcp.com/html/2025/202501161648.html"),
+              ("2025009","https://www.xzflcp.com/html/2025/202501211650.html"),
+              ("2025010","https://www.xzflcp.com/html/2025/202501231651.html"),
+              ("2025011","https://www.xzflcp.com/html/2025/202501261706.html"),
+              ("2025012","https://www.xzflcp.com/html/2025/202502061707.html"),
+              ("2025013","https://www.xzflcp.com/html/2025/202502091708.html"),
+              ("2025014","https://www.xzflcp.com/html/2025/202502111709.html"),
+              ("2025020","https://www.xzflcp.com/html/2025/202502251762.html"),
+              ("2025025","https://www.xzflcp.com/html/2025/202503091834.html"),
+          ]
+          def one(t):
+              issue,url=t
+              b=pathlib.Path('evidence/html')/(issue+'.html'); h=pathlib.Path('evidence/html')/(issue+'.headers')
+              p=subprocess.run(['curl','-fsSL','--retry','1','--connect-timeout','5','--max-time','15','-A','Mozilla/5.0','-D',str(h),'-o',str(b),url],capture_output=True,text=True)
+              r={'issue':issue,'url':url,'curl_exit':p.returncode}
+              if p.returncode or not b.exists():
+                  r['status']='FETCH_FAIL'; r['stderr']=p.stderr[-300:]; return r
+              raw=b.read_text(encoding='utf-8',errors='ignore')
+              plain=re.sub(r'<[^>]+>',' ',html.unescape(raw)); plain=re.sub(r'\s+',' ',plain)
+              r['body_sha256']=hashlib.sha256(b.read_bytes()).hexdigest(); r['headers_sha256']=hashlib.sha256(h.read_bytes()).hexdigest(); r['body_size_bytes']=b.stat().st_size
+              r['issue_match']=issue in plain
+              # inspect prize-table text robustly: capture first integer after 二等奖
+              pos=plain.find('二等奖'); chunk=plain[pos:pos+300] if pos>=0 else ''
+              nums=re.findall(r'(?<!\d)(\d{1,9})(?!\d)',chunk)
+              # Expected first relevant integer is nationwide winner count. Prefer explicit table sequence.
+              m=re.search(r'二等奖\s*(?:全国)?\s*([\d,]+)\s*(?:注)?',chunk)
+              if not m: m=re.search(r'二等奖[^0-9]{0,80}([0-9]{1,5})',chunk)
+              r['second_prize_winners']=int(m.group(1).replace(',','')) if m else None
+              r['prize_chunk']=chunk[:500]
+              r['status']='OK' if r['issue_match'] and r['second_prize_winners'] is not None else 'PARSE_FAIL'
+              return r
+          with concurrent.futures.ThreadPoolExecutor(max_workers=12) as ex: out=list(ex.map(one,rows))
+          for r in out: print(r['issue'],r['status'],r.get('second_prize_winners'),r.get('body_size_bytes'))
+          man={'schema':'SSQ-R3-XUZHOU-EARLY12-v2','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':out,'ok_count':sum(r['status']=='OK' for r in out)}
+          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          if man['ok_count'] != 12: raise SystemExit(2)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-xuzhou-early12-fast
+          path: evidence
