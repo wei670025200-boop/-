@@ -30,7 +30,7 @@ jobs:
           cwl=[]
           for p in sorted(pathlib.Path('evidence/list').glob('page_*.html')):
               s=p.read_text(encoding='utf-8',errors='ignore')
-              cwl += re.findall(r'href="(https?://www\\.cwl\\.gov\\.cn/c/\\d{4}/\\d{2}/\\d{2}/\\d+\\.shtml)"',s)
+              cwl += re.findall(r'href="(https?://www\.cwl\.gov\.cn/c/\d{4}/\d{2}/\d{2}/\d+\.shtml)"',s)
           cwl_seen=[]
           for x in cwl:
               x=x.replace('http://','https://')
