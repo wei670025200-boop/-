@@ -1,0 +1,57 @@
+name: SSQ Sichuan 2025 image evidence
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-sichuan-2025-images.yml'
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sichuan 2025 official image evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/list evidence/images
+          for p in $(seq 14 30); do
+            url="https://www.scflcp.com.cn/ssqinfo"
+            [ "$p" -gt 1 ] && url="${url}_${p}"
+            url="${url}.jhtml"
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "evidence/list/page_${p}.headers" -o "evidence/list/page_${p}.html" "$url"
+          done
+          python - <<'PY'
+          import pathlib,re,json,html
+          rows=[]
+          for p in sorted(pathlib.Path('evidence/list').glob('page_*.html')):
+              s=p.read_text(encoding='utf-8',errors='ignore')
+              pat=re.compile(r'<td>\s*(2025-\d{2}-\d{2})\s*</td>\s*<td>\s*(2025\d{3})\s*</td>.*?<a href="(https://www\.scflcp\.com\.cn/assets/u/cms/www/[^"]+\.(?:png|jpg|jpeg|pdf))"',re.S|re.I)
+              for date,issue,url in pat.findall(s):
+                  rows.append({'issue':issue,'date':date,'url':html.unescape(url),'list_page':p.name})
+          uniq={r['issue']:r for r in rows}
+          rows=[uniq[k] for k in sorted(uniq)]
+          pathlib.Path('evidence/rows.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          pathlib.Path('evidence/urls.txt').write_text('\n'.join(f"{r['issue']}|{r['url']}" for r in rows)+'\n',encoding='utf-8')
+          print('ROWS',len(rows),rows[:2],rows[-2:])
+          PY
+          while IFS='|' read -r issue url; do
+            [ -z "$issue" ] && continue
+            ext="${url##*.}"
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "evidence/images/${issue}.headers" -o "evidence/images/${issue}.${ext}" "$url"
+          done < evidence/urls.txt
+          python - <<'PY'
+          import pathlib,hashlib,json,datetime
+          rows=json.loads(pathlib.Path('evidence/rows.json').read_text(encoding='utf-8'))
+          rec=[]
+          for r in rows:
+              hits=list(pathlib.Path('evidence/images').glob(r['issue']+'.*'))
+              bodies=[p for p in hits if p.suffix.lower() in {'.png','.jpg','.jpeg','.pdf'}]
+              if not bodies: continue
+              p=bodies[0]
+              rec.append({**r,'body':str(p),'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'body_size_bytes':p.stat().st_size})
+          out={'schema':'SSQ-SICHUAN-2025-IMAGE-EVIDENCE-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':rec,'row_count':len(rec)}
+          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('DOWNLOADED',len(rec))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-sichuan-2025-image-evidence
+          path: evidence
