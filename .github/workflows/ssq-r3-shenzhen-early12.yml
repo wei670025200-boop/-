@@ -1,0 +1,67 @@
+name: SSQ R3 Shenzhen early12 official evidence
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-shenzhen-early12.yml']
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Shenzhen Welfare Lottery official pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/body evidence/headers
+          python - <<'PY'
+          import concurrent.futures,pathlib,subprocess,hashlib,json,re,html,datetime
+          rows=[
+              ("2025001","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1483717.html"),
+              ("2025004","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1511270.html"),
+              ("2025006","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1513247.html"),
+              ("2025007","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1516918.html"),
+              ("2025009","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1518592.html"),
+              ("2025010","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1519052.html"),
+              ("2025011","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1519548.html"),
+              ("2025012","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1520790.html"),
+              ("2025013","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1521310.html"),
+              ("2025014","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1521701.html"),
+              ("2025020","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1530846.html"),
+              ("2025025","https://www.szlottery.org/fcw/kjxx/szzjxx/ssq/content/post_1533346.html"),
+          ]
+          def one(t):
+              issue,url=t
+              b=pathlib.Path('evidence/body')/(issue+'.html'); h=pathlib.Path('evidence/headers')/(issue+'.headers')
+              p=subprocess.run(['curl','-fsSL','--retry','2','--retry-delay','1','--connect-timeout','8','--max-time','25','-A','Mozilla/5.0','-H','Accept-Language: zh-CN,zh;q=0.9','-D',str(h),'-o',str(b),url],capture_output=True,text=True)
+              r={'issue':issue,'url':url,'curl_exit':p.returncode}
+              if p.returncode or not b.exists():
+                  r['status']='FETCH_FAIL'; r['stderr']=p.stderr[-500:]; return r
+              raw=b.read_text(encoding='utf-8',errors='ignore')
+              plain=re.sub(r'<[^>]+>',' ',html.unescape(raw)); plain=re.sub(r'\s+',' ',plain)
+              r['body_size_bytes']=b.stat().st_size
+              r['body_sha256']=hashlib.sha256(b.read_bytes()).hexdigest()
+              r['headers_sha256']=hashlib.sha256(h.read_bytes()).hexdigest()
+              r['issue_match']=issue in plain
+              m2=re.search(r'二等奖(?:开出|共开出)\s*([0-9,]+)\s*注',plain)
+              r['second_prize_winners']=int(m2.group(1).replace(',','')) if m2 else None
+              mr=re.search(r'红球号码为([0-9、，,\s]+)，?\s*蓝球号码为([0-9]{1,2})',plain)
+              if mr:
+                  r['reds']=[int(x) for x in re.findall(r'\d+',mr.group(1))]
+                  r['blue']=int(mr.group(2))
+              md=re.search(r'(\d{1,2})月(\d{1,2})日晚.*?第'+issue+r'期开奖',plain)
+              if md: r['date_md']=[int(md.group(1)),int(md.group(2))]
+              pos=plain.find('二等奖')
+              excerpt=plain[max(0,pos-250):pos+400] if pos>=0 else ''
+              r['evidence_excerpt_sha256']=hashlib.sha256(excerpt.encode()).hexdigest() if excerpt else None
+              r['status']='OK' if r['issue_match'] and r['second_prize_winners'] is not None and len(r.get('reds',[]))==6 and r.get('blue') else 'PARSE_FAIL'
+              return r
+          with concurrent.futures.ThreadPoolExecutor(max_workers=12) as ex: out=list(ex.map(one,rows))
+          for r in out: print(r['issue'],r['status'],r.get('second_prize_winners'),r.get('reds'),r.get('blue'),r.get('body_size_bytes'))
+          man={'schema':'SSQ-R3-SHENZHEN-EARLY12-v1','publisher':'深圳市福利彩票发行中心','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':out,'ok_count':sum(r['status']=='OK' for r in out)}
+          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          if man['ok_count'] != 12: raise SystemExit(2)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-shenzhen-early12
+          path: evidence
