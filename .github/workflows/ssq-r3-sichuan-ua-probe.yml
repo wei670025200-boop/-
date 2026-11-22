@@ -1,0 +1,35 @@
+name: SSQ R3 Sichuan UA probe
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-sichuan-ua-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe official page with crawler UAs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          url="https://www.scflcp.com.cn/ssq/823133471.jhtml"
+          declare -a names=("mozilla" "googlebot" "baidu" "bingbot")
+          declare -a uas=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158 Safari/537.36"
+            "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+            "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)"
+            "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"
+          )
+          for i in 0 1 2 3; do
+            n="${names[$i]}"; ua="${uas[$i]}"
+            code=$(curl -L -sS --connect-timeout 8 --max-time 20 -A "$ua" -H "Accept-Language: zh-CN,zh;q=0.9" -e "https://www.scflcp.com.cn/ssq" -D "probe/$n.headers" -o "probe/$n.html" -w "%{http_code}" "$url" || true)
+            bytes=$(wc -c < "probe/$n.html" 2>/dev/null || echo 0)
+            sha=$(sha256sum "probe/$n.html" 2>/dev/null | awk '{print $1}')
+            has=$(grep -c "2025004" "probe/$n.html" 2>/dev/null || true)
+            echo "$n|$code|$bytes|$sha|issue=$has" | tee -a probe/status.txt
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-sichuan-ua-probe
+          path: probe
