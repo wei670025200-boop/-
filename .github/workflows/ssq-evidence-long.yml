@@ -106,3 +106,62 @@ jobs:
           path: final4/
           if-no-files-found: error
           retention-days: 30
+
+  final4_session:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch final four with Sichuan session
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p final4s/probe
+          ua='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158.0.0.0 Safari/537.36'
+          curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "$ua" -c final4s/cookies.txt -D final4s/home.headers -o final4s/home.html 'https://www.scflcp.com.cn/ssq'
+          fetch_one() {
+            issue="$1"; url="$2"
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "$ua" -b final4s/cookies.txt -c final4s/cookies.txt -e 'https://www.scflcp.com.cn/ssq' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -D "final4s/$issue.headers" -o "final4s/$issue.html" "$url"
+            echo "$issue $(wc -c < final4s/$issue.html) $url"
+          }
+          fetch_one 2024020 'https://www.scflcp.com.cn/ssq/823124134.jhtml'
+          fetch_one 2024021 'https://www.scflcp.com.cn/ssq/823124195.jhtml'
+          fetch_one 2024027 'https://www.scflcp.com.cn/ssq/823124606.jhtml'
+          export ua
+          seq 823124259 823124460 | xargs -P 16 -I{} bash -c '
+            id="$1"; url="https://www.scflcp.com.cn/ssq/$id.jhtml"
+            curl -L -sS --connect-timeout 4 --max-time 10 -A "$ua" -b final4s/cookies.txt -e "https://www.scflcp.com.cn/ssq" -o "final4s/probe/$id.html" "$url" || true
+            if [ -s "final4s/probe/$id.html" ] && grep -q "双色球" "final4s/probe/$id.html" && grep -q "第2024023期" "final4s/probe/$id.html"; then
+              echo "$id|$url" >> final4s/2024023_match.txt
+            else
+              rm -f "final4s/probe/$id.html"
+            fi
+          ' _ {}
+          cat final4s/2024023_match.txt || true
+          id=$(head -1 final4s/2024023_match.txt | cut -d'|' -f1)
+          test -n "$id"
+          url="https://www.scflcp.com.cn/ssq/$id.jhtml"
+          fetch_one 2024023 "$url"
+          python - <<'PY'
+          import pathlib,re,json,hashlib,html,datetime
+          out=[]; now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          for issue in ['2024020','2024021','2024023','2024027']:
+              p=pathlib.Path('final4s')/(issue+'.html'); hp=pathlib.Path('final4s')/(issue+'.headers')
+              s=p.read_text(encoding='utf-8',errors='ignore'); plain=re.sub(r'<[^>]+>',' ',html.unescape(s)); plain=re.sub(r'\s+',' ',plain)
+              ok=('双色球' in plain and f'第{issue}期' in plain)
+              date=re.search(r'开奖日期[：:]\s*(20\d{2}-\d{2}-\d{2})',plain)
+              sale=re.search(r'本期销售金额[：:]\s*([\d,]+)\s*元',plain)
+              pool=re.search(r'下期一等奖奖池累计金额[：:]\s*([\d,]+)\s*元',plain)
+              balls=re.search(r'中奖号码\s*((?:\d{1,2}\s+){6}\d{1,2})',plain)
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',plain)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',plain)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',balls.group(1))] if balls else []
+              out.append({'issue':issue,'identity_ok':ok,'fetched_at_utc':now,'date':date.group(1) if date else None,'sales_rmb':int(sale.group(1).replace(',','')) if sale else None,'reds':sorted(nums[:6]) if len(nums)>=7 else None,'blue':nums[6] if len(nums)>=7 else None,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'pool_rmb':int(pool.group(1).replace(',','')) if pool else None,'body_size':p.stat().st_size,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(hp.read_bytes()).hexdigest()})
+          pathlib.Path('final4s/PARSED.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          if not all(r['identity_ok'] and r['sales_rmb'] and r['second_count'] is not None and r['body_size']>1000 for r in out): raise SystemExit('FINAL4_SESSION_VALIDATION_FAILED')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-r3-final4-sichuan-session
+          path: final4s/
+          if-no-files-found: error
+          retention-days: 30
