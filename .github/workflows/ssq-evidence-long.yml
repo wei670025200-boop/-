@@ -38,6 +38,10 @@ jobs:
           fetch national_cwl_1000 'https://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&issueCount=1000'
           fetch national_cwl_page1000 'https://www.cwl.gov.cn/cwl_admin/kjxx/findDrawNotice?name=ssq&pageNo=1&pageSize=1000&week=&systemType=PC'
           fetch public_500_history 'https://datachart.500.com/ssq/history/newinc/history.php?start=2021001&end=2026132'
+          fetch sichuan_2024020_final4 'https://www.scflcp.com.cn/ssq/823124134.jhtml'
+          fetch sichuan_2024021_final4 'https://www.scflcp.com.cn/ssq/823124195.jhtml'
+          fetch sichuan_2024023_final4 'https://www.scflcp.com.cn/ssq/823124299.jhtml'
+          fetch sichuan_2024027_final4 'https://www.scflcp.com.cn/ssq/823124606.jhtml'
           for i in $(seq 2 26); do fetch "sichuan_ssqinfo_${i}" "https://www.scflcp.com.cn/ssqinfo_${i}.jhtml?page=2"; done
           # China Welfare Lottery national official API requires a session cookie on some edges.
           curl --fail --location --compressed --retry 2 --connect-timeout 20 --max-time 90 -A 'Mozilla/5.0' -c evidence/cwl.cookies --dump-header evidence/cwl_home.headers --output evidence/cwl_home.body 'https://www.cwl.gov.cn/ygkj/wqkjgg/ssq/' || true
