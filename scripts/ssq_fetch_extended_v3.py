@@ -10,7 +10,7 @@ for yr,a,b in ranges:
  begin=f'{yr}{a:03d}';end=f'{yr}{b:03d}'
  params={'view':'previous','limit':'100','start_issue':begin,'end_issue':end}
  requests.append((f'shanghai_{begin}_{end}',BASE_SH+'?'+urlencode(params)))
-for p in range(1,31):
+for p in range(1,101):
  requests.append((f'sichuan_history_page_{p}',BASE_SC+'/ssqinfo'+(f'_{p}' if p>1 else '')+'.jhtml'))
 def fetch(item):
  name,url=item
