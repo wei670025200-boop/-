@@ -1,0 +1,33 @@
+name: SSQ R3 Hebei official probe
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-hebei-probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Hebei official pages and inspect SSQ endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          urls=(
+            "https://www.yzfcw.com/"
+            "https://www.yzfcw.com/game/ssqIndex"
+            "http://www.yzfcw.com/"
+            "http://www.yzfcw.com/game/ssqIndex"
+          )
+          i=0
+          for u in "${urls[@]}"; do
+            i=$((i+1)); key="p$i"
+            code=$(curl -sS -L --compressed --connect-timeout 8 --max-time 25 -A "Mozilla/5.0" -H "Accept-Language: zh-CN,zh;q=0.9" -D "probe/$key.headers" -o "probe/$key.html" -w "%{http_code}" "$u" || true)
+            bytes=$(wc -c < "probe/$key.html" 2>/dev/null || echo 0)
+            echo "$key|$code|$bytes|$u" | tee -a probe/status.txt
+            grep -Eo '(/[^"'"'"' ]*(ssq|SSQ|lottery|award|open|kj|draw)[^"'"'"' ]*)' "probe/$key.html" 2>/dev/null | sort -u | head -100 > "probe/$key.links" || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-hebei-probe
+          path: probe
