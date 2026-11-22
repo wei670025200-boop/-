@@ -1,0 +1,76 @@
+name: SSQ R3 Hubei early12 official notices
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths:
+      - '.github/workflows/ssq-r3-hubei-early12.yml'
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Crawl Hubei official notice archive for 12 SSQ draw dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/index evidence/pages evidence/assets
+          python - <<'PY'
+          import pathlib,subprocess,re,html,json,hashlib,datetime
+          from urllib.parse import urljoin
+          ROOT=pathlib.Path('evidence'); BASE='https://www.hbfcw.cn'
+          dates={'2025-01-02','2025-01-09','2025-01-14','2025-01-16','2025-01-21','2025-01-23','2025-01-26','2025-02-06','2025-02-09','2025-02-11','2025-02-25','2025-03-09'}
+          def curl(url,body,hdr):
+              return subprocess.run(['curl','-fsSL','--retry','3','--connect-timeout','10','--max-time','30','-A','Mozilla/5.0','-D',str(hdr),'-o',str(body),url],capture_output=True,text=True)
+          links={}
+          for n in range(55,71):
+              u=f'{BASE}/kjgg/index_{n}.shtml'
+              b=ROOT/'index'/f'index_{n}.html'; h=ROOT/'index'/f'index_{n}.headers'
+              p=curl(u,b,h)
+              if p.returncode: continue
+              s=b.read_text(encoding='utf-8',errors='ignore')
+              # capture static daily notice href + visible date text
+              for href,date_cn in re.findall(r'href=["\']([^"\']+/kjgg/2025(?:01|02|03)/t2025\d+_\d+\.shtml)["\'][^>]*>\s*(2025年\d{1,2}月\d{1,2}日)\s*开奖公告',s,re.S):
+                  mm=re.match(r'(2025)年(\d{1,2})月(\d{1,2})日',date_cn)
+                  d=f'{mm.group(1)}-{int(mm.group(2)):02d}-{int(mm.group(3)):02d}'
+                  links[d]=urljoin(BASE,href)
+          rows=[]
+          for d in sorted(dates):
+              r={'date':d,'page_url':links.get(d)}
+              if not r['page_url']:
+                  r['status']='PAGE_URL_NOT_FOUND'; rows.append(r); print(d,r['status']); continue
+              stem=d.replace('-','')
+              b=ROOT/'pages'/f'{stem}.html'; h=ROOT/'pages'/f'{stem}.headers'
+              p=curl(r['page_url'],b,h)
+              r['page_curl_exit']=p.returncode
+              if p.returncode:
+                  r['status']='PAGE_FETCH_FAIL'; rows.append(r); print(d,r['status']); continue
+              raw=b.read_text(encoding='utf-8',errors='ignore')
+              r['page_sha256']=hashlib.sha256(b.read_bytes()).hexdigest()
+              r['page_headers_sha256']=hashlib.sha256(h.read_bytes()).hexdigest()
+              imgs=[]
+              for src in re.findall(r'<img[^>]+src=["\']([^"\']+)["\']',raw,re.I):
+                  u=urljoin(r['page_url'],html.unescape(src))
+                  if u in imgs: continue
+                  # keep site-hosted article assets, skip obvious logo/icon/static UI
+                  if 'hbfcw.cn' not in u: continue
+                  if any(x in u.lower() for x in ['/images/logo','/images/icon','/skin/','/css/','/js/']): continue
+                  imgs.append(u)
+              saved=[]
+              for i,u in enumerate(imgs,1):
+                  ext=(u.split('?')[0].rsplit('.',1)[-1].lower() if '.' in u.split('?')[0].rsplit('/',1)[-1] else 'bin')
+                  if ext not in {'png','jpg','jpeg','gif','webp'}: ext='bin'
+                  ab=ROOT/'assets'/f'{stem}_{i:02d}.{ext}'; ah=ROOT/'assets'/f'{stem}_{i:02d}.headers'
+                  q=curl(u,ab,ah)
+                  if q.returncode==0 and ab.exists() and ab.stat().st_size>100:
+                      saved.append({'url':u,'body':str(ab),'headers':str(ah),'sha256':hashlib.sha256(ab.read_bytes()).hexdigest(),'size':ab.stat().st_size})
+              r['assets']=saved
+              r['status']='OK' if saved else 'NO_ASSETS'
+              rows.append(r); print(d,r['status'],'assets',len(saved),r['page_url'])
+          man={'schema':'SSQ-R3-HUBEI-EARLY12-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'target_dates':sorted(dates),'rows':rows,'ok_pages':sum(r['status']=='OK' for r in rows)}
+          (ROOT/'MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('OK_PAGES',man['ok_pages'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-hubei-early12
+          path: evidence
