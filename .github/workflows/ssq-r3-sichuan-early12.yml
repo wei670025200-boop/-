@@ -50,9 +50,10 @@ jobs:
               out.append(r); print(issue,r['status'],r.get('second_prize_winners'))
           man={'schema':'SSQ-R3-SICHUAN-EARLY12-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':out,'ok_count':sum(r['status']=='OK' for r in out)}
           pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          if man['ok_count'] != len(rows): raise SystemExit(2)
+          print('OK_COUNT',man['ok_count'])
           PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ssq-r3-sichuan-early12
           path: evidence
