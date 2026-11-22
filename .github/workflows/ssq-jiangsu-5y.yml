@@ -27,11 +27,23 @@ jobs:
           seen=[]
           for x in ids:
               if x not in seen: seen.append(x)
+          cwl=[]
+          for p in sorted(pathlib.Path('evidence/list').glob('page_*.html')):
+              s=p.read_text(encoding='utf-8',errors='ignore')
+              cwl += re.findall(r'href="(https?://www\\.cwl\\.gov\\.cn/c/\\d{4}/\\d{2}/\\d{2}/\\d+\\.shtml)"',s)
+          cwl_seen=[]
+          for x in cwl:
+              x=x.replace('http://','https://')
+              if x not in cwl_seen: cwl_seen.append(x)
           pathlib.Path('evidence/detail_ids.txt').write_text('\n'.join(seen)+'\n')
-          pathlib.Path('evidence/list_manifest.json').write_text(json.dumps({'unique_detail_ids':len(seen),'first_ids':seen[:5],'last_ids':seen[-5:]},ensure_ascii=False,indent=2)+'\n')
-          print('DETAIL_IDS',len(seen))
+          pathlib.Path('evidence/cwl_urls.txt').write_text('\n'.join(cwl_seen)+'\n')
+          pathlib.Path('evidence/list_manifest.json').write_text(json.dumps({'unique_detail_ids':len(seen),'unique_cwl_urls':len(cwl_seen),'first_ids':seen[:5],'last_ids':seen[-5:],'first_cwl':cwl_seen[:3],'last_cwl':cwl_seen[-3:]},ensure_ascii=False,indent=2)+'\n')
+          print('DETAIL_IDS',len(seen),'CWL_URLS',len(cwl_seen))
           PY
-          cat evidence/detail_ids.txt | xargs -P 6 -I{} bash -c 'curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 60 -A "Mozilla/5.0" -D "evidence/detail/{}.headers" -o "evidence/detail/{}.html" "https://www.jslottery.com/winning_detail?id={}&locale=zh-CN"'
+          cat evidence/detail_ids.txt | xargs -r -P 6 -I{} bash -c 'curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 60 -A "Mozilla/5.0" -D "evidence/detail/{}.headers" -o "evidence/detail/{}.html" "https://www.jslottery.com/winning_detail?id={}&locale=zh-CN"'
+          mkdir -p evidence/cwl
+          nl -ba evidence/cwl_urls.txt | while read n url; do echo "$n|$url"; done > evidence/cwl_map.txt
+          cat evidence/cwl_map.txt | xargs -r -P 6 -I{} bash -c 'n="${1%%|*}"; url="${1#*|}"; curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 60 -A "Mozilla/5.0" -D "evidence/cwl/${n}.headers" -o "evidence/cwl/${n}.html" "$url" || true' _ "{}"
           python - <<'PY'
           import pathlib,re,json,hashlib,datetime,csv
           root=pathlib.Path('evidence'); rows=[]
