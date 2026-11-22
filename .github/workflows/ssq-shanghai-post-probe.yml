@@ -1,0 +1,55 @@
+name: SSQ Shanghai historical second-prize API
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Retrieve original official XG data as raw bytes
+        run: |
+          set -uo pipefail
+          mkdir -p evidence
+          for scheme in https http; do
+            for mode in range recent; do
+              name="$scheme"_"$mode"
+              if [ "$mode" = range ]; then
+                DATA='lottcode=01&ttype=2&beginnum=2021120&ebdinnum=2026132&num=766'
+              else
+                DATA='lottcode=01&ttype=1&num=766&beginnum=&ebdinnum='
+              fi
+              URL="$scheme://appsh.swlc.net.cn/shfcoc_ldatacenter/aword/execQueryAllAnalysis.ctl"
+              echo "Starting $name"
+              curl --silent --show-error --location --compressed --connect-timeout 15 --max-time 45 \
+                -A 'Mozilla/5.0' -H 'Origin: https://appsh.swlc.net.cn' \
+                -H 'Referer: https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html' \
+                -H 'Content-Type: application/x-www-form-urlencoded' \
+                -D "evidence/$name.headers" -o "evidence/$name.body" \
+                -w 'HTTP=%{http_code} bytes=%{size_download} effective=%{url_effective}\n' \
+                --data "$DATA" "$URL" > "evidence/$name.status" 2>&1 || true
+            done
+          done
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib,datetime
+          r=Path('evidence');out=[]
+          for b in sorted(r.glob('*.body')):
+            content=b.read_bytes()
+            info={'name':b.stem,'sha256':hashlib.sha256(content).hexdigest(),'size':len(content),'sample':content[:250].decode(errors='replace')}
+            try:
+              j=json.loads(content)
+              info.update({'json_code':j.get('code'),'result_count':len(j.get('result') or []),'top_keys':list(j)})
+            except Exception:pass
+            out.append(info)
+          (r/'POST_PROBE_MANIFEST.json').write_text(json.dumps({'retrieved_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'responses':out},indent=2,ensure_ascii=False))
+          print(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-shanghai-api-original-responses
+          path: evidence/
+          retention-days: 30
