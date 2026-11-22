@@ -1,0 +1,58 @@
+name: SSQ R3 Sichuan early12 official HTML
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths:
+      - '.github/workflows/ssq-r3-sichuan-early12.yml'
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch 12 non-overlapping Sichuan official detail pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/html
+          python - <<'PY'
+          import pathlib,subprocess,hashlib,json,re,html,datetime
+          rows=[
+            ("2025001","https://www.scflcp.com.cn/ssq/823133262.jhtml"),
+            ("2025004","https://www.scflcp.com.cn/ssq/823133471.jhtml"),
+            ("2025006","https://www.scflcp.com.cn/ssq/823133614.jhtml"),
+            ("2025007","https://www.scflcp.com.cn/ssq/823133680.jhtml"),
+            ("2025009","https://www.scflcp.com.cn/ssq/823133828.jhtml"),
+            ("2025010","https://www.scflcp.com.cn/ssq/823133891.jhtml"),
+            ("2025011","https://www.scflcp.com.cn/ssq/823133971.jhtml"),
+            ("2025012","https://www.scflcp.com.cn/ssq/823134007.jhtml"),
+            ("2025013","https://www.scflcp.com.cn/ssq/823134087.jhtml"),
+            ("2025014","https://www.scflcp.com.cn/ssq/823134152.jhtml"),
+            ("2025020","https://www.scflcp.com.cn/ssq/823134568.jhtml"),
+            ("2025025","https://www.scflcp.com.cn/ssq/823134940.jhtml"),
+          ]
+          out=[]
+          for issue,url in rows:
+              body=pathlib.Path('evidence/html')/(issue+'.html')
+              hdr=pathlib.Path('evidence/html')/(issue+'.headers')
+              p=subprocess.run(['curl','-fsSL','--retry','3','--connect-timeout','10','--max-time','30','-A','Mozilla/5.0','-D',str(hdr),'-o',str(body),url],capture_output=True,text=True)
+              r={'issue':issue,'url':url,'curl_exit':p.returncode}
+              if p.returncode==0 and body.exists():
+                  raw=body.read_text(encoding='utf-8',errors='ignore')
+                  plain=re.sub(r'<[^>]+>',' ',html.unescape(raw))
+                  plain=re.sub(r'\s+',' ',plain)
+                  r['body_sha256']=hashlib.sha256(body.read_bytes()).hexdigest()
+                  r['headers_sha256']=hashlib.sha256(hdr.read_bytes()).hexdigest()
+                  r['issue_match']=issue in plain
+                  m2=re.search(r'二等奖\s+([\d,]+)\s+([\d,.]+)',plain)
+                  r['second_prize_winners']=int(m2.group(1).replace(',','')) if m2 else None
+                  r['status']='OK' if r['issue_match'] and r['second_prize_winners'] is not None else 'PARSE_FAIL'
+              else:
+                  r['status']='FETCH_FAIL'; r['stderr']=p.stderr[-500:]
+              out.append(r); print(issue,r['status'],r.get('second_prize_winners'))
+          man={'schema':'SSQ-R3-SICHUAN-EARLY12-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':out,'ok_count':sum(r['status']=='OK' for r in out)}
+          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(man,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          if man['ok_count'] != len(rows): raise SystemExit(2)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-r3-sichuan-early12
+          path: evidence
