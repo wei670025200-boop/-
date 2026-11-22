@@ -63,3 +63,46 @@ jobs:
           path: evidence/
           if-no-files-found: error
           retention-days: 30
+  final4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch four final Sichuan 2024 official rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p final4
+          cat > final4/urls.tsv <<'EOF'
+          2024020 https://www.scflcp.com.cn/ssq/823124134.jhtml
+          2024021 https://www.scflcp.com.cn/ssq/823124195.jhtml
+          2024023 https://www.scflcp.com.cn/ssq/823124299.jhtml
+          2024027 https://www.scflcp.com.cn/ssq/823124606.jhtml
+          EOF
+          sed -i 's/^          //' final4/urls.tsv
+          while read issue url; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A 'Mozilla/5.0' -D "final4/$issue.headers" -o "final4/$issue.html" "$url"
+          done < final4/urls.tsv
+          python - <<'PY'
+          import pathlib,re,json,hashlib,html,datetime
+          out=[]
+          now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+          for p in sorted(pathlib.Path('final4').glob('2024*.html')):
+              issue=p.stem; s=p.read_text(encoding='utf-8',errors='ignore')
+              plain=re.sub(r'<[^>]+>',' ',html.unescape(s)); plain=re.sub(r'\s+',' ',plain)
+              date=re.search(r'开奖日期[：:]\s*(20\d{2}-\d{2}-\d{2})',plain)
+              sale=re.search(r'本期销售金额[：:]\s*([\d,]+)\s*元',plain)
+              pool=re.search(r'下期一等奖奖池累计金额[：:]\s*([\d,]+)\s*元',plain)
+              balls=re.search(r'中奖号码\s*((?:\d{1,2}\s+){6}\d{1,2})',plain)
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',plain)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',plain)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',balls.group(1))] if balls else []
+              hp=p.with_suffix('.headers')
+              out.append({'issue':issue,'fetched_at_utc':now,'date':date.group(1) if date else None,'sales_rmb':int(sale.group(1).replace(',','')) if sale else None,'reds':sorted(nums[:6]) if len(nums)>=7 else None,'blue':nums[6] if len(nums)>=7 else None,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'pool_rmb':int(pool.group(1).replace(',','')) if pool else None,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(hp.read_bytes()).hexdigest()})
+          pathlib.Path('final4/PARSED.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-r3-final4-sichuan-2024
+          path: final4/
+          if-no-files-found: error
+          retention-days: 30
