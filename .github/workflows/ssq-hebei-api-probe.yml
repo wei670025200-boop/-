@@ -1,0 +1,55 @@
+name: SSQ Hebei API pagination probe
+on:
+  push:
+    branches:
+      - ssq-r3-sichuan-expand-20261122
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Hebei official lottery API pagination
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          base='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093'
+          declare -A urls
+          urls[ps1000]="$base&ps=1000"
+          urls[pn2]="$base&ps=500&pn=2"
+          urls[page2]="$base&ps=500&page=2"
+          urls[pageNo2]="$base&ps=500&pageNo=2"
+          urls[p2]="$base&ps=500&p=2"
+          urls[offset500]="$base&ps=500&offset=500"
+          urls[start500]="$base&ps=500&start=500"
+          for k in "${!urls[@]}"; do
+            u="${urls[$k]}"
+            curl -fsSL --retry 2 --connect-timeout 10 --max-time 30 -A 'Mozilla/5.0' -D "probe/$k.headers" -o "probe/$k.json" "$u" || true
+          done
+          python - <<'PY'
+          import json,glob,os,hashlib
+          out={}
+          for p in sorted(glob.glob('probe/*.json')):
+              k=os.path.basename(p)[:-5]
+              try:
+                  obj=json.load(open(p,encoding='utf-8'))
+                  data=obj.get('data') or {}
+                  rows=data.get('rows') or []
+                  out[k]={
+                      'code':obj.get('code'),
+                      'total':data.get('total'),
+                      'rows':len(rows),
+                      'first_issue':rows[0].get('issueNo') if rows else None,
+                      'last_issue':rows[-1].get('issueNo') if rows else None,
+                      'body_sha256':hashlib.sha256(open(p,'rb').read()).hexdigest(),
+                  }
+              except Exception as e:
+                  out[k]={'error':repr(e)}
+          open('probe/RESULT.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-hebei-api-pagination-probe
+          path: probe
+          retention-days: 30
