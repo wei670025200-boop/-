@@ -1,0 +1,36 @@
+name: SSQ R3 Shanghai HTTP POST probe
+on:
+  push:
+    branches: [ssq-r3-fetch-direct-20261122]
+    paths: ['.github/workflows/ssq-r3-shanghai-http-post.yml']
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query official Shanghai data-center exactly as site JS
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          for scheme in http https; do
+            url="${scheme}://appsh.swlc.net.cn/shfcoc_ldatacenter/aword/execQueryAllAnalysis.ctl"
+            for mode in issue count; do
+              if [ "$mode" = issue ]; then
+                data='lottcode=01&num=29&ttype=2&beginnum=2025001&ebdinnum=2025025'
+              else
+                data='lottcode=01&num=799&ttype=1&beginnum=&ebdinnum='
+              fi
+              key="${scheme}_${mode}"
+              code=$(curl -sS --connect-timeout 8 --max-time 30 -A 'Mozilla/5.0'                 -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8'                 -H 'X-Requested-With: XMLHttpRequest'                 -e 'https://appsh.swlc.net.cn/shfcoc_datachart/datachart/ssq/lskj/ls_award.html'                 -D "evidence/${key}.headers" -o "evidence/${key}.body"                 -w '%{http_code}' -X POST --data "$data" "$url" || true)
+              bytes=$(wc -c < "evidence/${key}.body" 2>/dev/null || echo 0)
+              sha=$(sha256sum "evidence/${key}.body" 2>/dev/null | awk '{print $1}')
+              echo "${key}|${code}|${bytes}|${sha}" | tee -a evidence/status.txt
+              head -c 300 "evidence/${key}.body" 2>/dev/null | tr '\n' ' ' | tee -a evidence/preview.txt || true
+              echo >> evidence/preview.txt
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-r3-shanghai-http-post
+          path: evidence
