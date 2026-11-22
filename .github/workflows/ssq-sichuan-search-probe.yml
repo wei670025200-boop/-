@@ -1,0 +1,23 @@
+name: SSQ Sichuan search probe
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-sichuan-search-probe.yml'
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Sichuan site search
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          for q in 2025001 2025148; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "probe/${q}.headers" -o "probe/${q}.html" "https://www.scflcp.com.cn/search.htm?q=${q}"
+            echo "QUERY=${q}"
+            grep -Eo 'https?://[^"]+|/ssq/[0-9]+\.jhtml' "probe/${q}.html" | grep -E '/ssq/' | head -20 || true
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-sichuan-search-probe
+          path: probe
