@@ -165,3 +165,146 @@ jobs:
           path: final4s/
           if-no-files-found: error
           retention-days: 30
+
+  guangxi60:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch fixed-seed 60 from Guangxi Welfare Lottery official archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p gx60/body gx60/headers
+          cat > gx60/issues.txt <<'EOF'
+2021131
+2021144
+2022032
+2022042
+2022044
+2022047
+2022049
+2022059
+2022069
+2022086
+2022091
+2022093
+2022099
+2022101
+2022105
+2022108
+2022115
+2022119
+2022139
+2022140
+2022146
+2022149
+2023018
+2023027
+2023040
+2023041
+2023059
+2023060
+2023078
+2023111
+2023120
+2023122
+2023127
+2023128
+2023129
+2024005
+2024020
+2024021
+2024023
+2024027
+2025032
+2025063
+2025074
+2025079
+2025148
+2026015
+2026026
+2026031
+2026052
+2026054
+2026057
+2026080
+2026084
+2026087
+2026099
+2026104
+2026109
+2026114
+2026129
+2026132
+EOF
+          export UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158.0.0.0 Safari/537.36'
+          cat gx60/issues.txt | xargs -P 10 -I{} bash -c '
+            issue="$1"
+            url="https://www.gxcaipiao.com.cn/notice/detail/ssq/$issue.html"
+            code=$(curl -L -sS --retry 3 --retry-delay 1 --connect-timeout 10 --max-time 30 -A "$UA" -D "gx60/headers/$issue.headers" -o "gx60/body/$issue.html" -w "%{http_code}" "$url" || true)
+            echo "$issue|$code|$(wc -c < gx60/body/$issue.html 2>/dev/null || echo 0)|$url" >> gx60/status.txt
+          ' _ {}
+          python - <<'PY'
+          import pathlib,re,json,hashlib,html,datetime
+          root=pathlib.Path('gx60'); rows=[]; errors=[]
+          for issue in [x.strip() for x in (root/'issues.txt').read_text().splitlines() if x.strip()]:
+              p=root/'body'/f'{issue}.html'; hp=root/'headers'/f'{issue}.headers'
+              if not p.exists():
+                  errors.append({'issue':issue,'error':'MISSING_BODY'}); continue
+              raw=p.read_bytes(); s=raw.decode('utf-8','ignore')
+              plain=re.sub(r'<[^>]+>',' ',html.unescape(s)); plain=re.sub(r'\s+',' ',plain)
+              ident=(issue in plain and '双色球' in plain)
+              # Guangxi detail format: 开奖日期 / 全国销售金额（元） / 奖池累计金额（元）
+              md=re.search(r'开奖日期[：:]?\s*(20\d{2}-\d{2}-\d{2})',plain)
+              ms=re.search(r'全国销售金额（元）[：:]?\s*([\d,.]+)',plain)
+              mp=re.search(r'奖池累计金额（元）[：:]?\s*([\d,.]+)',plain)
+              # capture 7 draw numbers after date/pool block and before prize table when possible
+              mb=re.search(r'奖池累计金额（元）[：:]?\s*[\d,.]+\s*((?:\d{1,2}\s+){6}\d{1,2})\s*奖级',plain)
+              m1=re.search(r'一等奖\s+(\d+)\s+([\d,.]+)',plain)
+              m2=re.search(r'二等奖\s+(\d+)\s+([\d,.]+)',plain)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',mb.group(1))] if mb else []
+              def num(x):
+                  if x is None:return None
+                  return int(round(float(x.replace(',',''))))
+              row={
+                'issue':issue,'identity_ok':ident,
+                'date':md.group(1) if md else None,
+                'sales_rmb':num(ms.group(1)) if ms else None,
+                'pool_rmb':num(mp.group(1)) if mp else None,
+                'reds':nums[:6] if len(nums)>=7 else None,
+                'blue':nums[6] if len(nums)>=7 else None,
+                'first_count':int(m1.group(1)) if m1 else None,
+                'first_money':num(m1.group(2)) if m1 else None,
+                'second_count':int(m2.group(1)) if m2 else None,
+                'second_money':num(m2.group(2)) if m2 else None,
+                'url':f'https://www.gxcaipiao.com.cn/notice/detail/ssq/{issue}.html',
+                'body_size':len(raw),
+                'body_sha256':hashlib.sha256(raw).hexdigest(),
+                'headers_sha256':hashlib.sha256(hp.read_bytes()).hexdigest() if hp.exists() else None,
+              }
+              required=['date','sales_rmb','pool_rmb','reds','blue','first_count','first_money','second_count','second_money']
+              miss=[k for k in required if row[k] is None]
+              if not ident or miss:
+                  errors.append({'issue':issue,'error':'PARSE_OR_IDENTITY','missing':miss,'identity_ok':ident})
+              rows.append(row)
+          out={
+            'schema':'SSQ-R3-GUANGXI-FIXED-SEED-60-v1',
+            'publisher':'广西福利彩票发行中心',
+            'official_domain':'www.gxcaipiao.com.cn',
+            'fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'fixed_seed':20261117,
+            'requested':60,'parsed_rows':len(rows),'error_count':len(errors),
+            'rows':rows,'errors':errors
+          }
+          (root/'MANIFEST.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('GX60 parsed',len(rows),'errors',len(errors))
+          if errors or len(rows)!=60:
+              print(json.dumps(errors[:20],ensure_ascii=False,indent=2))
+              raise SystemExit('GX60_VALIDATION_FAILED')
+          PY
+          find gx60 -type f -print0 | sort -z | xargs -0 sha256sum > gx60/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-r3-guangxi-fixed-seed-60
+          path: gx60/
+          if-no-files-found: error
+          retention-days: 30
