@@ -17,6 +17,17 @@ jobs:
             echo "QUERY=${q}"
             grep -Eo 'https?://[^"]+|/ssq/[0-9]+\.jhtml' "probe/${q}.html" | grep -E '/ssq/' | head -20 || true
           done
+          echo "=== SICHUAN_2024023_ID_PROBE ==="
+          mkdir -p probe/sc2024023
+          seq 823124259 823124460 | xargs -P 20 -I{} bash -c '
+            code=$(curl -L -sS --connect-timeout 4 --max-time 10 -A "Mozilla/5.0" -D "probe/sc2024023/{}.headers" -o "probe/sc2024023/{}.html" -w "%{http_code}" "https://www.scflcp.com.cn/ssq/{}.jhtml" || true)
+            if [ "$code" = "200" ] && grep -q "第2024023期" "probe/sc2024023/{}.html"; then
+              echo "{}|https://www.scflcp.com.cn/ssq/{}.jhtml" >> probe/SC2024023_MATCH.txt
+            else
+              rm -f "probe/sc2024023/{}.html" "probe/sc2024023/{}.headers"
+            fi
+          '
+          cat probe/SC2024023_MATCH.txt 2>/dev/null || true
           echo "=== HEBEI_PAGINATION_PROBE ==="
           base='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093'
           declare -A urls
