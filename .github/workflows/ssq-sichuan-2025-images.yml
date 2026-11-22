@@ -7,51 +7,63 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Sichuan 2025 official image evidence
+      - name: Fetch Sichuan 2025 structured SSQ evidence
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p evidence/list evidence/images
-          for p in $(seq 14 30); do
-            url="https://www.scflcp.com.cn/ssqinfo"
-            [ "$p" -gt 1 ] && url="${url}_${p}"
-            url="${url}.jhtml"
-            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "evidence/list/page_${p}.headers" -o "evidence/list/page_${p}.html" "$url"
-          done
+          mkdir -p evidence/search evidence/detail
           python - <<'PY'
-          import pathlib,re,json,html
+          import concurrent.futures,datetime,hashlib,html,json,pathlib,re,subprocess
+          from urllib.parse import quote,urljoin
+          ROOT=pathlib.Path('evidence'); BASE='https://www.scflcp.com.cn'
+          issues=[f'2025{i:03d}' for i in range(1,152)]
+          def curl(url,body,headers):
+              return subprocess.run(['curl','-fsSL','--retry','2','--connect-timeout','8','--max-time','20','-A','Mozilla/5.0','-D',str(headers),'-o',str(body),url],capture_output=True,text=True)
+          def one(issue):
+              sb=ROOT/'search'/f'{issue}.html'; sh=ROOT/'search'/f'{issue}.headers'
+              qurl=BASE+'/search.htm?q='+quote(issue)
+              p=curl(qurl,sb,sh)
+              rec={'issue':issue,'search_url':qurl,'search_exit':p.returncode}
+              if p.returncode!=0 or not sb.exists():
+                  rec['status']='SEARCH_FAIL'; rec['stderr']=p.stderr[-500:]; return rec
+              raw=sb.read_text(encoding='utf-8',errors='ignore')
+              links=re.findall(r'href=["\'](https?://www\.scflcp\.com\.cn/ssq/\d+\.jhtml|/ssq/\d+\.jhtml)',raw,re.I)
+              seen=[]
+              for x in links:
+                  u=urljoin(BASE,x)
+                  if u not in seen: seen.append(u)
+              rec['candidate_urls']=seen
+              for idx,u in enumerate(seen[:30],1):
+                  db=ROOT/'detail'/f'{issue}_{idx}.html'; dh=ROOT/'detail'/f'{issue}_{idx}.headers'
+                  d=curl(u,db,dh)
+                  if d.returncode!=0 or not db.exists(): continue
+                  txt=db.read_text(encoding='utf-8',errors='ignore')
+                  plain=re.sub(r'<[^>]+>',' ',html.unescape(txt))
+                  plain=re.sub(r'\s+',' ',plain)
+                  if issue not in plain or '双色球' not in plain: continue
+                  rec['status']='OK'; rec['detail_url']=u; rec['detail_body']=str(db); rec['detail_headers']=str(dh)
+                  rec['detail_sha256']=hashlib.sha256(db.read_bytes()).hexdigest()
+                  rec['detail_headers_sha256']=hashlib.sha256(dh.read_bytes()).hexdigest()
+                  mdate=re.search(r'开奖日期[：:]?\s*(20\d{2})[-年](\d{1,2})[-月](\d{1,2})',plain)
+                  rec['date']=f"{mdate.group(1)}-{int(mdate.group(2)):02d}-{int(mdate.group(3)):02d}" if mdate else None
+                  msale=re.search(r'本期销售金额[：:]?\s*([\d,]+)\s*元',plain)
+                  rec['sales_rmb']=int(msale.group(1).replace(',','')) if msale else None
+                  m1=re.search(r'一等奖\s+([\d,]+)\s+([\d,.]+)',plain)
+                  m2=re.search(r'二等奖\s+([\d,]+)\s+([\d,.]+)',plain)
+                  rec['first_prize_winners']=int(m1.group(1).replace(',','')) if m1 else None
+                  rec['second_prize_winners']=int(m2.group(1).replace(',','')) if m2 else None
+                  return rec
+              rec['status']='NO_MATCHING_DETAIL'; return rec
           rows=[]
-          for p in sorted(pathlib.Path('evidence/list').glob('page_*.html')):
-              s=p.read_text(encoding='utf-8',errors='ignore')
-              pat=re.compile(r'<td>\s*(2025-\d{2}-\d{2})\s*</td>\s*<td>\s*(2025\d{3})\s*</td>.*?<a href="(https://www\.scflcp\.com\.cn/assets/u/cms/www/[^"]+\.(?:png|jpg|jpeg|pdf))"',re.S|re.I)
-              for date,issue,url in pat.findall(s):
-                  rows.append({'issue':issue,'date':date,'url':html.unescape(url),'list_page':p.name})
-          uniq={r['issue']:r for r in rows}
-          rows=[uniq[k] for k in sorted(uniq)]
-          pathlib.Path('evidence/rows.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          pathlib.Path('evidence/urls.txt').write_text('\n'.join(f"{r['issue']}|{r['url']}" for r in rows)+'\n',encoding='utf-8')
-          print('ROWS',len(rows),rows[:2],rows[-2:])
-          PY
-          while IFS='|' read -r issue url; do
-            [ -z "$issue" ] && continue
-            ext="${url##*.}"
-            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "evidence/images/${issue}.headers" -o "evidence/images/${issue}.${ext}" "$url"
-          done < evidence/urls.txt
-          python - <<'PY'
-          import pathlib,hashlib,json,datetime
-          rows=json.loads(pathlib.Path('evidence/rows.json').read_text(encoding='utf-8'))
-          rec=[]
-          for r in rows:
-              hits=list(pathlib.Path('evidence/images').glob(r['issue']+'.*'))
-              bodies=[p for p in hits if p.suffix.lower() in {'.png','.jpg','.jpeg','.pdf'}]
-              if not bodies: continue
-              p=bodies[0]
-              rec.append({**r,'body':str(p),'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'body_size_bytes':p.stat().st_size})
-          out={'schema':'SSQ-SICHUAN-2025-IMAGE-EVIDENCE-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'rows':rec,'row_count':len(rec)}
-          pathlib.Path('evidence/MANIFEST.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print('DOWNLOADED',len(rec))
+          with concurrent.futures.ThreadPoolExecutor(max_workers=16) as ex:
+              for r in ex.map(one,issues):
+                  rows.append(r); print(r['issue'],r['status'])
+          ok=[r for r in rows if r.get('status')=='OK']
+          out={'schema':'SSQ-SICHUAN-2025-STRUCTURED-HTML-v1','fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'requested_issues':len(issues),'ok_rows':len(ok),'second_complete_rows':sum(r.get('second_prize_winners') is not None for r in ok),'rows':rows}
+          (ROOT/'MANIFEST.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('OK_ROWS',len(ok),'SECOND_COMPLETE',out['second_complete_rows'])
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: ssq-sichuan-2025-image-evidence
+          name: ssq-sichuan-2025-structured-html
           path: evidence
