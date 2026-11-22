@@ -1,0 +1,30 @@
+name: SSQ CWL detail probe
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-cwl-detail-probe.yml'
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe CWL detail pages
+        shell: bash
+        run: |
+          set -u
+          mkdir -p probe
+          urls=(
+            "https://www.cwl.gov.cn/c/2026/11/19/673989.shtml"
+            "https://www.cwl.gov.cn/c/2026/10/20/670487.shtml"
+            "https://www.cwl.gov.cn/c/2025/09/11/627989.shtml"
+          )
+          i=0
+          for u in "${urls[@]}"; do
+            i=$((i+1))
+            code=$(curl -L -sS --connect-timeout 5 --max-time 12 -A "Mozilla/5.0" -D "probe/$i.headers" -o "probe/$i.html" -w "%{http_code}" "$u" || true)
+            bytes=$(wc -c < "probe/$i.html" 2>/dev/null || echo 0)
+            echo "$i|$code|$bytes|$u" | tee -a probe/status.txt
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-cwl-detail-probe
+          path: probe
