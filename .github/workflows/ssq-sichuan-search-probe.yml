@@ -17,6 +17,34 @@ jobs:
             echo "QUERY=${q}"
             grep -Eo 'https?://[^"]+|/ssq/[0-9]+\.jhtml' "probe/${q}.html" | grep -E '/ssq/' | head -20 || true
           done
+          echo "=== SICHUAN_2024_FINAL4_RAW ==="
+          mkdir -p probe/sc_final4
+          cat > probe/sc_final4/urls.tsv <<'EOF'
+2024020 https://www.scflcp.com.cn/ssq/823124134.jhtml
+2024021 https://www.scflcp.com.cn/ssq/823124195.jhtml
+2024023 https://www.scflcp.com.cn/ssq/823124299.jhtml
+2024027 https://www.scflcp.com.cn/ssq/823124606.jhtml
+EOF
+          while read issue url; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "probe/sc_final4/$issue.headers" -o "probe/sc_final4/$issue.html" "$url"
+          done < probe/sc_final4/urls.tsv
+          python - <<'PY'
+          import pathlib,re,json,hashlib
+          out=[]
+          for p in sorted(pathlib.Path('probe/sc_final4').glob('2024*.html')):
+              issue=p.stem; s=p.read_text(encoding='utf-8',errors='ignore')
+              txt=re.sub(r'<[^>]+>',' ',s); txt=re.sub(r'&nbsp;',' ',txt); txt=re.sub(r'\s+',' ',txt)
+              date=re.search(r'开奖日期[：:]\s*(20\d{2}-\d{2}-\d{2})',txt)
+              sale=re.search(r'本期销售金额[：:]\s*([\d,]+)\s*元',txt)
+              pool=re.search(r'下期一等奖奖池累计金额[：:]\s*([\d,]+)\s*元',txt)
+              balls=re.search(r'中奖号码\s*((?:\d{1,2}\s+){6}\d{1,2})',txt)
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',txt)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',txt)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',balls.group(1))] if balls else []
+              out.append({'issue':issue,'date':date.group(1) if date else None,'sales_rmb':int(sale.group(1).replace(',','')) if sale else None,'reds':sorted(nums[:6]) if len(nums)>=7 else None,'blue':nums[6] if len(nums)>=7 else None,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'pool_rmb':int(pool.group(1).replace(',','')) if pool else None,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(p.with_suffix('.headers').read_bytes()).hexdigest()})
+          pathlib.Path('probe/sc_final4/PARSED.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
           echo "=== SICHUAN_2024023_ID_PROBE ==="
           mkdir -p probe/sc2024023
           seq 823124259 823124460 | xargs -P 20 -I{} bash -c '
