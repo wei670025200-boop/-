@@ -1,0 +1,25 @@
+name: SSQ V5 Guangxi frozen-sample crosscheck raw
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/fetch_guangxi_crosscheck_sample.py'
+      - '.github/workflows/ssq-v5-guangxi-crosscheck.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -u ssq_v5/fetch_guangxi_crosscheck_sample.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-v5-guangxi-crosscheck-raw
+          path: out_gx_audit/
+          if-no-files-found: error
+          retention-days: 30
