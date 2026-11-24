@@ -14,6 +14,7 @@ import hashlib
 import json
 import math
 import os
+import sys
 from dataclasses import asdict, dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -55,8 +56,12 @@ from ssq_v5.statutory_liability_v5 import (
     compute_statutory_rmb_liability_surface,
     load_statutory_rule_table,
 )
-from v4_rc2.rules_and_ev_v4 import evaluate_2026_rule_state_machine
-from v4_rc2.sampler_v4 import DomainSeparatedDRBG
+_ROOT = Path(__file__).resolve().parents[1]
+_V4 = _ROOT / "v4_rc2"
+if str(_V4) not in sys.path:
+    sys.path.insert(0, str(_V4))
+from rules_and_ev_v4 import evaluate_2026_rule_state_machine
+from sampler_v4 import DomainSeparatedDRBG
 
 PHASE3_FROZEN_ARTIFACT = "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
 
