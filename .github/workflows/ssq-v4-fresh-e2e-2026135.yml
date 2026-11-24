@@ -157,7 +157,7 @@ jobs:
           assert receipt['draw_ev_context']['special_rule_active'] is False
           assert receipt['metrics']['profit_guarantee'] == 'NONE'
 
-          final_dir = Path(result['final_dir'])
+          final_dir = Path(result['published_dir'])
           required = ['PRIVATE_SEED_AND_NONCE.json','TICKETS.json','RECEIPT.json','STAGE_MANIFEST.json']
           missing = [x for x in required if not (final_dir/x).is_file()]
           if missing:
