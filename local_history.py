@@ -31,7 +31,7 @@ class LocalHistoryRow:
 
 def _opt_int(value: str) -> int | None:
     value = value.strip()
-    return None if value == "" else int(value)
+    return None if value == "" else int(float(value))
 
 
 def _opt_bool(value: str) -> bool | None:
