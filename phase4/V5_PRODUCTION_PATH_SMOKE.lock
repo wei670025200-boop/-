@@ -1,0 +1,3 @@
+ENGINEERING_SMOKE_ONLY
+policy_gate_not_rerun=true
+local_test_remaining_sixth_promo_rmb=560000000
