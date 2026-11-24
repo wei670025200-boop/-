@@ -1,0 +1,24 @@
+name: SSQ V5 Canonical V2 source probe
+
+on:
+  push:
+    branches:
+      - ssq-v5-shadow-integration-20261124
+    paths:
+      - 'ssq_v5/probe_canonical_sources.py'
+      - '.github/workflows/ssq-v5-canonical-source-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe official sources
+        run: python ssq_v5/probe_canonical_sources.py
