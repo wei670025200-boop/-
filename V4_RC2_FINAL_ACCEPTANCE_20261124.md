@@ -1,91 +1,120 @@
-# SSQ V4-RC2 FINAL ACCEPTANCE
+# SSQ V4-RC2.1 FINAL ACCEPTANCE
 
 Date: 2026-11-24
 
-## Decision
-Local engineering/code freeze gate: PASS.
+## Final decision
+
+**ACTIVE PRODUCTION RELEASE: SSQ_V4_RC2_1**
+
+Live repository entrypoint:
+`v4/runner_v4.py`
+
+Validated implementation:
+`v4_rc2/`
 
 Production route:
-UNIFORM_MARGINAL_BALANCED_COVERAGE
+`UNIFORM_MARGINAL_BALANCED_COVERAGE`
 
 Predictive edge claim:
-NONE.
+`NONE`
 
 Popularity filter:
-BLOCKED.
+`BLOCKED`
 
-## Regression / integration
-Final local clean-directory suite:
-- 51 / 51 PASS
-- 0 failures
-- 0 errors
-- runtime ~0.215 s
+## Frozen-code acceptance
 
-The suite includes the original 42 V4-RC2 blocker regressions plus real/production integration checks for:
-- Shanghai official raw HTML parsing;
-- Sichuan official raw HTML parsing;
-- independent Shanghai + Sichuan 2-of-2 quorum;
-- Shanghai official draw schedule parsing;
-- previous-issue special-rule state inheritance from append-only ledger;
-- caller conflict with ledger-inherited rule state is rejected;
-- annual suspension notice expansion;
-- missing annual suspension evidence fails closed;
-- wrong-year suspension coverage fails closed;
-- only empirically validated draw sources are production-enabled.
+Hosted freeze acceptance run:
+`45394838990` — PASS
 
-## Real official-source validation
-Validated from raw official evidence collected by GitHub Actions:
-- SH_FLCP: production_enabled = true
-- SC_FLCP: production_enabled = true
+Verified:
+- `v4_rc2/SHA256SUMS.txt`: PASS
+- real SH/SC raw evidence fetch: PASS
+- 54 / 54 regression + real integration tests: PASS
+- 100,000-trial audit: PASS
+- exact 1,107,568 red-draw brute-force crosscheck: PASS
 
-Both independently parsed the same latest test draw:
-- issue: 2026134
-- draw date: 2026-11-22
-- reds: 04 05 10 17 21 32
-- blue: 08
-- sales: 435,713,586 RMB
-- pool after draw: 1,154,982,023 RMB
-
-Registered but not yet production-enabled:
-- CWL_CENTRAL
-- GD_FLCP
-
-Their parsers may remain in the codebase as disabled fallbacks until independently validated against stable current raw official evidence.
-
-## Distribution audit
-Final local 100,000-trial audit:
-- ticket_count: 8
-- red slot 0 chi-square: 18.6222 < 62.487
-- red last slot chi-square: 36.6525 < 62.487
-- blue slot 0 chi-square: 14.4842 < 37.697
-- all tests use alpha = 0.001 thresholds specified by the RC2 protocol
-
-Exact coverage crosscheck:
-- fast exact union N=6: 32,568
-- brute-force C(33,6)=1,107,568 enumeration: 32,568
+Freeze acceptance audit:
+- red slot 0 chi-square: 28.9907 < 62.487
+- red last slot chi-square: 13.5187 < 62.487
+- blue slot 0 chi-square: 8.2595 < 37.697
+- exact union N=6 fast: 32,568
+- exact union N=6 brute force: 32,568
 - difference: 0
-- overall_audit_pass: true
 
-## Production evidence gates
-Required before a real production draw:
-1. >=2 production-enabled independent official sources must agree.
-2. Weekly draw schedule evidence must be raw-byte + SHA bound.
-3. Full-year official suspension evidence must cover the target date.
-4. Promotion evidence, when used, must be official raw-byte + SHA bound.
-5. Physical slip plan must exactly partition all generated tickets.
-6. Previous special-rule state is inherited from the previous issue ledger when present.
-7. First migration/bootstrap state, if no previous ledger state exists, is explicit and commitment-bound.
-8. Production transaction remains STAGE -> HASH VERIFY -> LEDGER COMMIT -> ATOMIC PUBLISH.
-9. No issue may be redrawn after ledger commit.
+## Fresh Production E2E
 
-## Repository freeze
+Target issue:
+`2026135`
 
-The seven validated source/test files are stored directly under `v4_rc2/`.
+Combined Fresh E2E run:
+`45394446046` — PASS
 
-Repository-to-local reverse comparison:
-- 7 / 7 exact text matches confirmed.
+Pre-draw official evidence:
+- SH_FLCP draw evidence SHA-256:
+  `a1cfd33368b0e8e21b5a90dbf0ec7d5084898b5764caf9ce33ed5fa65bff6af9`
+- SC_FLCP draw evidence SHA-256:
+  `ffb58eec77655a02799dc77434bc6d9c0ebb69f03d8a115803d709e543d83717`
+- MOF annual suspension evidence:
+  verified and hash-bound
+- GZ_MZJ promotion-rule evidence:
+  verified and hash-bound
+- SH_FLCP current promotion-status evidence:
+  verified, tied to latest completed issue 2026134, and hash-bound
 
-Local source-bundle archive SHA-256 retained for audit reference:
-`363c53aa713ba7119aec9833bad2ba250e97217247cb5fe969de82bcd6eccb03`
+Production transaction:
+- latest completed issue: 2026134
+- target issue: 2026135
+- ticket count: 10
+- budget: 20 RMB
+- physical plan: one 20 RMB SINGLE slip containing all 10 singles
+- rule state: STAY_NORMAL
+- previous special-rule state: false
+- promotion: active
+- planned promotion eligibility: PLANNED_ELIGIBLE
+- STAGE: PASS
+- HASH VERIFY: PASS
+- LEDGER COMMIT: PASS
+- ATOMIC PUBLISH: PASS
+- duplicate issue / no-redraw guard: PASS
+- profit guarantee: NONE
 
-The GitHub acceptance workflow now verifies `v4_rc2/SHA256SUMS.txt`, compiles the checked-in files, runs the 51-test suite, and runs the 100k / 1,107,568 crosscheck directly. No Base64 restoration layer remains.
+Fresh E2E commitment SHA-256:
+`48c64e2d374d07da86042a4fdc4e09809c9f51d22a9de9f072e68546e32ee70b`
+
+Fresh E2E ledger record SHA-256:
+`cc345b2c85a75d8a55462d7930b0d46fe52898ef3fc4ca2731a11a3e79da3fdd`
+
+## Promotion evidence hardening
+
+RC2.1 separates:
+1. promotion rule evidence;
+2. current promotion-status evidence.
+
+During an active promotion, current status evidence is mandatory and must correspond to the latest completed issue. A positive verified sixth-prize doubling balance is required before that bonus is represented in the EV context.
+
+The current status evidence SHA is separately included in the production commitment and receipt.
+
+## Cutover
+
+The previous V4 draft runner is preserved as:
+`v4/legacy_runner_draft.py`
+
+The live production entrypoint now resolves to RC2.1.
+
+Isolated cutover smoke:
+`45395722788` — PASS
+
+The live entrypoint:
+- reports `ACTIVE_RELEASE = SSQ_V4_RC2_1`;
+- resolves implementation to `v4_rc2`;
+- exports the controlled production transaction API;
+- does not export the old ungated `generate_balanced_batch` draft API.
+
+## Remaining operational condition
+
+The software cutover is complete.
+
+If the user actually purchases under a promotion, planned eligibility must still be confirmed from the issued physical ticket / terminal receipt. Until then:
+`PLANNED_ELIGIBLE` is not the same as `RECEIPT_CONFIRMED_ELIGIBLE`.
+
+This remaining condition is about promotion eligibility, not V4 release activation.
