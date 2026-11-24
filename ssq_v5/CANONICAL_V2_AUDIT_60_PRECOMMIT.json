@@ -1,0 +1,28 @@
+{
+  "acceptance": "all 60 sampled issues independently verified from official secondary source; field conflicts = 0",
+  "audit_fields": [
+    "tier3_count",
+    "tier4_count",
+    "tier5_count",
+    "tier6_count"
+  ],
+  "canonical_v2_sha256": "25ca7190bd585d79d4ba8bb493e39cf7b559ee3f911fecebfdfebed55a2db8a6",
+  "independence_requirement": "secondary authority_id must differ from canonical row tier_provenance authority_id",
+  "population_count": 600,
+  "population_first": "2022139",
+  "population_last": "2026135",
+  "precommit_sha256": "9a181511173012b125ca926416d8c2ae76e182fe4fa385255e39eae834a2aea3",
+  "sample_count": 60,
+  "sample_fraction": 0.1,
+  "sample_issues": [
+    "2022140","2023020","2023022","2023028","2023040","2023046","2023051","2023070","2023075","2023085",
+    "2023097","2023098","2023147","2024001","2024015","2024027","2024036","2024046","2024062","2024068",
+    "2024081","2024082","2024083","2024097","2024121","2024125","2024131","2024134","2024135","2024144",
+    "2025010","2025014","2025016","2025020","2025021","2025034","2025035","2025043","2025047","2025061",
+    "2025065","2025078","2025097","2025124","2025126","2026003","2026015","2026019","2026022","2026030",
+    "2026034","2026082","2026088","2026092","2026094","2026103","2026106","2026122","2026128","2026133"
+  ],
+  "schema": "SSQ_CANONICAL_V2_AUDIT_PRECOMMIT_1.0",
+  "seed": "20261124",
+  "selection_algorithm": "sort population issues by SHA256(UTF8(seed + \"|\" + issue)) ascending; take first 60; display selected issues lexicographically"
+}
