@@ -64,6 +64,13 @@ jobs:
           cd v4_rc2
           python -m unittest test_v4_regression.py test_v4_real_integration.py -v
 
+      - name: Run 100k distribution audit and 1,107,568 exact crosscheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python audit_v4_100k.py | tee /tmp/V4_RC21_100K_AUDIT.json
+
       - name: Execute fresh pre-draw production transaction
         shell: bash
         run: |
