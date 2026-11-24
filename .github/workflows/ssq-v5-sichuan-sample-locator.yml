@@ -1,0 +1,26 @@
+name: SSQ V5 Sichuan fixed-sample locator
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/locate_sichuan_crosscheck_sample.py'
+      - 'ssq_v5/CANONICAL_V2_CROSSCHECK_PRECOMMIT.json'
+      - '.github/workflows/ssq-v5-sichuan-sample-locator.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  locate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -u ssq_v5/locate_sichuan_crosscheck_sample.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-v5-sichuan-sample-locator
+          path: out_sc_probe/
+          if-no-files-found: error
+          retention-days: 30
