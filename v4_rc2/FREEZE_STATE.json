@@ -1,0 +1,64 @@
+{
+  "schema": "SSQ_V4_RC2_1_FREEZE_STATE_1.0",
+  "date": "2026-11-24",
+  "release": "SSQ_V4_RC2_1",
+  "phase1_status": "FREEZE_PASS",
+  "technical_cutover_status": "PASS",
+  "active_repository_entrypoint": "v4/runner_v4.py",
+  "implementation_dir": "v4_rc2",
+  "route_mode": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
+  "predictive_edge_claim": "NONE",
+  "popularity_filter": "BLOCKED",
+  "regression": {
+    "passed": 54,
+    "total": 54,
+    "failures": 0,
+    "errors": 0
+  },
+  "audit_100k": {
+    "trials": 100000,
+    "ticket_count": 8,
+    "chi2_red_slot0": 28.9907,
+    "chi2_red_slot_last": 13.5187,
+    "chi2_red_threshold_p001": 62.487,
+    "chi2_blue_slot0": 8.2595,
+    "chi2_blue_threshold_p001": 37.697,
+    "exact_union_n6_fast": 32568,
+    "exact_union_n6_bruteforce_1107568": 32568,
+    "exact_union_match": true,
+    "overall_audit_pass": true
+  },
+  "official_quorum": {
+    "production_enabled": [
+      "SH_FLCP",
+      "SC_FLCP"
+    ],
+    "evidence_only": [
+      "MOF_CHINA",
+      "GZ_MZJ"
+    ],
+    "registered_but_disabled_until_real_validation": [
+      "CWL_CENTRAL",
+      "GD_FLCP"
+    ],
+    "last_real_validation_issue": "2026134"
+  },
+  "promotion_evidence_model": "RULE_EVIDENCE_PLUS_CURRENT_STATUS_EVIDENCE_REQUIRED_WHEN_ACTIVE",
+  "suspension_gate": "FULL_YEAR_OFFICIAL_EVIDENCE_REQUIRED_FAIL_CLOSED",
+  "rule_state_inheritance": "PREVIOUS_ISSUE_LEDGER_FIRST; ONE_TIME_BOOTSTRAP_ONLY_IF_LEDGER_ABSENT",
+  "fresh_production_e2e": {
+    "target_issue": "2026135",
+    "run_id": 45394446046,
+    "status": "PASS",
+    "no_redraw_guard": "PASS",
+    "physical_slip_plan": "10 SINGLE tickets on one 20 RMB physical slip",
+    "promo_eligibility": "PLANNED_ELIGIBLE_PENDING_POST_PURCHASE_RECEIPT_CONFIRMATION"
+  },
+  "freeze_acceptance": {
+    "run_id": 45394838990,
+    "status": "PASS"
+  },
+  "sha256_manifest": "v4_rc2/SHA256SUMS.txt",
+  "source_sync": "BYTE_SHA256_VERIFIED",
+  "next_release_gate": "POST_PURCHASE_RECEIPT_CONFIRMATION_ONLY_FOR_FINAL_PROMOTION_ELIGIBILITY"
+}

@@ -1,0 +1,70 @@
+name: SSQ V4-RC2 freeze acceptance
+
+on:
+  push:
+    branches:
+      - ssq-v4-ppas12-20261124
+    paths:
+      - 'v4_rc2/**'
+      - 'v4/**'
+      - '.github/workflows/ssq-v4-rc2-freeze.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-frozen-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ssq-v4-ppas12-20261124
+
+      - name: Verify frozen source SHA256 manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          sha256sum -c SHA256SUMS.txt
+          python -m py_compile *.py
+
+      - name: Fetch real SH and SC evidence fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ssq_evidence
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158.0 Safari/537.36'
+          curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 120 \
+            -A "$UA" -o /tmp/ssq_evidence/shanghai_ssq_previous.body \
+            'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous'
+          curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 120 \
+            -A "$UA" -o /tmp/ssq_evidence/sichuan_ssq_current.body \
+            'https://www.scflcp.com.cn/ssq'
+
+      - name: Run 54 regression and real-integration tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python -m unittest test_v4_regression.py test_v4_real_integration.py -v
+
+      - name: Run 100k distribution audit and 1,107,568 brute-force crosscheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python audit_v4_100k.py
+
+      - name: Smoke-test live V4 entrypoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import v4.runner_v4 as live
+          assert live.ACTIVE_RELEASE == "SSQ_V4_RC2_1"
+          assert callable(live.run_v4_production)
+          assert callable(live.recover_staged_publish)
+          assert str(live.ACTIVE_IMPLEMENTATION_DIR).endswith("/v4_rc2")
+          print("LIVE_V4_ENTRYPOINT_RC2_1_PASS")
+          PY
