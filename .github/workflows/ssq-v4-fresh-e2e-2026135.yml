@@ -128,6 +128,7 @@ jobs:
                   'path':str(E/'sh_status.body'),
                   'sha256':hashlib.sha256((E/'sh_status.body').read_bytes()).hexdigest(),
                   'fetched_at_utc':fetched,
+                  'parser_version':'sh_promo_status_html_or_json_v1',
               },
               'special_rule_active_previous': False,
               'physical_slip_plan': [{
