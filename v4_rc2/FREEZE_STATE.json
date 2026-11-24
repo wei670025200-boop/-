@@ -1,0 +1,43 @@
+{
+  "schema": "SSQ_V4_RC2_FREEZE_STATE_1.0",
+  "date": "2026-11-24",
+  "phase1_status": "FREEZE_PASS",
+  "route_mode": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
+  "predictive_edge_claim": "NONE",
+  "popularity_filter": "BLOCKED",
+  "regression": {
+    "passed": 51,
+    "total": 51,
+    "failures": 0,
+    "errors": 0
+  },
+  "audit_100k": {
+    "trials": 100000,
+    "ticket_count": 8,
+    "chi2_red_slot0": 18.6222,
+    "chi2_red_slot_last": 36.6525,
+    "chi2_red_threshold_p001": 62.487,
+    "chi2_blue_slot0": 14.4842,
+    "chi2_blue_threshold_p001": 37.697,
+    "exact_union_n6_fast": 32568,
+    "exact_union_n6_bruteforce_1107568": 32568,
+    "exact_union_match": true,
+    "overall_audit_pass": true
+  },
+  "official_quorum": {
+    "production_enabled": [
+      "SH_FLCP",
+      "SC_FLCP"
+    ],
+    "registered_but_disabled_until_real_validation": [
+      "CWL_CENTRAL",
+      "GD_FLCP"
+    ],
+    "last_real_validation_issue": "2026134"
+  },
+  "suspension_gate": "FULL_YEAR_OFFICIAL_EVIDENCE_REQUIRED_FAIL_CLOSED",
+  "rule_state_inheritance": "PREVIOUS_ISSUE_LEDGER_FIRST; ONE_TIME_BOOTSTRAP_ONLY_IF_LEDGER_ABSENT",
+  "source_bundle_tar_sha256": "363c53aa713ba7119aec9833bad2ba250e97217247cb5fe969de82bcd6eccb03",
+  "source_sync": "7_OF_7_EXACT_TEXT_MATCH_CONFIRMED",
+  "next_release_gate": "FRESH_PRODUCTION_E2E_BEFORE_REPLACING_V3"
+}
