@@ -38,9 +38,13 @@ def _opt_bool(value: str) -> bool | None:
     value = value.strip()
     if value == "":
         return None
-    if value not in {"0", "1"}:
+    try:
+        iv = int(float(value))
+    except ValueError as exc:
+        raise ValueError(f"promo_sixth_double must be blank/0/1, got {value!r}") from exc
+    if iv not in {0, 1}:
         raise ValueError(f"promo_sixth_double must be blank/0/1, got {value!r}")
-    return value == "1"
+    return iv == 1
 
 
 def load_ssq_history(path: str | Path = DEFAULT_HISTORY_PATH) -> List[LocalHistoryRow]:
