@@ -2,7 +2,7 @@ import math
 import unittest
 from datetime import datetime, timezone, timedelta
 
-from v4.runner_v4 import (
+from v4.legacy_runner_draft import (
     BLUE_COUNT,
     MAX_TICKETS_PER_RUN,
     PromotionRule,
