@@ -220,7 +220,7 @@ class TestV5Pipeline(unittest.TestCase):
     def test_07_runner_v5_oos_gate_lock_and_cusum_fallback_to_v4(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            hist = _make_synthetic_history(120, inject_signal=True)
+            hist = _make_synthetic_history(180, inject_signal=True)
             last = hist[-1]
 
             # 构造通过与失败两套校准参数
