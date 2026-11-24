@@ -295,15 +295,15 @@ def run_v5_production(
     if requested_mode == V5_ROUTE_SHADOW:
         effective_route = V4_FALLBACK_ROUTE
         fallback_reason = "SHADOW_MODE_EXPLICIT_V4_EXECUTION"
-    elif V5_POLICY_GATE_STATUS != "PASS":
-        effective_route = V4_FALLBACK_ROUTE
-        fallback_reason = f"V5_POLICY_GATE_LOCKED:{V5_POLICY_GATE_STATUS}"
     elif twin_params.oos_gate_status != "PASS":
         effective_route = V4_FALLBACK_ROUTE
         fallback_reason = f"V5_OOS_GATE_LOCKED:{twin_params.oos_gate_status}"
     elif cb.tripped:
         effective_route = V4_FALLBACK_ROUTE
         fallback_reason = f"CIRCUIT_BREAKER_DOWNGRADE:{cb.reason}"
+    elif V5_POLICY_GATE_STATUS != "PASS":
+        effective_route = V4_FALLBACK_ROUTE
+        fallback_reason = f"V5_POLICY_GATE_LOCKED:{V5_POLICY_GATE_STATUS}"
     else:
         effective_route = V5_ROUTE_PROD
 
