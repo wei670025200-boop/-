@@ -11,8 +11,8 @@ from __future__ import annotations
 import json
 import os
 import sys
-from dataclasses import dataclass
-from datetime import datetime, timezone
+from dataclasses import dataclass, replace
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Sequence
 
@@ -20,13 +20,16 @@ import numpy as np
 
 # 允许与 ssq_v4_rc2 并列目录导入（实际部署可按统一包名调整）
 _PARENT = Path(__file__).resolve().parent.parent
-if str(_PARENT / "ssq_v4_rc2") not in sys.path:
-    sys.path.insert(0, str(_PARENT / "ssq_v4_rc2"))
+if str(_PARENT / "v4_rc2") not in sys.path:
+    sys.path.insert(0, str(_PARENT / "v4_rc2"))
 
 from registry_and_parsers_v4 import (  # noqa: E402
     GateBlockedError,
+    bind_schedule_suspension,
     load_promo_evidence,
+    load_promo_status_evidence,
     load_schedule_manifest_evidence,
+    load_suspension_evidence,
     sha256_bytes,
     verify_2_of_n_official_quorum,
 )
@@ -72,6 +75,11 @@ V5_SYSTEM_VERSION = "SSQ_V5_ANTI_CROWD_SPARSE_ZONE"
 V5_ROUTE_PROD = "ANTI_CROWD_SPARSE_ZONE_V1"
 V5_ROUTE_SHADOW = "V5_SHADOW_V4_EXECUTION"
 V4_FALLBACK_ROUTE = "UNIFORM_MARGINAL_BALANCED_COVERAGE"
+V5_POLICY_GATE_STATUS = "UNVERIFIED_FIXED_THRESHOLDS"
+V5_POLICY_GATE_REASON = (
+    "Liability weights, sparse percentile bands, and blue keep-counts are still "
+    "pre-registered research constants and have not been selected by real OOS data."
+)
 
 
 @dataclass(frozen=True)
@@ -185,10 +193,37 @@ def run_v5_production(
     if staging_dir.exists():
         raise GateBlockedError("UNRECOVERED_STAGING_EXISTS", f"Recover .staging_{target_issue} first.")
 
-    # 1. 继承 V4 全部硬门禁（2-of-N 原始字节仲裁、外部赛程、派奖证据、2026滞回状态机、物理分票计划）
+    # 1. 继承 RC2.1 全部硬门禁：2-of-N、赛程+全年休市、派奖规则+当前状态、账本状态继承、物理分票
     quorum = verify_2_of_n_official_quorum(input_data["official_sources"], min_quorum=2)
-    schedule_ev = load_schedule_manifest_evidence(input_data["schedule_manifest"])
+    schedule_base = load_schedule_manifest_evidence(input_data["schedule_manifest"])
+    if "suspension_evidence" not in input_data:
+        raise GateBlockedError(
+            "SUSPENSION_EVIDENCE_REQUIRED",
+            "V5 must inherit RC2.1 full-year suspension evidence gate.",
+        )
+    suspension_ev = load_suspension_evidence(input_data["suspension_evidence"])
+    schedule_ev = bind_schedule_suspension(schedule_base, suspension_ev)
+
     promo_ev = load_promo_evidence(input_data.get("promo_evidence"), target_issue=target_issue)
+    latest_completed_issue = str(quorum.latest_draw["issue"])
+    promo_status_ev = None
+    if promo_ev.active_for_target_issue:
+        status_entry = input_data.get("promo_status_evidence")
+        if status_entry is None:
+            raise GateBlockedError(
+                "PROMO_STATUS_EVIDENCE_REQUIRED",
+                "Active promotion requires current official promotion-status evidence.",
+            )
+        promo_status_ev = load_promo_status_evidence(
+            status_entry,
+            expected_latest_issue=latest_completed_issue,
+        )
+        if promo_ev.sixth_prize_double_active:
+            promo_ev = replace(
+                promo_ev,
+                remaining_sixth_promo_rmb=promo_status_ev.remaining_sixth_promo_rmb,
+            )
+
     draw_dt_utc = verify_schedule_and_continuity(
         target_issue=target_issue,
         draw_at_utc_str=str(input_data["draw_at_utc"]),
@@ -196,11 +231,29 @@ def run_v5_production(
         schedule=schedule_ev,
         now_utc=now_utc,
     )
-    if "special_rule_active_previous" not in input_data:
-        raise GateBlockedError("MISSING_SPECIAL_RULE_PREV_STATE", "Missing special_rule_active_previous.")
+
+    inherited_state = ledger.inherited_special_rule_state(latest_completed_issue)
+    caller_state = input_data.get("special_rule_active_previous")
+    if inherited_state is not None:
+        if caller_state is not None and caller_state is not inherited_state:
+            raise GateBlockedError(
+                "CALLER_RULE_STATE_CONFLICT",
+                f"Caller state {caller_state!r} conflicts with ledger-inherited {inherited_state!r}.",
+            )
+        special_rule_previous = inherited_state
+        rule_state_source = "PREVIOUS_ISSUE_LEDGER"
+    else:
+        if not isinstance(caller_state, bool):
+            raise GateBlockedError(
+                "MISSING_SPECIAL_RULE_PREV_STATE",
+                "No previous-issue ledger state exists; one-time bootstrap boolean is required.",
+            )
+        special_rule_previous = caller_state
+        rule_state_source = "ONE_TIME_MIGRATION_BOOTSTRAP"
+
     regime_state = evaluate_2026_rule_state_machine(
         pool_after_prev_draw_rmb=float(quorum.latest_draw["pool_after_rmb"]),
-        special_rule_active_previous=input_data["special_rule_active_previous"],
+        special_rule_active_previous=special_rule_previous,
     )
     validated_slips = validate_physical_slip_plan(
         physical_slip_plan=input_data.get("physical_slip_plan", []),
@@ -222,7 +275,7 @@ def run_v5_production(
         )
 
     # 2. Phase 2 实时舆情证据验证
-    draw_date_bjt = draw_dt_utc.astimezone(timezone(timedelta_hours := __import__("datetime").timedelta(hours=8))).strftime("%Y-%m-%d")
+    draw_date_bjt = draw_dt_utc.astimezone(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
     sentiment = build_verified_sentiment_snapshot(
         entries=input_data.get("sentiment_entries", []),
         target_issue=target_issue,
@@ -242,6 +295,9 @@ def run_v5_production(
     if requested_mode == V5_ROUTE_SHADOW:
         effective_route = V4_FALLBACK_ROUTE
         fallback_reason = "SHADOW_MODE_EXPLICIT_V4_EXECUTION"
+    elif V5_POLICY_GATE_STATUS != "PASS":
+        effective_route = V4_FALLBACK_ROUTE
+        fallback_reason = f"V5_POLICY_GATE_LOCKED:{V5_POLICY_GATE_STATUS}"
     elif twin_params.oos_gate_status != "PASS":
         effective_route = V4_FALLBACK_ROUTE
         fallback_reason = f"V5_OOS_GATE_LOCKED:{twin_params.oos_gate_status}"
@@ -316,16 +372,21 @@ def run_v5_production(
         "input_manifest_sha256": input_manifest_sha,
         "official_evidence_hashes": quorum.evidence_hashes,
         "schedule_manifest_sha256": schedule_ev.sha256,
+        "suspension_evidence_sha256": schedule_ev.suspension_sha256,
         "promo_evidence_sha256": promo_ev.sha256,
+        "promo_status_evidence_sha256": promo_status_ev.sha256 if promo_status_ev is not None else None,
         "sentiment_snapshot_sha256": sentiment.snapshot_sha256,
         "twin_artifact_sha256": twin_params.artifact_sha256,
         "sparse_pool_sha256": sparse_pool.manifest_sha256,
         "circuit_breaker_status": cb.status,
+        "v5_policy_gate_status": V5_POLICY_GATE_STATUS,
+        "v5_policy_gate_reason": V5_POLICY_GATE_REASON,
         "seed_sha256": seed_sha,
         "rule_regime_state": {
             "rule_regime": regime_state.rule_regime,
             "transition": regime_state.transition,
             "special_rule_active": regime_state.special_rule_active,
+            "state_source": rule_state_source,
         },
         "physical_slip_plan": validated_slips,
         "tickets": tickets,
@@ -372,6 +433,8 @@ def run_v5_production(
         },
         "digital_twin_evidence": {
             "model_version": twin_params.model_version,
+            "policy_gate_status": V5_POLICY_GATE_STATUS,
+            "policy_gate_reason": V5_POLICY_GATE_REASON,
             "oos_gate_status": twin_params.oos_gate_status,
             "artifact_sha256": twin_params.artifact_sha256,
             "sparse_pool_sha256": sparse_pool.manifest_sha256,
@@ -446,6 +509,7 @@ def run_v5_production(
             "circuit_breaker_status": cb.status,
             "twin_artifact_sha256": twin_params.artifact_sha256,
             "sparse_pool_sha256": sparse_pool.manifest_sha256,
+            "special_rule_active": regime_state.special_rule_active,
             "generated_utc": generated_utc,
         },
     )
