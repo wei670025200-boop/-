@@ -46,13 +46,18 @@ jobs:
           set -euo pipefail
           git fetch --depth=1 origin 181a47649c0a454a2bdd8c4fdc9f2e068b2f9232
           git diff --name-only 181a47649c0a454a2bdd8c4fdc9f2e068b2f9232 HEAD -- v4_rc2 | sort > /tmp/v4_changed.txt
-          printf '%s\n' 'v4_rc2/registry_and_parsers_v4.py' > /tmp/v4_expected_changed.txt
+          printf '%s\n' \
+            'v4_rc2/registry_and_parsers_v4.py' \
+            'v4_rc2/runner_v4.py' \
+            'v4_rc2/test_v4_real_integration.py' \
+            'v4_rc2/test_v4_regression.py' \
+            | sort > /tmp/v4_expected_changed.txt
           diff -u /tmp/v4_expected_changed.txt /tmp/v4_changed.txt
           cd v4_rc2
           sha256sum *.py | tee /tmp/v4_actual_sha256.txt
           python -m py_compile *.py
 
-      - name: Run frozen regression and real integration
+      - name: Run RC2.1 regression and real integration
         shell: bash
         run: |
           set -euo pipefail
@@ -151,6 +156,10 @@ jobs:
           assert latest == '2026134', latest
           assert set(receipt['quorum_result']['agreed_sources']) == {'SH_FLCP','SC_FLCP'}
           assert receipt['promo_evidence']['present'] is True
+          assert receipt['promo_evidence']['status_sha256'] == hashlib.sha256((E/'sh_status.body').read_bytes()).hexdigest()
+          assert receipt['promo_evidence']['status_latest_completed_issue'] == '2026134'
+          assert receipt['promo_evidence']['remaining_sixth_promo_rmb'] == 559426805.0
+          assert 'PROMO_SIXTH_PRIZE_DOUBLE_IF_SLIP_ELIGIBLE' in receipt['draw_ev_context']['fixed_prize_bonus_rule']
           assert receipt['draw_ev_context']['promo_active'] is True
           assert receipt['draw_ev_context']['promo_eligibility'] == 'PLANNED_ELIGIBLE'
           assert receipt['draw_ev_context']['special_rule_active_previous'] is False
