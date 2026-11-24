@@ -666,6 +666,84 @@ class PromoEvidence:
     remaining_sixth_promo_rmb: float
 
 
+PROMO_STATUS_PARSER_VERSIONS: Dict[str, str] = {
+    "SH_FLCP": "sh_promo_status_html_or_json_v1",
+}
+
+
+@dataclass(frozen=True)
+class PromoStatusEvidence:
+    source_id: str
+    authority_id: str
+    parser_version: str
+    sha256: str
+    latest_completed_issue: str
+    remaining_sixth_promo_rmb: float
+
+
+def _parse_promo_status_raw(raw_bytes: bytes, expected_latest_issue: str) -> Dict[str, Any]:
+    text = _decode_text(raw_bytes)
+    if text.lstrip().startswith("{"):
+        doc = json.loads(text)
+        issue = str(doc["latest_completed_issue"])
+        remaining = float(doc["remaining_sixth_promo_rmb"])
+    else:
+        plain = _clean_html(text)
+        issue = expected_latest_issue if expected_latest_issue in plain else ""
+        bal_m = re.search(
+            r"(?:下期)?六等奖翻番奖(?:奖金)?余额[：:]?\s*([\d,]+)\s*元",
+            plain,
+        )
+        remaining = float(bal_m.group(1).replace(",", "")) if bal_m else 0.0
+
+    if issue != expected_latest_issue:
+        raise GateBlockedError(
+            "PROMO_STATUS_ISSUE_MISMATCH",
+            f"Promotion status issue {issue!r} != latest completed issue {expected_latest_issue!r}.",
+        )
+    if remaining <= 0:
+        raise GateBlockedError(
+            "PROMO_STATUS_BALANCE_NOT_POSITIVE",
+            "Active sixth-prize doubling requires a positive verified remaining balance.",
+        )
+    return {
+        "latest_completed_issue": issue,
+        "remaining_sixth_promo_rmb": remaining,
+    }
+
+
+def load_promo_status_evidence(
+    entry: Dict[str, Any],
+    expected_latest_issue: str,
+) -> PromoStatusEvidence:
+    spec, raw_bytes, actual_sha = _load_and_verify_raw_evidence(
+        entry,
+        forbidden_caller_keys=frozenset(
+            {"parsed_promo_status", "remaining_sixth_promo_rmb", "latest_completed_issue"}
+        ),
+    )
+    expected_parser = PROMO_STATUS_PARSER_VERSIONS.get(spec.source_id)
+    if expected_parser is None:
+        raise GateBlockedError(
+            "PROMO_STATUS_SOURCE_NOT_ALLOWED",
+            f"Source {spec.source_id} is not registered for promotion-status evidence.",
+        )
+    if entry.get("parser_version") != expected_parser:
+        raise GateBlockedError(
+            "PROMO_STATUS_PARSER_VERSION_MISMATCH",
+            f"Expected {expected_parser}, got {entry.get('parser_version')}",
+        )
+    parsed = _parse_promo_status_raw(raw_bytes, expected_latest_issue)
+    return PromoStatusEvidence(
+        source_id=spec.source_id,
+        authority_id=spec.authority_id,
+        parser_version=expected_parser,
+        sha256=actual_sha,
+        latest_completed_issue=str(parsed["latest_completed_issue"]),
+        remaining_sixth_promo_rmb=float(parsed["remaining_sixth_promo_rmb"]),
+    )
+
+
 def _parse_promo_raw(raw_bytes: bytes, target_issue: str) -> Dict[str, Any]:
     text = _decode_text(raw_bytes)
     if text.lstrip().startswith("{"):
