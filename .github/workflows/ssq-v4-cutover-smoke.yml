@@ -1,0 +1,36 @@
+name: SSQ V4 RC2.1 live cutover smoke
+
+on:
+  push:
+    branches:
+      - ssq-v4-cutover-smoke-20261124
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ssq-v4-cutover-smoke-20261124
+      - name: Verify live entrypoint resolves to frozen RC2.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import v4.runner_v4 as live
+
+          manifest=json.loads(Path('v4/ACTIVE_RELEASE.json').read_text('utf-8'))
+          assert manifest['active_release']=='SSQ_V4_RC2_1'
+          assert live.ACTIVE_RELEASE=='SSQ_V4_RC2_1'
+          assert str(live.ACTIVE_IMPLEMENTATION_DIR).endswith('/v4_rc2')
+          assert callable(live.run_v4_production)
+          assert callable(live.recover_staged_publish)
+          assert not hasattr(live,'generate_balanced_batch')
+          print('LIVE_V4_ENTRYPOINT_RC2_1_PASS')
+          PY
