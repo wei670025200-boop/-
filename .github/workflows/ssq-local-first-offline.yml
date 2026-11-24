@@ -35,10 +35,18 @@ jobs:
               src=csv.reader(lines)
               rows=list(src)
               rows=[[row[i] for i in range(1,len(row))] for row in rows]
-              buf=io.StringIO(newline="")
-              w=csv.writer(buf,lineterminator="\n")
-              w.writerows(rows)
-              p.write_text(buf.getvalue(),encoding="utf-8")
+          else:
+              rows=list(csv.reader(lines))
+          header=rows[0]
+          int_cols={"r1","r2","r3","r4","r5","r6","blue","sales_rmb","pool_after_rmb","t1","t2","t3","t4","t5","t6","promo_sixth_double"}
+          for row in rows[1:]:
+              for i,name in enumerate(header):
+                  if name in int_cols and row[i] != "":
+                      row[i]=str(int(float(row[i])))
+          buf=io.StringIO(newline="")
+          w=csv.writer(buf,lineterminator="\n")
+          w.writerows(rows)
+          p.write_text(buf.getvalue(),encoding="utf-8")
           assert p.read_text("utf-8").splitlines()[0] == "issue,date,r1,r2,r3,r4,r5,r6,blue,sales_rmb,pool_after_rmb,t1,t2,t3,t4,t5,t6,promo_sixth_double"
           PY
 
