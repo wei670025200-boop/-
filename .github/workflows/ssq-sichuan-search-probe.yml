@@ -82,6 +82,11 @@ EOF
           print(json.dumps(out,ensure_ascii=False,indent=2))
           open('probe/HEBEI_RESULT.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
           PY
+      - name: Run SSQ V4 production regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v tests.test_v4_production
       - uses: actions/upload-artifact@v4
         with:
           name: ssq-sichuan-search-probe
