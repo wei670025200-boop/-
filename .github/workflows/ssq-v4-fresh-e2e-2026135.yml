@@ -40,12 +40,16 @@ jobs:
           cp /tmp/ssq_e2e/sc_draw.body /tmp/ssq_evidence/sichuan_ssq_current.body
           date -u +'%Y-%m-%dT%H:%M:%SZ' > /tmp/ssq_e2e/fetched_at_utc.txt
 
-      - name: Verify frozen modules except evidence registry extension
+      - name: Verify frozen baseline plus evidence-only registry extension
         shell: bash
         run: |
           set -euo pipefail
+          git fetch --depth=1 origin 181a47649c0a454a2bdd8c4fdc9f2e068b2f9232
+          git diff --name-only 181a47649c0a454a2bdd8c4fdc9f2e068b2f9232 HEAD -- v4_rc2 | sort > /tmp/v4_changed.txt
+          printf '%s\n' 'v4_rc2/registry_and_parsers_v4.py' > /tmp/v4_expected_changed.txt
+          diff -u /tmp/v4_expected_changed.txt /tmp/v4_changed.txt
           cd v4_rc2
-          grep -v '  registry_and_parsers_v4.py$' SHA256SUMS.txt | sha256sum -c -
+          sha256sum *.py | tee /tmp/v4_actual_sha256.txt
           python -m py_compile *.py
 
       - name: Run frozen regression and real integration
