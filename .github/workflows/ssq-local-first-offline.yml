@@ -92,3 +92,5 @@ jobs:
                   assert needle not in text, (p,needle)
           print("NO_LOTTERY_NETWORK_ENTRYPOINT_PASS")
           PY
+
+# trigger offline acceptance
