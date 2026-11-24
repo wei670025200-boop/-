@@ -1,0 +1,148 @@
+name: SSQ PP-AS-1.2 official evidence acquisition
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-ppas12-evidence.yml'
+      - 'scripts/ssq_ppas12_evidence.py'
+      - 'tests/test_ppas12_evidence.py'
+      - 'research/PP_AS_1_2_FIXED_ISSUES.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch official raw evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/raw/jiangsu/list evidence/raw/hebei/details evidence/raw/sichuan/{history,pdf,text}
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36'
+          export UA
+
+          # Jiangsu Welfare Lottery official archive. Older entries embed the
+          # complete official draw announcement directly in the list response.
+          for page in $(seq 1 45); do
+            url="https://www.jslottery.com/winning_history_a?locale=zh-CN&lottery_type_id=10&page=${page}&periods="
+            curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 90 -A "$UA" \
+              -D "evidence/raw/jiangsu/list/page_${page}.headers" \
+              -o "evidence/raw/jiangsu/list/page_${page}.html" "$url"
+          done
+
+          # Hebei Welfare Lottery official API and complete detail pages.
+          HEBEI_INDEX='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093&ps=1000'
+          curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 120 -A "$UA" \
+            -D evidence/raw/hebei/index.headers -o evidence/raw/hebei/index.json "$HEBEI_INDEX"
+          python - <<'PY'
+          import json,pathlib
+          obj=json.load(open('evidence/raw/hebei/index.json',encoding='utf-8'))
+          rows=(obj.get('data') or {}).get('rows') or []
+          out=[]
+          for row in rows:
+              issue=str(row.get('issueNo') or '')
+              link=str(row.get('link') or '')
+              if issue.isdigit() and link.startswith('/'):
+                  out.append(f'{issue}\thttps://www.yzfcw.com{link}')
+          pathlib.Path('evidence/raw/hebei/detail_urls.tsv').write_text('\n'.join(out)+'\n',encoding='utf-8')
+          print('HEBEI_DETAIL_URLS',len(out))
+          PY
+          cat evidence/raw/hebei/detail_urls.tsv | xargs -P 12 -n 2 bash -c '
+            issue="$1"; url="$2"
+            curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 90 -A "$UA" \
+              -D "evidence/raw/hebei/details/${issue}.headers" \
+              -o "evidence/raw/hebei/details/${issue}.html" "$url"
+          ' _
+
+          # Sichuan Welfare Lottery official PDFs are an independent source for
+          # current-year overlap checks. Missing PDF text is preserved as a gap.
+          for page in $(seq 1 15); do
+            suffix=''
+            if [ "$page" -gt 1 ]; then suffix="_${page}"; fi
+            url="https://www.scflcp.com.cn/ssqinfo${suffix}.jhtml"
+            curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 90 -A "$UA" \
+              -D "evidence/raw/sichuan/history/page_${page}.headers" \
+              -o "evidence/raw/sichuan/history/page_${page}.html" "$url"
+          done
+          python - <<'PY'
+          import hashlib,html,json,pathlib,re
+          rows=[]
+          for p in sorted(pathlib.Path('evidence/raw/sichuan/history').glob('page_*.html')):
+              s=p.read_text(encoding='utf-8',errors='replace')
+              for m in re.finditer(r'<tr>\s*<td>(\d{4}-\d{2}-\d{2})</td>\s*<td>(20\d{5})</td>\s*<td>\s*<a href="(https://www\.scflcp\.com\.cn/assets/[^"]+\.pdf)"',s,re.S):
+                  date,issue,url=m.groups()
+                  rows.append({'date':date,'issue':issue,'url':html.unescape(url)})
+          unique={r['issue']:r for r in rows}
+          pathlib.Path('evidence/raw/sichuan/pdf_urls.tsv').write_text('\n'.join(f"{i}\t{r['url']}" for i,r in sorted(unique.items()))+'\n',encoding='utf-8')
+          pathlib.Path('evidence/raw/sichuan/map.pre.json').write_text(json.dumps(list(unique.values()),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('SICHUAN_PDF_URLS',len(unique))
+          PY
+          cat evidence/raw/sichuan/pdf_urls.tsv | xargs -P 10 -n 2 bash -c '
+            issue="$1"; url="$2"
+            curl -fsSL --retry 3 --retry-delay 1 --connect-timeout 15 --max-time 90 -A "$UA" \
+              -D "evidence/raw/sichuan/pdf/${issue}.headers" \
+              -o "evidence/raw/sichuan/pdf/${issue}.pdf" "$url"
+            if command -v pdftotext >/dev/null 2>&1; then
+              pdftotext -layout "evidence/raw/sichuan/pdf/${issue}.pdf" "evidence/raw/sichuan/text/${issue}.txt" || true
+            fi
+          ' _
+          python - <<'PY'
+          import hashlib,json,pathlib
+          rows=json.load(open('evidence/raw/sichuan/map.pre.json',encoding='utf-8'))
+          out=[]
+          for row in rows:
+              p=pathlib.Path('evidence/raw/sichuan/pdf')/(row['issue']+'.pdf')
+              row['pdf_path']=p.as_posix()
+              row['pdf_sha256']=hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+              out.append(row)
+          pathlib.Path('evidence/raw/sichuan/map.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+
+      - name: Parse, deduplicate and independently audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixed_args=()
+          if [ -f research/PP_AS_1_2_FIXED_ISSUES.txt ]; then
+            fixed_args=(--fixed-issues research/PP_AS_1_2_FIXED_ISSUES.txt)
+          fi
+          python scripts/ssq_ppas12_evidence.py \
+            --jiangsu-list-dir evidence/raw/jiangsu/list \
+            --hebei-index evidence/raw/hebei/index.json \
+            --hebei-detail-dir evidence/raw/hebei/details \
+            --sichuan-map evidence/raw/sichuan/map.json \
+            --sichuan-text-dir evidence/raw/sichuan/text \
+            --output-dir evidence/output \
+            "${fixed_args[@]}"
+          find evidence -type f -print0 | sort -z | xargs -0 sha256sum > evidence/SHA256SUMS.txt
+
+      - name: Verify parser tests and zero model runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v tests.test_ppas12_evidence tests.test_v4_production
+          python - <<'PY'
+          import json
+          gate=json.load(open('evidence/output/DATA_GATE_REPORT.json',encoding='utf-8'))
+          assert gate['pp_as_1_2_fit_runs'] == 0
+          if gate['data_gate'] != 'PASS':
+              assert gate['manifest_frozen'] is False
+              assert gate['behavior_gate'] == 'NOT_RUN_DATA_GATE_NOT_PASSED'
+          print(json.dumps({'data_gate':gate['data_gate'],'manifest_frozen':gate['manifest_frozen'],'fit_runs':gate['pp_as_1_2_fit_runs'],'blockers':gate['blockers']},ensure_ascii=False))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-ppas12-official-evidence-candidate
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+
