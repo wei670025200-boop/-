@@ -4,18 +4,10 @@ on:
   push:
     branches:
       - ssq-local-first-offline-20261124
-    paths:
-      - 'data/ssq_history.csv'
-      - 'local_history.py'
-      - 'v4/**'
-      - 'ssq_v5/**'
-      - 'results/PHASE3_LOCAL_FIRST_RESULT.json'
-      - 'LOCAL_FIRST_MANIFEST.json'
-      - '.github/workflows/ssq-local-first-offline.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   offline-acceptance:
@@ -24,6 +16,41 @@ jobs:
       PYTHONPATH: .:ssq_v5
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ssq-local-first-offline-20261124
+
+      - name: Normalize local CSV ledger to canonical plain-text format
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import csv, io
+          p=Path("data/ssq_history.csv")
+          text=p.read_text("utf-8-sig")
+          lines=text.splitlines()
+          if lines and lines[0].startswith("<PARSED TEXT FOR SHEET:"):
+              lines=lines[2:]
+          if not lines:
+              raise SystemExit("empty ledger")
+          if lines[0].startswith("index,issue,"):
+              src=csv.reader(lines)
+              rows=list(src)
+              rows=[[row[i] for i in range(1,len(row))] for row in rows]
+              buf=io.StringIO(newline="")
+              w=csv.writer(buf,lineterminator="\n")
+              w.writerows(rows)
+              p.write_text(buf.getvalue(),encoding="utf-8")
+          assert p.read_text("utf-8").splitlines()[0] == "issue,date,r1,r2,r3,r4,r5,r6,blue,sales_rmb,pool_after_rmb,t1,t2,t3,t4,t5,t6,promo_sixth_double"
+          PY
+
+      - name: Commit normalized ledger if needed
+        run: |
+          if ! git diff --quiet -- data/ssq_history.csv; then
+            git config user.name "ssq-local-first-bot"
+            git config user.email "ssq-local-first-bot@users.noreply.github.com"
+            git add data/ssq_history.csv
+            git commit -m "Local-First: normalize ssq_history.csv"
+            git push origin HEAD:ssq-local-first-offline-20261124
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,7 +68,6 @@ jobs:
           python - <<'PY'
           from local_history import load_ssq_history, full_tier_history
           from v4.runner_v4 import ACTIVE_MODE, run_v4
-
           rows=load_ssq_history()
           full=full_tier_history()
           assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
@@ -51,7 +77,6 @@ jobs:
           assert len(full) == 600
           assert full[0].issue == "2022139"
           assert full[-1].issue == "2026135"
-
           out=run_v4(2, seed=bytes.fromhex("11"*32))
           assert out["mode"] == "LOCAL_FIRST_OFFLINE"
           assert out["latest_completed_issue"] == "2026135"
@@ -65,14 +90,12 @@ jobs:
           import json
           from ssq_v5.offline_local_v5 import _to_records
           from ssq_v5.runner_v5 import ACTIVE_MODE, PHASE4_STATUS
-
           recs=_to_records("data/ssq_history.csv")
           assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
           assert PHASE4_STATUS == "LOCKED"
           assert len(recs) == 600
           assert recs[0].issue == "2022139"
           assert recs[-1].issue == "2026135"
-
           result=json.load(open("results/PHASE3_LOCAL_FIRST_RESULT.json","r",encoding="utf-8"))
           assert result["oos_gate_status"] == "PASS"
           assert result["artifact_sha256"] == "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
@@ -92,5 +115,3 @@ jobs:
                   assert needle not in text, (p,needle)
           print("NO_LOTTERY_NETWORK_ENTRYPOINT_PASS")
           PY
-
-# trigger offline acceptance
