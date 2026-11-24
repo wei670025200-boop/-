@@ -1,19 +1,50 @@
 {
-  "schema": "SSQ_ACTIVE_RELEASE_2.0",
-  "activated_at_utc": "2026-11-24T15:45:00Z",
-  "active_release": "SSQ_LOCAL_FIRST_1_0",
+  "schema": "SSQ_ACTIVE_RELEASE_3.0",
+  "release_candidate": "SSQ_V5_LOCAL_FIRST_1_0",
+  "activation_state": "PR_READY_NOT_MERGED",
   "base_algorithm_release": "SSQ_V4_RC2_1",
-  "live_entrypoint": "v4/runner_v4.py",
+  "v4_fallback_entrypoint": "v4/runner_v4.py",
+  "v5_live_entrypoint": "ssq_v5/runner_v5.py",
   "history_ledger": "data/ssq_history.csv",
   "execution_mode": "LOCAL_FIRST_OFFLINE",
   "network_verification": "DISABLED_BY_POLICY",
-  "route_mode": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
-  "predictive_edge_claim": "NONE_FOR_V4",
-  "v5_phase3": {
+  "phase3": {
     "status": "PASS",
     "complete_draws": 600,
-    "range": ["2022139", "2026135"],
+    "range": [
+      "2022139",
+      "2026135"
+    ],
     "artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
   },
-  "v5_phase4": "LOCKED"
+  "phase4_policy_gate": {
+    "status": "PASS",
+    "outer_oos_draws": 400,
+    "selected_policy": "P_R01_005_B06",
+    "outer_mean_score": 0.17045425,
+    "outer_ci95": [
+      0.12083757,
+      0.23869674
+    ],
+    "auxiliary_sparse_capture_mean": 0.10775,
+    "auxiliary_sparse_capture_ci95": [
+      -0.18018333,
+      0.35451875
+    ],
+    "integrity_summary_sha256": "41229a251054e53f64b0ae339675675f689678f90bb4331891e22d82624f9b23",
+    "oos_trace_sha256": "68a18cf12833caeb0083ec127674768ac9febee26c5a705089c14dce2d32370f"
+  },
+  "production_locks": {
+    "phase3_oos_gate": "PASS",
+    "cusum_drift_gate": "FAIL_CLOSED_RUNTIME",
+    "policy_gate": "PASS",
+    "promo_remaining_balance": "REQUIRED_LOCAL_INPUT_WHEN_PROMO_ACTIVE"
+  },
+  "production_route": "ANTI_CROWD_SPARSE_ZONE_V1",
+  "fallback_route": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
+  "latest_acceptance": {
+    "phase4_real_gate_workflow_run_id": 45433178459,
+    "phase4_full_regression_workflow_run_id": 45437716365,
+    "positive_production_smoke_workflow_run_id": 45437940306
+  }
 }
