@@ -17,7 +17,10 @@
     "regression_tests": "54/54 PASS",
     "audit_100k": "PASS",
     "exhaustive_red_crosscheck": "32568 == 32568 over C(33,6)=1,107,568",
-    "no_redraw_guard": "PASS"
+    "no_redraw_guard": "PASS",
+    "cutover_smoke_run_id": 45395722788,
+    "cutover_smoke": "PASS",
+    "cutover_smoke_branch": "ssq-v4-cutover-smoke-20261124"
   },
   "promotion_eligibility": "PLANNED_ELIGIBLE_REQUIRES_POST_PURCHASE_RECEIPT_CONFIRMATION"
 }
