@@ -1,0 +1,17 @@
+name: SSQ V5 Guangxi secondary-source probe
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/probe_guangxi_secondary.py'
+      - '.github/workflows/ssq-v5-guangxi-secondary-probe.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -u ssq_v5/probe_guangxi_secondary.py
