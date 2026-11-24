@@ -80,6 +80,16 @@ OFFICIAL_SOURCE_REGISTRY: Dict[str, OfficialSourceSpec] = {
         suspension_parser_version="gd_suspension_html_or_json_v1",
         production_enabled=False,
     ),
+    "MOF_CHINA": OfficialSourceSpec(
+        source_id="MOF_CHINA",
+        authority_id="MINISTRY_OF_FINANCE_CHINA",
+        official_domain="www.mof.gov.cn",
+        draw_parser_version="UNSUPPORTED_DRAW_V0",
+        schedule_parser_version="UNSUPPORTED_SCHEDULE_V0",
+        promo_parser_version="UNSUPPORTED_PROMO_V0",
+        suspension_parser_version="mof_suspension_html_v1",
+        production_enabled=False,
+    ),
 }
 
 
