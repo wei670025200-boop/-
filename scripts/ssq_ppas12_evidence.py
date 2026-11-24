@@ -99,7 +99,7 @@ def special_rows(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     return [row for row in rows if row["label"] not in BASE_PRIZE_LABELS]
 
 
-def parse_sales_rmb(text: str) -> int | None:
+def parse_sales_observation(text: str) -> tuple[int | None, int | None]:
     patterns = (
         r"本期全国销售额\s*([\d,]+)\s*元",
         r"本期销售金额[：:]?\s*([\d,]+)\s*元",
@@ -110,9 +110,15 @@ def parse_sales_rmb(text: str) -> int | None:
         if not m:
             continue
         if index == 2:
-            return int(float(m.group(1).replace(",", "")) * 10000)
-        return int(m.group(1).replace(",", ""))
-    return None
+            shown = m.group(1).replace(",", "")
+            decimals = len(shown.partition(".")[2])
+            return int(float(shown) * 10000), max(1, 10000 // (10**decimals))
+        return int(m.group(1).replace(",", "")), 1
+    return None, None
+
+
+def parse_sales_rmb(text: str) -> int | None:
+    return parse_sales_observation(text)[0]
 
 
 def make_record(
@@ -129,10 +135,12 @@ def make_record(
     rows = parse_prize_rows(document)
     sixth = prize_row(rows, "六等奖")
     specials = special_rows(rows)
+    sales_rmb, sales_resolution = parse_sales_observation(clean_text(document))
     return {
         "issue": issue,
         "date": date,
-        "sales_rmb": parse_sales_rmb(clean_text(document)),
+        "sales_rmb": sales_rmb,
+        "sales_rmb_resolution": sales_resolution,
         "sixth_prize_count": sixth["national_count"] if sixth else None,
         "sixth_prize_rmb": sixth["single_prize_rmb"] if sixth else None,
         "base_prize_table_complete": complete_base_table(rows),
@@ -236,6 +244,7 @@ def parse_sichuan_texts(map_path: Path | None, text_root: Path | None) -> list[d
                 "issue": issue,
                 "date": meta.get("date"),
                 "sales_rmb": None,
+                "sales_rmb_resolution": None,
                 "sixth_prize_count": int(sixth_match.group(1).replace(",", "")),
                 "sixth_prize_rmb": int(sixth_match.group(2).replace(",", "")),
                 "base_prize_table_complete": base_complete,
@@ -288,7 +297,21 @@ def reconcile(records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict
             for field in ("date", "sales_rmb", "sixth_prize_count", "sixth_prize_rmb"):
                 if record.get(field) is not None:
                     values[field].add(record[field])
-        field_conflicts = {field: sorted(items) for field, items in values.items() if len(items) > 1}
+        field_conflicts = {
+            field: sorted(items)
+            for field, items in values.items()
+            if field != "sales_rmb" and len(items) > 1
+        }
+        sales_observations = [
+            (r["sales_rmb"], r.get("sales_rmb_resolution") or 1)
+            for r in group
+            if r.get("sales_rmb") is not None
+        ]
+        if sales_observations:
+            lower = max(value - resolution / 2 for value, resolution in sales_observations)
+            upper = min(value + resolution / 2 for value, resolution in sales_observations)
+            if lower > upper:
+                field_conflicts["sales_rmb"] = sorted({value for value, _ in sales_observations})
         if field_conflicts:
             conflicts.append({"issue": issue, "conflicts": field_conflicts, "sources": [r["source_id"] for r in group]})
         if len(group) > 1:
@@ -302,11 +325,17 @@ def reconcile(records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict
                 }
             )
         preferred = next((r for r in group if r["source_id"] == "HEBEI_FC_OFFICIAL_DETAIL"), group[0])
+        precise_sales = min(
+            (r for r in group if r.get("sales_rmb") is not None),
+            key=lambda r: r.get("sales_rmb_resolution") or math.inf,
+            default=preferred,
+        )
         canonical.append(
             {
                 "issue": issue,
                 "date": next(iter(values["date"])) if len(values["date"]) == 1 else None,
-                "sales_rmb": next(iter(values["sales_rmb"])) if len(values["sales_rmb"]) == 1 else preferred.get("sales_rmb"),
+                "sales_rmb": precise_sales.get("sales_rmb"),
+                "sales_rmb_resolution": precise_sales.get("sales_rmb_resolution"),
                 "sixth_prize_count": next(iter(values["sixth_prize_count"])) if len(values["sixth_prize_count"]) == 1 else None,
                 "sixth_prize_rmb": next(iter(values["sixth_prize_rmb"])) if len(values["sixth_prize_rmb"]) == 1 else None,
                 "special_accounting_observation": preferred["special_accounting_observation"],
@@ -382,6 +411,7 @@ def write_candidate_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         "issue",
         "date",
         "sales_rmb",
+        "sales_rmb_resolution",
         "sixth_prize_count",
         "sixth_prize_rmb",
         "special_accounting_observation",

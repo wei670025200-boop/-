@@ -45,6 +45,7 @@ class PPAS12EvidenceTests(unittest.TestCase):
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0]["sixth_prize_count"], 10704926)
             self.assertEqual(records[0]["sales_rmb"], 390360000)
+            self.assertEqual(records[0]["sales_rmb_resolution"], 10000)
 
     def test_hebei_and_jiangsu_overlap_reconciles(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -69,6 +70,33 @@ class PPAS12EvidenceTests(unittest.TestCase):
             self.assertEqual(canonical[0]["sixth_prize_count"], 10704926)
             self.assertEqual(report["duplicate_issue_count"], 1)
             self.assertEqual(report["conflict_issue_count"], 0)
+
+    def test_sales_display_precision_is_not_a_source_conflict(self):
+        base = {
+            "issue": "2023048",
+            "date": "2023-05-04",
+            "sales_rmb": 362109840,
+            "sales_rmb_resolution": 1,
+            "sixth_prize_count": 100,
+            "sixth_prize_rmb": 5,
+            "special_accounting_observation": "NO_SPECIAL_ACCOUNTING_ROW_OBSERVED_IN_COMPLETE_PRIZE_TABLE",
+            "special_rows": [],
+            "source_id": "HEBEI_FC_OFFICIAL_DETAIL",
+            "source_url": "https://example.invalid/exact",
+            "raw_sha256": "a" * 64,
+        }
+        rounded = dict(
+            base,
+            sales_rmb=362110000,
+            sales_rmb_resolution=10000,
+            source_id="JIANGSU_FC_OFFICIAL_EMBEDDED_ANNOUNCEMENT",
+            source_url="https://example.invalid/rounded",
+            raw_sha256="b" * 64,
+        )
+        canonical, report = reconcile([base, rounded])
+        self.assertEqual(report["conflict_issue_count"], 0)
+        self.assertEqual(canonical[0]["sales_rmb"], 362109840)
+        self.assertEqual(canonical[0]["sales_rmb_resolution"], 1)
 
     def test_audit_blocks_when_fewer_than_sixty_overlap_issues(self):
         record = {
