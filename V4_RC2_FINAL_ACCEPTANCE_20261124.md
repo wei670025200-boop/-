@@ -78,8 +78,14 @@ Required before a real production draw:
 8. Production transaction remains STAGE -> HASH VERIFY -> LEDGER COMMIT -> ATOMIC PUBLISH.
 9. No issue may be redrawn after ledger commit.
 
-## Source bundle
-Frozen source tar SHA-256:
-363c53aa713ba7119aec9833bad2ba250e97217247cb5fe969de82bcd6eccb03
+## Repository freeze
 
-The repository acceptance workflow reconstructs this exact bundle, verifies the SHA, reruns the 51-test suite and the 100k audit, then publishes the tested source into v4_rc2/.
+The seven validated source/test files are stored directly under `v4_rc2/`.
+
+Repository-to-local reverse comparison:
+- 7 / 7 exact text matches confirmed.
+
+Local source-bundle archive SHA-256 retained for audit reference:
+`363c53aa713ba7119aec9833bad2ba250e97217247cb5fe969de82bcd6eccb03`
+
+The GitHub acceptance workflow now verifies `v4_rc2/SHA256SUMS.txt`, compiles the checked-in files, runs the 51-test suite, and runs the 100k / 1,107,568 crosscheck directly. No Base64 restoration layer remains.
