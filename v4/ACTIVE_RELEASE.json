@@ -1,0 +1,23 @@
+{
+  "schema": "SSQ_ACTIVE_RELEASE_1.0",
+  "activated_at_utc": "2026-11-24T12:35:09Z",
+  "active_release": "SSQ_V4_RC2_1",
+  "live_entrypoint": "v4/runner_v4.py",
+  "implementation_dir": "v4_rc2",
+  "route_mode": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
+  "predictive_edge_claim": "NONE",
+  "popularity_filter": "BLOCKED",
+  "rollback_reference": "v4/legacy_runner_draft.py",
+  "v3_status": "PRESERVED_FOR_ROLLBACK_NOT_ACTIVE_IN_THIS_REPOSITORY_ENTRYPOINT",
+  "validation": {
+    "freeze_acceptance_run_id": 45394838990,
+    "freeze_acceptance": "PASS",
+    "fresh_e2e_run_id": 45394446046,
+    "fresh_e2e": "PASS",
+    "regression_tests": "54/54 PASS",
+    "audit_100k": "PASS",
+    "exhaustive_red_crosscheck": "32568 == 32568 over C(33,6)=1,107,568",
+    "no_redraw_guard": "PASS"
+  },
+  "promotion_eligibility": "PLANNED_ELIGIBLE_REQUIRES_POST_PURCHASE_RECEIPT_CONFIRMATION"
+}
