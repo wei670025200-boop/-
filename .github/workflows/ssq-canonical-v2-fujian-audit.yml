@@ -1,0 +1,28 @@
+name: SSQ Canonical V2 Fujian audit60
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/data_tools/fetch_fujian_audit60.py'
+      - 'ssq_v5/CANONICAL_V2_AUDIT_60_PRECOMMIT.json'
+      - '.github/workflows/ssq-canonical-v2-fujian-audit.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -m pip install --disable-pip-version-check requests beautifulsoup4
+      - name: Fetch 60 frozen-sample Fujian official pages
+        run: python ssq_v5/data_tools/fetch_fujian_audit60.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-canonical-v2-fujian-audit60
+          path: canonical_v2_fujian_audit/
+          if-no-files-found: error
+          retention-days: 30
