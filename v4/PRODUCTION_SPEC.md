@@ -1,4 +1,23 @@
-# SSQ V4 PRODUCTION SPEC — DRAFT FREEZE CANDIDATE
+# SSQ V4 PRODUCTION SPEC — ACTIVE RC2.1
+
+## 0. Active release
+Active release: `SSQ_V4_RC2_1`
+
+Live repository entrypoint: `v4/runner_v4.py`
+
+Validated implementation: `v4_rc2/`
+
+The historical draft runner has been moved to `v4/legacy_runner_draft.py` and is not a production entrypoint.
+
+Release gates passed on 2026-11-24:
+- 54/54 regression + real integration tests;
+- 100,000-trial marginal audit;
+- exact 1,107,568 red-draw crosscheck;
+- Fresh Production E2E for issue 2026135;
+- no-redraw duplicate issue guard;
+- SHA-256 frozen-source verification.
+
+Promotion eligibility remains provisional until the issued physical ticket/receipt confirms the planned slip structure.
 
 ## 1. Scope
 Production-only system. It does not claim predictive edge and does not modify PP-AS-1.1.
