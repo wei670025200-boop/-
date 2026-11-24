@@ -1,7 +1,6 @@
 {
   "schema": "SSQ_ACTIVE_RELEASE_3.0",
-  "release_candidate": "SSQ_V5_LOCAL_FIRST_1_0",
-  "activation_state": "PR_READY_NOT_MERGED",
+  "activation_state": "ACTIVE_ON_MAIN_AFTER_MERGE",
   "base_algorithm_release": "SSQ_V4_RC2_1",
   "v4_fallback_entrypoint": "v4/runner_v4.py",
   "v5_live_entrypoint": "ssq_v5/runner_v5.py",
@@ -46,5 +45,7 @@
     "phase4_real_gate_workflow_run_id": 45433178459,
     "phase4_full_regression_workflow_run_id": 45437716365,
     "positive_production_smoke_workflow_run_id": 45437940306
-  }
+  },
+  "active_release": "SSQ_V5_LOCAL_FIRST_1_0",
+  "activation_condition": "MERGE_THIS_PHASE4_CUTOVER_TO_MAIN"
 }
