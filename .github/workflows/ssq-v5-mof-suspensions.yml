@@ -1,0 +1,24 @@
+name: SSQ V5 MOF suspension evidence 2021-2026
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/fetch_mof_suspensions.py'
+      - '.github/workflows/ssq-v5-mof-suspensions.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: python -u ssq_v5/fetch_mof_suspensions.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ssq-v5-mof-suspension-evidence
+          path: out_mof/
+          if-no-files-found: error
+          retention-days: 30
