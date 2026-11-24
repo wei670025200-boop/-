@@ -1,0 +1,19 @@
+{
+  "schema": "SSQ_LOCAL_STATUTORY_RULE_TABLE_1.0",
+  "provenance": "USER_PRE_REGISTERED_LOCAL_RULE_TABLE",
+  "prize_return_ratio": 0.49,
+  "tier3_rmb": 3000.0,
+  "tier4_rmb": 200.0,
+  "tier5_rmb": 10.0,
+  "tier6_rmb": 5.0,
+  "fuyun_rmb": 5.0,
+  "low_pool_threshold_rmb": 100000000.0,
+  "low_pool_t1_share": 0.75,
+  "low_pool_t2_share": 0.25,
+  "high_pool_t1_part_a_share": 0.55,
+  "high_pool_t1_part_b_share": 0.20,
+  "high_pool_t2_share": 0.25,
+  "single_part_cap_rmb": 5000000.0,
+  "promo_sixth_extra_rmb_per_ticket": 5.0,
+  "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE"
+}
