@@ -1,0 +1,382 @@
+{
+  "auxiliary_ci95": [
+    -0.18018333,
+    0.35451875
+  ],
+  "auxiliary_mean_score": 0.10775,
+  "candidate_selection_counts": {
+    "P_R01_005_B05": 143,
+    "P_R01_005_B06": 257,
+    "P_R01_005_B08": 0,
+    "P_R01_010_B05": 0,
+    "P_R01_010_B06": 0,
+    "P_R01_010_B08": 0,
+    "P_R01_020_B05": 0,
+    "P_R01_020_B06": 0,
+    "P_R01_020_B08": 0
+  },
+  "e2e_2": {
+    "blue_unique": true,
+    "blue_values": [
+      12,
+      13
+    ],
+    "candidate_blue_pool": [
+      14,
+      15,
+      13,
+      4,
+      2,
+      12
+    ],
+    "pocket_distribution": {
+      "S_HI|DROP_Z1|ODD_33|SP_MID": 1,
+      "S_MID|DROP_Z1|ODD_HI|SP_MID": 1
+    },
+    "route": "V5_PRODUCTION_ELIGIBLE",
+    "selected_policy_id": "P_R01_005_B06",
+    "ticket_count": 2,
+    "tickets": [
+      {
+        "blue": 12,
+        "formatted": "12 13 22 24 31 33 + 12",
+        "liability_percentile": 3.9933,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 58667470.83,
+          "tier2_rmb": 12702517.71,
+          "tier3_rmb": 4846207.02,
+          "tier4_rmb": 15906826.24,
+          "tier5_rmb": 14693860.77,
+          "tier6_base_rmb": 57150666.32,
+          "tier6_promo_extra_rmb": 57150666.32,
+          "total_plugin_statutory_rmb_exposure": 221118215.21
+        },
+        "pocket_key": "S_HI|DROP_Z1|ODD_33|SP_MID",
+        "reds": [
+          12,
+          13,
+          22,
+          24,
+          31,
+          33
+        ]
+      },
+      {
+        "blue": 13,
+        "formatted": "13 14 15 16 25 33 + 13",
+        "liability_percentile": 4.8758,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 55935715.94,
+          "tier2_rmb": 17554252.27,
+          "tier3_rmb": 4165079.17,
+          "tier4_rmb": 14420675.87,
+          "tier5_rmb": 13870635.09,
+          "tier6_base_rmb": 48942449.16,
+          "tier6_promo_extra_rmb": 48942449.16,
+          "total_plugin_statutory_rmb_exposure": 203831256.66
+        },
+        "pocket_key": "S_MID|DROP_Z1|ODD_HI|SP_MID",
+        "reds": [
+          13,
+          14,
+          15,
+          16,
+          25,
+          33
+        ]
+      }
+    ]
+  },
+  "e2e_8": {
+    "blue_unique": true,
+    "blue_values": [
+      14,
+      12,
+      3,
+      2,
+      13,
+      16,
+      4,
+      15
+    ],
+    "candidate_blue_pool": [
+      14,
+      15,
+      13,
+      4,
+      2,
+      12,
+      3,
+      16
+    ],
+    "pocket_distribution": {
+      "S_HI|DROP_Z1|ODD_33|SP_MID": 1,
+      "S_HI|DROP_Z2|ODD_HI|SP_MID": 1,
+      "S_HI|DROP_Z2|ODD_HI|SP_WIDE": 1,
+      "S_HI|NO_DROP|ODD_33|SP_WIDE": 1,
+      "S_HI|NO_DROP|ODD_HI|SP_MID": 1,
+      "S_HI|NO_DROP|ODD_HI|SP_WIDE": 1,
+      "S_LO|DROP_Z2|ODD_LO|SP_WIDE": 1,
+      "S_MID|DROP_Z1|ODD_33|SP_NARROW": 1
+    },
+    "route": "V5_PRODUCTION_ELIGIBLE",
+    "selected_policy_id": "P_R01_005_B06",
+    "ticket_count": 8,
+    "tickets": [
+      {
+        "blue": 14,
+        "formatted": "11 14 21 25 30 33 + 14",
+        "liability_percentile": 3.9013,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 54453711.4,
+          "tier2_rmb": 19271676.91,
+          "tier3_rmb": 3900244.8,
+          "tier4_rmb": 13879264.25,
+          "tier5_rmb": 13613610.26,
+          "tier6_base_rmb": 46039235.28,
+          "tier6_promo_extra_rmb": 46039235.28,
+          "total_plugin_statutory_rmb_exposure": 197196978.19
+        },
+        "pocket_key": "S_HI|NO_DROP|ODD_HI|SP_MID",
+        "reds": [
+          11,
+          14,
+          21,
+          25,
+          30,
+          33
+        ]
+      },
+      {
+        "blue": 12,
+        "formatted": "02 20 23 27 31 32 + 12",
+        "liability_percentile": 2.713,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 58425839.21,
+          "tier2_rmb": 12777064.15,
+          "tier3_rmb": 4787726.16,
+          "tier4_rmb": 15742901.63,
+          "tier5_rmb": 14578016.02,
+          "tier6_base_rmb": 57170698.56,
+          "tier6_promo_extra_rmb": 57170698.56,
+          "total_plugin_statutory_rmb_exposure": 220652944.29
+        },
+        "pocket_key": "S_HI|NO_DROP|ODD_33|SP_WIDE",
+        "reds": [
+          2,
+          20,
+          23,
+          27,
+          31,
+          32
+        ]
+      },
+      {
+        "blue": 3,
+        "formatted": "03 17 22 24 27 33 + 03",
+        "liability_percentile": 4.3074,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 58866262.38,
+          "tier2_rmb": 12563335.47,
+          "tier3_rmb": 4873134.07,
+          "tier4_rmb": 15973765.45,
+          "tier5_rmb": 14731667.13,
+          "tier6_base_rmb": 57363194.5,
+          "tier6_promo_extra_rmb": 57363194.5,
+          "total_plugin_statutory_rmb_exposure": 221734553.49
+        },
+        "pocket_key": "S_HI|NO_DROP|ODD_HI|SP_WIDE",
+        "reds": [
+          3,
+          17,
+          22,
+          24,
+          27,
+          33
+        ]
+      },
+      {
+        "blue": 2,
+        "formatted": "07 10 25 26 31 33 + 02",
+        "liability_percentile": 2.9022,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 57113068.13,
+          "tier2_rmb": 14401617.22,
+          "tier3_rmb": 4606671.9,
+          "tier4_rmb": 15429039.98,
+          "tier5_rmb": 14468026.89,
+          "tier6_base_rmb": 54224044.93,
+          "tier6_promo_extra_rmb": 54224044.93,
+          "total_plugin_statutory_rmb_exposure": 214466513.99
+        },
+        "pocket_key": "S_HI|DROP_Z2|ODD_HI|SP_MID",
+        "reds": [
+          7,
+          10,
+          25,
+          26,
+          31,
+          33
+        ]
+      },
+      {
+        "blue": 13,
+        "formatted": "13 15 16 19 22 32 + 13",
+        "liability_percentile": 4.7149,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 55788895.87,
+          "tier2_rmb": 17525953.84,
+          "tier3_rmb": 4190081.31,
+          "tier4_rmb": 14482138.77,
+          "tier5_rmb": 13899388.97,
+          "tier6_base_rmb": 48941436.54,
+          "tier6_promo_extra_rmb": 48941436.54,
+          "total_plugin_statutory_rmb_exposure": 203769331.86
+        },
+        "pocket_key": "S_MID|DROP_Z1|ODD_33|SP_NARROW",
+        "reds": [
+          13,
+          15,
+          16,
+          19,
+          22,
+          32
+        ]
+      },
+      {
+        "blue": 16,
+        "formatted": "12 15 17 21 30 32 + 16",
+        "liability_percentile": 4.5598,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 59430274.5,
+          "tier2_rmb": 11667328.42,
+          "tier3_rmb": 5025014.78,
+          "tier4_rmb": 16324465.32,
+          "tier5_rmb": 14933621.96,
+          "tier6_base_rmb": 58802940.89,
+          "tier6_promo_extra_rmb": 58802940.89,
+          "total_plugin_statutory_rmb_exposure": 224986586.76
+        },
+        "pocket_key": "S_HI|DROP_Z1|ODD_33|SP_MID",
+        "reds": [
+          12,
+          15,
+          17,
+          21,
+          30,
+          32
+        ]
+      },
+      {
+        "blue": 4,
+        "formatted": "01 10 23 29 30 33 + 04",
+        "liability_percentile": 2.4336,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 56899991.68,
+          "tier2_rmb": 14785001.27,
+          "tier3_rmb": 4525756.47,
+          "tier4_rmb": 15222546.09,
+          "tier5_rmb": 14338847.25,
+          "tier6_base_rmb": 53665571.32,
+          "tier6_promo_extra_rmb": 53665571.32,
+          "total_plugin_statutory_rmb_exposure": 213103285.4
+        },
+        "pocket_key": "S_HI|DROP_Z2|ODD_HI|SP_WIDE",
+        "reds": [
+          1,
+          10,
+          23,
+          29,
+          30,
+          33
+        ]
+      },
+      {
+        "blue": 15,
+        "formatted": "02 04 05 10 30 32 + 15",
+        "liability_percentile": 3.7952,
+        "plugin_statutory_rmb_breakdown": {
+          "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+          "fuyun_rmb": 0.0,
+          "tier1_rmb": 54681742.66,
+          "tier2_rmb": 19009136.14,
+          "tier3_rmb": 3932509.52,
+          "tier4_rmb": 13908903.05,
+          "tier5_rmb": 13597801.85,
+          "tier6_base_rmb": 46541269.26,
+          "tier6_promo_extra_rmb": 46541269.26,
+          "total_plugin_statutory_rmb_exposure": 198212631.75
+        },
+        "pocket_key": "S_LO|DROP_Z2|ODD_LO|SP_WIDE",
+        "reds": [
+          2,
+          4,
+          5,
+          10,
+          30,
+          32
+        ]
+      }
+    ]
+  },
+  "e2e_target_issue": "2026136",
+  "history_csv_sha256": "5b86f09bc20992f75b4c8a4fdd21b937d120f78c29ad9cad66fd3384793e30c3",
+  "history_draws": 600,
+  "history_range": [
+    "2022139",
+    "2026135"
+  ],
+  "integrity_summary_sha256": "41229a251054e53f64b0ae339675675f689678f90bb4331891e22d82624f9b23",
+  "oos_trace_sha256": "68a18cf12833caeb0083ec127674768ac9febee26c5a705089c14dce2d32370f",
+  "outer_ci95": [
+    0.12083757,
+    0.23869674
+  ],
+  "outer_mean_score": 0.17045425,
+  "outer_oos_draws": 400,
+  "phase3_frozen_artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a",
+  "policy_gate_status": "PASS",
+  "production_eligible": true,
+  "protocol_hyperparameters": {
+    "bootstrap_block_size": 12,
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20261124,
+    "outer_oos_draws": 400,
+    "outer_oos_start_index": 200,
+    "policy_record_start_index": 100,
+    "primary_blue_weight": 0.5,
+    "primary_red_weight": 0.5
+  },
+  "rule_document_sha256": "bd9161fe5da2a0eebfcfb215000a7398f2d3b8556640564f545c0beaa8dfbb97",
+  "schema": "SSQ_V5_PHASE4_REAL_POLICY_GATE_SUMMARY_1.0",
+  "selected_policy": {
+    "blue_keep_count": 6,
+    "policy_id": "P_R01_005_B06",
+    "red_percentile_high": 5.0,
+    "red_percentile_low": 1.0
+  },
+  "source_git_commit_sha": "64003f9c2bac6be4177fd876289c803fc69df2da",
+  "three_locks": {
+    "cusum_drift_gate": "OK",
+    "phase3_oos_gate": "PASS",
+    "policy_gate": "PASS"
+  }
+}
