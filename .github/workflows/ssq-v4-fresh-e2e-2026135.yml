@@ -34,7 +34,8 @@ jobs:
           fetch sh_draw 'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous'
           fetch sc_draw 'https://www.scflcp.com.cn/ssq'
           fetch mof_suspension 'https://www.mof.gov.cn/gp/xxgkml/zhs/202512/t20251225_3980248.htm'
-          fetch gd_promo 'https://www.gdfc.org.cn/article/286050.html'
+          fetch gz_promo 'https://mzj.gz.gov.cn/gzfcw/tzgg/content/post_11089056.html'
+          fetch sh_status 'https://www.swlc.net.cn/'
           cp /tmp/ssq_e2e/sh_draw.body /tmp/ssq_evidence/shanghai_ssq_previous.body
           cp /tmp/ssq_e2e/sc_draw.body /tmp/ssq_evidence/sichuan_ssq_current.body
           date -u +'%Y-%m-%dT%H:%M:%SZ' > /tmp/ssq_e2e/fetched_at_utc.txt
@@ -108,10 +109,17 @@ jobs:
                   'mof_suspension_html_v1',
               ),
               'promo_evidence': ev(
-                  'gd_promo','GD_FLCP',
-                  'https://www.gdfc.org.cn/article/286050.html',
-                  'gd_promo_html_or_json_v2',
+                  'gz_promo','GZ_MZJ',
+                  'https://mzj.gz.gov.cn/gzfcw/tzgg/content/post_11089056.html',
+                  'gz_promo_html_v1',
               ),
+              'promo_status_evidence': {
+                  'source_id':'SH_FLCP',
+                  'url':'https://www.swlc.net.cn/',
+                  'path':str(E/'sh_status.body'),
+                  'sha256':hashlib.sha256((E/'sh_status.body').read_bytes()).hexdigest(),
+                  'fetched_at_utc':fetched,
+              },
               'special_rule_active_previous': False,
               'physical_slip_plan': [{
                   'slip_id':'SLIP-2026135-01',
@@ -129,6 +137,10 @@ jobs:
           except GateBlockedError as exc:
               print(json.dumps({'status':'FAIL_CLOSED','code':exc.code,'message':str(exc)},ensure_ascii=False,indent=2))
               raise
+
+          status_text=(E/'sh_status.body').read_text(encoding='utf-8',errors='ignore').replace(',','')
+          if '559426805' not in status_text or '2026134' not in status_text:
+              raise SystemExit('FRESH_PROMO_STATUS_NOT_CONFIRMED_ON_SH_HOME')
 
           receipt = result['receipt']
           latest = receipt['quorum_result']['latest_completed_issue']
