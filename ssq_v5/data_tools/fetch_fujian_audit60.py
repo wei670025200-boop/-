@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 ROOT=Path("canonical_v2_fujian_audit"); RAW=ROOT/"raw"
 PRE=Path("ssq_v5/CANONICAL_V2_AUDIT_60_PRECOMMIT.json")
 UA="Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148"
-BASE="https://m.fjfc.uplottery.com.cn/kjgg.php?term={issue}&type=ssq"
+BASE="https://fjfc.uplottery.com.cn/kjgg.php?term={issue}&type=ssq"
 
 def sha(b): return hashlib.sha256(b).hexdigest()
 def get(url,tries=4):
