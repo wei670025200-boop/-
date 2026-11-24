@@ -17,8 +17,8 @@ from pathlib import Path
 import numpy as np
 
 _PARENT = Path(__file__).resolve().parent.parent
-if str(_PARENT / "ssq_v4_rc2") not in sys.path:
-    sys.path.insert(0, str(_PARENT / "ssq_v4_rc2"))
+if str(_PARENT / "v4_rc2") not in sys.path:
+    sys.path.insert(0, str(_PARENT / "v4_rc2"))
 
 from runner_v4 import AppendOnlyLedger
 from sampler_v4 import DomainSeparatedDRBG
@@ -50,6 +50,7 @@ from liability_and_pockets_v5 import (
 from runner_v5 import (
     V4_FALLBACK_ROUTE,
     V5_ROUTE_PROD,
+    V5_POLICY_GATE_STATUS,
     evaluate_cusum_circuit_breaker,
     run_v5_production,
 )
@@ -240,8 +241,13 @@ class TestV5Pipeline(unittest.TestCase):
             }
             sh, sc = root / "sh.json", root / "sc.json"
             sched = root / "sched.json"
+            suspension = root / "suspension.json"
             sh_h, sc_h = _write_json(sh, draw_doc), _write_json(sc, draw_doc)
-            sched_h = _write_json(sched, {"valid_draw_weekdays": [1, 3, 6], "draw_time_bjt": "21:15:00", "suspended_dates_bjt": []})
+            sched_h = _write_json(sched, {"valid_draw_weekdays": [1, 3, 6], "draw_time_bjt": "21:15:00"})
+            suspension_h = _write_json(
+                suspension,
+                {"coverage_year": 2027, "suspended_dates_bjt": ["2027-02-14"]},
+            )
 
             payload = {
                 "mode": V5_ROUTE_PROD,
@@ -253,7 +259,12 @@ class TestV5Pipeline(unittest.TestCase):
                 "physical_slip_plan": [{"slip_id": "A", "bet_type": "SINGLE", "ticket_indices": [0, 1, 2, 3], "amount_rmb": 8}],
                 "schedule_manifest": {
                     "source_id": "SH_FLCP", "url": "https://www.swlc.net.cn/sc.json",
-                    "path": str(sched), "sha256": sched_h, "fetched_at_utc": "2027-01-03T11:00:00Z", "parser_version": "sh_sched_v1",
+                    "path": str(sched), "sha256": sched_h, "fetched_at_utc": "2027-01-03T11:00:00Z", "parser_version": "sh_sched_html_or_manifest_v2",
+                },
+                "suspension_evidence": {
+                    "source_id": "GD_FLCP", "url": "https://www.gdfc.org.cn/suspension.json",
+                    "path": str(suspension), "sha256": suspension_h, "fetched_at_utc": "2027-01-03T11:00:02Z",
+                    "parser_version": "gd_suspension_html_or_json_v1",
                 },
                 "official_sources": [
                     {"source_id": "SH_FLCP", "url": "https://www.swlc.net.cn/d.json", "path": str(sh), "sha256": sh_h, "fetched_at_utc": "2027-01-03T11:00:00Z"},
@@ -280,12 +291,14 @@ class TestV5Pipeline(unittest.TestCase):
             self.assertEqual(res_b["receipt"]["effective_route_mode"], V4_FALLBACK_ROUTE)
             self.assertEqual(res_b["receipt"]["circuit_breaker"]["status"], "V5_CIRCUIT_BREAKER_TRIPPED")
 
-            # 场景 C: OOS 通过且无漂移 -> 正式执行 V5 稀疏口袋路由
+            # 场景 C: 即使 OOS 通过且无漂移，当前固定阈值策略尚未真实 OOS 选参，必须继续锁在 V4
             res_c = run_v5_production(
                 payload, hist, params_pass, [0.02] * 20, root / "pub_c",
                 AppendOnlyLedger(root / "lc.jsonl", V3_HEAD), now_utc=now, combos_cache=self.combos,
             )
-            self.assertEqual(res_c["receipt"]["effective_route_mode"], V5_ROUTE_PROD)
+            self.assertEqual(V5_POLICY_GATE_STATUS, "UNVERIFIED_FIXED_THRESHOLDS")
+            self.assertEqual(res_c["receipt"]["effective_route_mode"], V4_FALLBACK_ROUTE)
+            self.assertIn("V5_POLICY_GATE_LOCKED", res_c["receipt"]["fallback_reason"])
             self.assertEqual(len({t["blue"] for t in json.loads((Path(res_c["published_dir"]) / "TICKETS.json").read_text("utf-8"))["tickets"]}), 4)
 
 
