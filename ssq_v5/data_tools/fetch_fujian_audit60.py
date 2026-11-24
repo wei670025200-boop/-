@@ -15,7 +15,7 @@ def get(url,tries=4):
     last=None
     for i in range(tries):
         try:
-            r=requests.get(url,headers={"User-Agent":UA},timeout=30)
+            r=requests.get(url,headers={"User-Agent":UA},timeout=30,verify=False)
             r.raise_for_status(); return r.content
         except Exception as e:
             last=e; time.sleep(.4*(i+1))
@@ -49,7 +49,7 @@ def parse(issue,raw,url):
         vals[key]=got
     return {"issue":issue,"authority_id":"FUJIAN_WELFARE_LOTTERY",
             "source_url":url,"parser_version":"fujian_mobile_ssq_html_v1",
-            "raw_sha256":sha(raw),**vals}
+            "raw_sha256":sha(raw),"tls_certificate_verified":False,"tls_exception":"HOSTNAME_MISMATCH_ON_FUJIAN_OFFICIAL_HOST",**vals}
 
 def one(issue):
     url=BASE.format(issue=issue); raw=get(url); return parse(issue,raw,url),raw
