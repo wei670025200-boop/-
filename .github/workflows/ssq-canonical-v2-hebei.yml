@@ -1,0 +1,31 @@
+name: SSQ Canonical V2 Hebei 500 fetch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths:
+      - 'ssq_v5/data_tools/fetch_hebei_full_500.py'
+      - '.github/workflows/ssq-canonical-v2-hebei.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check requests beautifulsoup4
+      - name: Fetch and parse 500 official Hebei detail pages
+        run: python ssq_v5/data_tools/fetch_hebei_full_500.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-canonical-v2-hebei-500
+          path: canonical_v2_hebei/
+          if-no-files-found: error
+          retention-days: 30
