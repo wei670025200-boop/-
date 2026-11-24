@@ -125,5 +125,61 @@ class TestV4RealOfficialIntegration(unittest.TestCase):
                 run_v4_production(p,root/'pub',ledger,now_utc=datetime(2027,1,3,11,30,tzinfo=timezone.utc))
             self.assertEqual(c.exception.code,'CALLER_RULE_STATE_CONFLICT')
 
+
+    def test_active_promo_requires_current_status_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            p=V4TestFixtureMixin()._build_env(root, ticket_count=10)
+            p.pop('promo_status_evidence', None)
+            with self.assertRaises(GateBlockedError) as c:
+                run_v4_production(
+                    p, root/'pub', AppendOnlyLedger(root/'ledger.jsonl',V3_HEAD),
+                    now_utc=datetime(2027,1,3,11,30,tzinfo=timezone.utc),
+                )
+            self.assertEqual(c.exception.code,'PROMO_STATUS_EVIDENCE_REQUIRED')
+
+    def test_promo_status_issue_mismatch_blocks_production(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            p=V4TestFixtureMixin()._build_env(root, ticket_count=10)
+            status_path=Path(p['promo_status_evidence']['path'])
+            raw=json.dumps(
+                {'latest_completed_issue':'2026151','remaining_sixth_promo_rmb':559400000.0},
+                sort_keys=True,
+            ).encode('utf-8')
+            status_path.write_bytes(raw)
+            p['promo_status_evidence']['sha256']=hashlib.sha256(raw).hexdigest()
+            with self.assertRaises(GateBlockedError) as c:
+                run_v4_production(
+                    p, root/'pub', AppendOnlyLedger(root/'ledger.jsonl',V3_HEAD),
+                    now_utc=datetime(2027,1,3,11,30,tzinfo=timezone.utc),
+                )
+            self.assertEqual(c.exception.code,'PROMO_STATUS_ISSUE_MISMATCH')
+
+    def test_promo_status_is_explicitly_bound_and_used(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            p=V4TestFixtureMixin()._build_env(root, ticket_count=10)
+            expected_status_sha=p['promo_status_evidence']['sha256']
+            res=run_v4_production(
+                p, root/'pub', AppendOnlyLedger(root/'ledger.jsonl',V3_HEAD),
+                now_utc=datetime(2027,1,3,11,30,tzinfo=timezone.utc),
+            )
+            receipt=res['receipt']
+            self.assertEqual(receipt['promo_evidence']['status_sha256'], expected_status_sha)
+            self.assertEqual(receipt['promo_evidence']['status_latest_completed_issue'], '2026152')
+            self.assertEqual(receipt['promo_evidence']['remaining_sixth_promo_rmb'], 559400000.0)
+            self.assertIn(
+                'PROMO_SIXTH_PRIZE_DOUBLE_IF_SLIP_ELIGIBLE',
+                receipt['draw_ev_context']['fixed_prize_bonus_rule'],
+            )
+            priv=json.loads(
+                (Path(res['published_dir'])/'PRIVATE_SEED_AND_NONCE.json').read_text('utf-8')
+            )
+            self.assertEqual(
+                priv['commitment_body']['promo_status_evidence_sha256'],
+                expected_status_sha,
+            )
+
 if __name__=='__main__':
     unittest.main()
