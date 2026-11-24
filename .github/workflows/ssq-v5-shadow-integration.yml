@@ -42,3 +42,5 @@ jobs:
           set -euo pipefail
           cd ssq_v5
           python -m unittest test_v5_pipeline.py -v
+
+# trigger shadow acceptance
