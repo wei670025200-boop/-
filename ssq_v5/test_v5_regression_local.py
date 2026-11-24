@@ -23,6 +23,12 @@ from ssq_v5.digital_twin_v5 import (
     run_expanding_window_oos_calibration,
 )
 from ssq_v5.phase4_real_policy_gate_v5 import evaluate_cusum_circuit_breaker
+from ssq_v5.runner_v5 import (
+    PHASE4_STATUS,
+    V5_POLICY_GATE_STATUS,
+    run_v5_local_production,
+    validate_v5_production_artifacts,
+)
 
 
 def _write_json(path: Path, obj: dict) -> str:
@@ -121,6 +127,16 @@ class TestV5LocalFirstRegression(unittest.TestCase):
             self.assertEqual(e["route"],"V5_PRODUCTION_ELIGIBLE")
             for t in e["tickets"]:
                 self.assertEqual(t["plugin_statutory_rmb_breakdown"]["exposure_label"],"PLUG_IN_STATUTORY_RMB_EXPOSURE")
+
+    def test_08_unlocked_runner_verifies_artifacts_and_fails_closed_without_promo_balance(self):
+        self.assertEqual(PHASE4_STATUS,"PASS_PRODUCTION_ELIGIBLE")
+        self.assertEqual(V5_POLICY_GATE_STATUS,"PASS")
+        art=validate_v5_production_artifacts()
+        self.assertEqual(art["policy_gate_status"],"PASS")
+        self.assertEqual(art["selected_policy"]["policy_id"],"P_R01_005_B06")
+        out=run_v5_local_production(2,remaining_sixth_promo_rmb=None,seed=bytes.fromhex("22"*32))
+        self.assertEqual(out["effective_route"],"UNIFORM_MARGINAL_BALANCED_COVERAGE")
+        self.assertEqual(out["fallback_reason"],"LOCAL_PROMO_REMAINING_RMB_REQUIRED")
 
 
 if __name__=="__main__":
