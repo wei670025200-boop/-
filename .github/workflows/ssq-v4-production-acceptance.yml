@@ -74,3 +74,5 @@ jobs:
           assert not hasattr(live,'generate_balanced_batch')
           print('LIVE_V4_ENTRYPOINT_RC2_1_PASS')
           PY
+
+# trigger clean-cutover acceptance
