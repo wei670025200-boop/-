@@ -1,0 +1,41 @@
+name: SSQ V5 Phase4 patch preflight
+
+on:
+  push:
+    branches:
+      - ssq-v5-shadow-integration-20261124
+    paths:
+      - 'ssq_v5/**'
+      - 'data/ssq_statutory_rule_table_v1.json'
+      - '.github/workflows/ssq-v5-phase4-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .:ssq_v5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install numpy
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Compile
+        run: python -m py_compile ssq_v5/*.py
+      - name: Run Phase4 patch tests
+        run: python -m unittest ssq_v5.test_v5_policy_patch -v
+      - name: Verify Local-First base still loads
+        run: |
+          python - <<'PY'
+          from local_history import full_tier_history
+          rows=full_tier_history("data/ssq_history.csv")
+          assert len(rows)==600
+          assert rows[0].issue=="2022139"
+          assert rows[-1].issue=="2026135"
+          print("LOCAL_FIRST_BASE_PASS")
+          PY
