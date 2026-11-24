@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 import shutil
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
@@ -18,6 +19,7 @@ from registry_and_parsers_v4 import (
     GateBlockedError,
     bind_schedule_suspension,
     load_promo_evidence,
+    load_promo_status_evidence,
     load_schedule_manifest_evidence,
     load_suspension_evidence,
     sha256_bytes,
@@ -255,6 +257,24 @@ def run_v4_production(
     suspension_ev = load_suspension_evidence(input_data["suspension_evidence"])
     schedule_ev = bind_schedule_suspension(schedule_base, suspension_ev)
     promo_ev = load_promo_evidence(input_data.get("promo_evidence"), target_issue=target_issue)
+    latest_completed_issue = str(quorum.latest_draw["issue"])
+    promo_status_ev = None
+    if promo_ev.active_for_target_issue:
+        status_entry = input_data.get("promo_status_evidence")
+        if status_entry is None:
+            raise GateBlockedError(
+                "PROMO_STATUS_EVIDENCE_REQUIRED",
+                "Active promotion requires current official promotion-status evidence.",
+            )
+        promo_status_ev = load_promo_status_evidence(
+            status_entry,
+            expected_latest_issue=latest_completed_issue,
+        )
+        if promo_ev.sixth_prize_double_active:
+            promo_ev = replace(
+                promo_ev,
+                remaining_sixth_promo_rmb=promo_status_ev.remaining_sixth_promo_rmb,
+            )
 
     draw_dt_utc = verify_schedule_and_continuity(
         target_issue=target_issue,
@@ -269,7 +289,6 @@ def run_v4_production(
     # ledger, caller input cannot override it.  An explicit input is accepted
     # only as a one-time migration/bootstrap path when no previous ledger record
     # exists yet; it is bound into the Commitment and receipt.
-    latest_completed_issue = str(quorum.latest_draw["issue"])
     inherited_state = ledger.inherited_special_rule_state(latest_completed_issue)
     caller_state = input_data.get("special_rule_active_previous")
     if inherited_state is not None:
@@ -328,6 +347,7 @@ def run_v4_production(
         "schedule_manifest_sha256": schedule_ev.sha256,
         "suspension_evidence_sha256": schedule_ev.suspension_sha256,
         "promo_evidence_sha256": promo_ev.sha256,
+        "promo_status_evidence_sha256": promo_status_ev.sha256 if promo_status_ev is not None else None,
         "seed_sha256": seed_sha,
         "rule_regime_state": {
             "rule_regime": regime_state.rule_regime,
@@ -405,6 +425,14 @@ def run_v4_production(
             "parser_version": promo_ev.parser_version,
             "sha256": promo_ev.sha256,
             "issue_window": [promo_ev.start_issue, promo_ev.end_issue],
+            "status_source_id": promo_status_ev.source_id if promo_status_ev is not None else None,
+            "status_authority_id": promo_status_ev.authority_id if promo_status_ev is not None else None,
+            "status_parser_version": promo_status_ev.parser_version if promo_status_ev is not None else None,
+            "status_sha256": promo_status_ev.sha256 if promo_status_ev is not None else None,
+            "status_latest_completed_issue": (
+                promo_status_ev.latest_completed_issue if promo_status_ev is not None else None
+            ),
+            "remaining_sixth_promo_rmb": promo_ev.remaining_sixth_promo_rmb,
         },
         "physical_slip_plan": validated_slips,
         "metrics": {
