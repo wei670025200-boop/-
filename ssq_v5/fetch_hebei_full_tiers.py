@@ -74,7 +74,7 @@ def main():
     wanted=[]
     for r in rows:
         issue=str(r.get("issueNo") or "")
-        if "2024016" <= issue <= "2026135":
+        if "2023048" <= issue <= "2026135":
             link=str(r.get("link") or "")
             wanted.append((issue,BASE+link))
     wanted=sorted(dict(wanted).items())
