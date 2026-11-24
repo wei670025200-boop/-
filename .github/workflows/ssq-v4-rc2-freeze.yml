@@ -6,6 +6,7 @@ on:
       - ssq-v4-ppas12-20261124
     paths:
       - 'v4_rc2/**'
+      - 'v4/**'
       - '.github/workflows/ssq-v4-rc2-freeze.yml'
   workflow_dispatch:
 
@@ -54,3 +55,16 @@ jobs:
           set -euo pipefail
           cd v4_rc2
           python audit_v4_100k.py
+
+      - name: Smoke-test live V4 entrypoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import v4.runner_v4 as live
+          assert live.ACTIVE_RELEASE == "SSQ_V4_RC2_1"
+          assert callable(live.run_v4_production)
+          assert callable(live.recover_staged_publish)
+          assert str(live.ACTIVE_IMPLEMENTATION_DIR).endswith("/v4_rc2")
+          print("LIVE_V4_ENTRYPOINT_RC2_1_PASS")
+          PY
