@@ -1,0 +1,22 @@
+name: SSQ Sichuan page raw inspect
+on:
+  push:
+    branches: [ssq-v5-shadow-integration-20261124]
+    paths: ['.github/workflows/ssq-sichuan-page-inspect.yml']
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect archive page links
+        shell: bash
+        run: |
+          set -euo pipefail
+          for n in 2 20 50 80; do
+            u="https://www.scflcp.com.cn/czfl_${n}.jhtml"
+            curl -fsSL --compressed --connect-timeout 8 --max-time 30 -A 'Mozilla/5.0' -o "/tmp/p${n}.html" "$u" || continue
+            echo "===PAGE $n==="
+            grep -oE 'href="[^"]+"' "/tmp/p${n}.html" | grep -E 'ssq|czfl|assets' | head -30 || true
+            grep -oE '20[0-9]{5}' "/tmp/p${n}.html" | sort -u | head -30 || true
+          done
