@@ -89,6 +89,16 @@ OFFICIAL_SOURCE_REGISTRY: Dict[str, OfficialSourceSpec] = {
         promo_parser_version="UNSUPPORTED_PROMO_V0",
         suspension_parser_version="mof_suspension_html_v1",
         production_enabled=False,
+    ),,
+    "GZ_MZJ": OfficialSourceSpec(
+        source_id="GZ_MZJ",
+        authority_id="GUANGZHOU_CIVIL_AFFAIRS_BUREAU",
+        official_domain="mzj.gz.gov.cn",
+        draw_parser_version="UNSUPPORTED_DRAW_V0",
+        schedule_parser_version="UNSUPPORTED_SCHEDULE_V0",
+        promo_parser_version="gz_promo_html_v1",
+        suspension_parser_version="UNSUPPORTED_SUSPENSION_V0",
+        production_enabled=False,
     ),
 }
 
