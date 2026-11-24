@@ -1,0 +1,15 @@
+{
+  "full_tier_range": [
+    "2022139",
+    "2026135"
+  ],
+  "full_tier_rows": 600,
+  "history_path": "data/ssq_history.csv",
+  "history_sha256": "4ce4382f170253feee0a42aaaa3074e76ac8c121c780b8a26244599118347c45",
+  "offline_only": true,
+  "oos_gate_status": "PASS",
+  "phase3_artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a",
+  "phase3_result_sha256": "c124c0c25218b70ca7b9979a9aa09cfa505835ca3628436a114b76935f19d8d6",
+  "schema": "SSQ_LOCAL_FIRST_1.0",
+  "total_rows": 768
+}

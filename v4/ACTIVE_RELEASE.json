@@ -1,26 +1,19 @@
 {
-  "schema": "SSQ_ACTIVE_RELEASE_1.0",
-  "activated_at_utc": "2026-11-24T12:35:09Z",
-  "active_release": "SSQ_V4_RC2_1",
+  "schema": "SSQ_ACTIVE_RELEASE_2.0",
+  "activated_at_utc": "2026-11-24T15:45:00Z",
+  "active_release": "SSQ_LOCAL_FIRST_1_0",
+  "base_algorithm_release": "SSQ_V4_RC2_1",
   "live_entrypoint": "v4/runner_v4.py",
-  "implementation_dir": "v4_rc2",
+  "history_ledger": "data/ssq_history.csv",
+  "execution_mode": "LOCAL_FIRST_OFFLINE",
+  "network_verification": "DISABLED_BY_POLICY",
   "route_mode": "UNIFORM_MARGINAL_BALANCED_COVERAGE",
-  "predictive_edge_claim": "NONE",
-  "popularity_filter": "BLOCKED",
-  "rollback_reference": "v4/legacy_runner_draft.py",
-  "v3_status": "PRESERVED_FOR_ROLLBACK_NOT_ACTIVE_IN_THIS_REPOSITORY_ENTRYPOINT",
-  "validation": {
-    "freeze_acceptance_run_id": 45394838990,
-    "freeze_acceptance": "PASS",
-    "fresh_e2e_run_id": 45394446046,
-    "fresh_e2e": "PASS",
-    "regression_tests": "54/54 PASS",
-    "audit_100k": "PASS",
-    "exhaustive_red_crosscheck": "32568 == 32568 over C(33,6)=1,107,568",
-    "no_redraw_guard": "PASS",
-    "cutover_smoke_run_id": 45395722788,
-    "cutover_smoke": "PASS",
-    "cutover_smoke_branch": "ssq-v4-cutover-smoke-20261124"
+  "predictive_edge_claim": "NONE_FOR_V4",
+  "v5_phase3": {
+    "status": "PASS",
+    "complete_draws": 600,
+    "range": ["2022139", "2026135"],
+    "artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
   },
-  "promotion_eligibility": "PLANNED_ELIGIBLE_REQUIRES_POST_PURCHASE_RECEIPT_CONFIRMATION"
+  "v5_phase4": "LOCKED"
 }
