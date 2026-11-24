@@ -101,6 +101,7 @@ class V4TestFixtureMixin:
         )
 
         promo_entry = None
+        promo_status_entry = None
         if include_promo:
             promo_path = root / "promo.json"
             promo_sha = _write_json(
@@ -123,6 +124,22 @@ class V4TestFixtureMixin:
                 "sha256": promo_sha,
                 "fetched_at_utc": "2027-01-03T11:00:00Z",
                 "parser_version": "sc_promo_html_or_json_v2",
+            }
+            promo_status_path = root / "promo_status.json"
+            promo_status_sha = _write_json(
+                promo_status_path,
+                {
+                    "latest_completed_issue": prev_issue,
+                    "remaining_sixth_promo_rmb": 559_400_000.0,
+                },
+            )
+            promo_status_entry = {
+                "source_id": "SH_FLCP",
+                "url": "https://www.swlc.net.cn/promo_status.json",
+                "path": str(promo_status_path),
+                "sha256": promo_status_sha,
+                "fetched_at_utc": "2027-01-03T11:00:01Z",
+                "parser_version": "sh_promo_status_html_or_json_v1",
             }
 
         plan = slip_plan or [
@@ -159,6 +176,7 @@ class V4TestFixtureMixin:
                 "parser_version": "gd_suspension_html_or_json_v1",
             },
             "promo_evidence": promo_entry,
+            "promo_status_evidence": promo_status_entry,
             "official_sources": [
                 {
                     "source_id": "SH_FLCP",
@@ -522,7 +540,7 @@ class TestV4Regression42(unittest.TestCase, V4TestFixtureMixin):
             for field in (
                 "algorithm_version", "rng_model", "input_manifest_sha256",
                 "official_evidence_hashes", "schedule_manifest_sha256",
-                "suspension_evidence_sha256", "promo_evidence_sha256", "seed_sha256", "rule_regime_state",
+                "suspension_evidence_sha256", "promo_evidence_sha256", "promo_status_evidence_sha256", "seed_sha256", "rule_regime_state",
                 "physical_slip_plan", "tickets", "nonce_hex",
             ):
                 self.assertIn(field, cb)
