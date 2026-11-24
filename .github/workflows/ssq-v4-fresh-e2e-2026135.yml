@@ -1,0 +1,228 @@
+name: SSQ V4 Fresh Production E2E 2026135
+
+on:
+  push:
+    branches:
+      - ssq-v4-fresh-e2e-2026135
+    paths:
+      - '.github/workflows/ssq-v4-fresh-e2e-2026135.yml'
+      - 'v4_rc2/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-production-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ssq-v4-fresh-e2e-2026135
+
+      - name: Fetch fresh official evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/ssq_e2e /tmp/ssq_evidence
+          UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/158.0 Safari/537.36'
+          fetch() {
+            name="$1"; url="$2"
+            curl --fail --location --compressed --retry 3 --retry-delay 2 --connect-timeout 20 --max-time 120 \
+              -A "$UA" -D "/tmp/ssq_e2e/${name}.headers" -o "/tmp/ssq_e2e/${name}.body" "$url"
+            sha256sum "/tmp/ssq_e2e/${name}.body"
+          }
+          fetch sh_draw 'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous'
+          fetch sc_draw 'https://www.scflcp.com.cn/ssq'
+          fetch gd_suspension 'https://www.gdfc.org.cn/datas/content/content_280552.html?subjectID=91'
+          fetch gd_promo 'https://www.gdfc.org.cn/article/286050.html'
+          cp /tmp/ssq_e2e/sh_draw.body /tmp/ssq_evidence/shanghai_ssq_previous.body
+          cp /tmp/ssq_e2e/sc_draw.body /tmp/ssq_evidence/sichuan_ssq_current.body
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > /tmp/ssq_e2e/fetched_at_utc.txt
+
+      - name: Verify frozen source manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          sha256sum -c SHA256SUMS.txt
+          python -m py_compile *.py
+
+      - name: Run frozen regression + real integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python -m unittest test_v4_regression.py test_v4_real_integration.py -v
+
+      - name: Execute fresh pre-draw production transaction
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python - <<'PY'
+          import hashlib, json, os, sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          from registry_and_parsers_v4 import GateBlockedError
+          from runner_v4 import AppendOnlyLedger, run_v4_production
+
+          E = Path('/tmp/ssq_e2e')
+          OUT = Path('/tmp/ssq_v4_fresh_e2e_output')
+          LEDGER = Path('/tmp/ssq_v4_fresh_e2e_ledger.jsonl')
+          V3_HEAD = '7396a54fe6596e71b2ccf73f82ddcb24aed9a03acd13450816403031dad87daa'
+
+          fetched = (E/'fetched_at_utc.txt').read_text().strip()
+
+          def ev(name, source_id, url, parser_version=None):
+              p = E/f'{name}.body'
+              d = {
+                  'source_id': source_id,
+                  'url': url,
+                  'path': str(p),
+                  'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                  'fetched_at_utc': fetched,
+              }
+              if parser_version is not None:
+                  d['parser_version'] = parser_version
+              return d
+
+          input_data = {
+              'mode': 'UNIFORM_MARGINAL_BALANCED_COVERAGE',
+              'apply_popularity_filter': False,
+              'target_issue': '2026135',
+              'ticket_count': 10,
+              'budget_rmb': 20,
+              'draw_at_utc': '2026-11-24T13:15:00+00:00',
+              'official_sources': [
+                  ev('sh_draw','SH_FLCP','https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous'),
+                  ev('sc_draw','SC_FLCP','https://www.scflcp.com.cn/ssq'),
+              ],
+              'schedule_manifest': ev(
+                  'sh_draw','SH_FLCP',
+                  'https://www.swlc.net.cn/lottery/ssq.html?limit=100&view=previous',
+                  'sh_sched_html_or_manifest_v2',
+              ),
+              'suspension_evidence': ev(
+                  'gd_suspension','GD_FLCP',
+                  'https://www.gdfc.org.cn/datas/content/content_280552.html?subjectID=91',
+                  'gd_suspension_html_or_json_v1',
+              ),
+              'promo_evidence': ev(
+                  'gd_promo','GD_FLCP',
+                  'https://www.gdfc.org.cn/article/286050.html',
+                  'gd_promo_html_or_json_v2',
+              ),
+              'special_rule_active_previous': False,
+              'physical_slip_plan': [{
+                  'slip_id':'SLIP-2026135-01',
+                  'bet_type':'SINGLE',
+                  'ticket_indices': list(range(10)),
+                  'amount_rmb':20,
+              }],
+          }
+
+          ledger = AppendOnlyLedger(LEDGER, V3_HEAD)
+          now = datetime(2026,11,24,12,12,0,tzinfo=timezone.utc)
+          try:
+              result = run_v4_production(input_data, OUT, ledger, now_utc=now)
+          except GateBlockedError as exc:
+              print(json.dumps({'status':'FAIL_CLOSED','code':exc.code,'message':str(exc)},ensure_ascii=False,indent=2))
+              raise
+
+          receipt = result['receipt']
+          latest = receipt['quorum_result']['latest_completed_issue']
+          if latest != '2026134':
+              raise SystemExit(f'LATEST_COMPLETED_ISSUE_UNEXPECTED: {latest}')
+          if set(receipt['quorum_result']['agreed_sources']) != {'SH_FLCP','SC_FLCP'}:
+              raise SystemExit('PRODUCTION_QUORUM_NOT_SH_SC')
+          if receipt['promo_evidence']['present'] is not True:
+              raise SystemExit('PROMO_EVIDENCE_MISSING')
+          if receipt['draw_ev_context']['promo_active'] is not True:
+              raise SystemExit('PROMO_NOT_ACTIVE_FOR_2026135')
+          if receipt['draw_ev_context']['promo_eligibility'] != 'PLANNED_ELIGIBLE':
+              raise SystemExit('PROMO_PLAN_NOT_ELIGIBLE')
+          if receipt['draw_ev_context']['special_rule_active_previous'] is not False:
+              raise SystemExit('BOOTSTRAP_RULE_STATE_NOT_FALSE')
+          if receipt['draw_ev_context']['special_rule_active'] is not False:
+              raise SystemExit('RULE_STATE_SHOULD_REMAIN_NORMAL')
+          if receipt['metrics']['profit_guarantee'] != 'NONE':
+              raise SystemExit('PROFIT_GUARANTEE_MUST_BE_NONE')
+
+          final_dir = Path(result['final_dir'])
+          required = ['PRIVATE_SEED_AND_NONCE.json','TICKETS.json','RECEIPT.json','STAGE_MANIFEST.json']
+          missing = [x for x in required if not (final_dir/x).is_file()]
+          if missing:
+              raise SystemExit(f'FINAL_PUBLISH_MISSING: {missing}')
+
+          recs = ledger.load_records()
+          if len(recs) != 1 or recs[0]['target_issue'] != '2026135':
+              raise SystemExit('LEDGER_COMMIT_INVALID')
+
+          summary = {
+              'schema':'SSQ_V4_FRESH_PRODUCTION_E2E_2026135_1.0',
+              'status':'PASS',
+              'target_issue':'2026135',
+              'latest_completed_issue':'2026134',
+              'draw_at_utc':'2026-11-24T13:15:00+00:00',
+              'ticket_count':10,
+              'budget_rmb':20,
+              'physical_slip_plan':input_data['physical_slip_plan'],
+              'quorum_sources':receipt['quorum_result']['agreed_sources'],
+              'quorum_authorities':receipt['quorum_result']['agreed_authorities'],
+              'official_evidence_hashes':receipt['quorum_result']['evidence_hashes'],
+              'schedule_sha256':receipt['schedule_evidence']['sha256'],
+              'suspension_sha256':receipt['schedule_evidence']['suspension_sha256'],
+              'promo_sha256':receipt['promo_evidence']['sha256'],
+              'promo_active':receipt['draw_ev_context']['promo_active'],
+              'promo_eligibility':receipt['draw_ev_context']['promo_eligibility'],
+              'rule_state_source':receipt['rule_state_source'],
+              'rule_transition':receipt['draw_ev_context']['rule_transition'],
+              'special_rule_active_previous':receipt['draw_ev_context']['special_rule_active_previous'],
+              'special_rule_active':receipt['draw_ev_context']['special_rule_active'],
+              'commitment_sha256':receipt['commitment_sha256'],
+              'final_dir':str(final_dir),
+              'ledger_record_sha256':recs[0]['record_sha256'],
+              'profit_guarantee':receipt['metrics']['profit_guarantee'],
+              'production_cutover_gate':'PASS_PENDING_HOSTED_REPRODUCTION_AND_OPERATOR_PURCHASE_RECEIPT_CONFIRMATION',
+          }
+          Path('/tmp/SSQ_V4_FRESH_E2E_2026135.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+          print(json.dumps(summary,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Verify no-redraw duplicate issue protection
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd v4_rc2
+          python - <<'PY'
+          from pathlib import Path
+          from registry_and_parsers_v4 import GateBlockedError
+          from runner_v4 import AppendOnlyLedger
+          p=Path('/tmp/ssq_v4_fresh_e2e_ledger.jsonl')
+          ledger=AppendOnlyLedger(p,'7396a54fe6596e71b2ccf73f82ddcb24aed9a03acd13450816403031dad87daa')
+          rec=ledger.find_issue_record('2026135')
+          if rec is None:
+              raise SystemExit('MISSING_COMMITTED_2026135')
+          try:
+              ledger.commit_record('2026135','0'*64,'1'*64,{'special_rule_active':False})
+          except GateBlockedError as exc:
+              if exc.code != 'REFUSE_DUPLICATE_ISSUE':
+                  raise
+              print('NO_REDRAW_DUPLICATE_GUARD_PASS')
+          else:
+              raise SystemExit('DUPLICATE_ISSUE_WAS_NOT_BLOCKED')
+          PY
+
+      - name: Upload fresh E2E evidence and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssq-v4-fresh-e2e-2026135
+          path: |
+            /tmp/ssq_e2e/
+            /tmp/SSQ_V4_FRESH_E2E_2026135.json
+            /tmp/ssq_v4_fresh_e2e_ledger.jsonl
+            /tmp/ssq_v4_fresh_e2e_output/
+          retention-days: 30
+          if-no-files-found: error
