@@ -5,6 +5,7 @@ import os
 import stat
 import tempfile
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -137,10 +138,61 @@ class TestV5ProductionShellE2E(unittest.TestCase):
                     now_utc=_now("2026-11-25T00:00:00Z"),
                 )
             self.assertEqual(cm.exception.code, "INVALID_PROMO_REMAINING_RMB")
+            # All three model locks must fail closed into the same transactional V4 route.
+            gate_cases = [
+                (
+                    {"phase3_oos_gate":"FAIL","cusum_drift_gate":"NOT_RUN","policy_gate":"NOT_RUN",
+                     "fallback_reason":"V5_OOS_GATE_LOCKED"},
+                    None,
+                    "V5_OOS_GATE_LOCKED",
+                ),
+                (
+                    {"phase3_oos_gate":"PASS","cusum_drift_gate":"V5_CIRCUIT_BREAKER_TRIPPED","policy_gate":"NOT_RUN",
+                     "circuit_breaker":{"status":"V5_CIRCUIT_BREAKER_TRIPPED"},
+                     "fallback_reason":"CIRCUIT_BREAKER_DOWNGRADE:TEST"},
+                    None,
+                    "CIRCUIT_BREAKER_DOWNGRADE:TEST",
+                ),
+                (
+                    {"phase3_oos_gate":"PASS","cusum_drift_gate":"OK","policy_gate":"NOT_RUN",
+                     "fallback_reason":None},
+                    RuntimeError("BROKEN_POLICY_ARTIFACT"),
+                    "V5_POLICY_GATE_LOCKED",
+                ),
+            ]
+            routed = []
+            for idx,(lock_info,policy_exc,expected_reason) in enumerate(gate_cases):
+                with tempfile.TemporaryDirectory() as gtd_s:
+                    gtd=Path(gtd_s)
+                    fake_phase=(None,None,[],lock_info)
+                    with patch("ssq_v5.production_local_v5._phase3_and_cusum", return_value=fake_phase):
+                        if policy_exc is None:
+                            ctx=patch("ssq_v5.production_local_v5._verify_policy_result")
+                            mocked=ctx.start()
+                            mocked.return_value={"policy_gate_artifact":{"policy_gate_status":"PASS","integrity_summary_sha256":"f"*64}}
+                        else:
+                            ctx=patch("ssq_v5.production_local_v5._verify_policy_result", side_effect=policy_exc)
+                            ctx.start()
+                        try:
+                            gout=run_v5(
+                                2,
+                                remaining_sixth_promo_rmb=560_000_000.0,
+                                ledger_path=gtd/"ledger.jsonl",
+                                output_root=gtd/"out",
+                                now_utc=_now("2026-11-25T00:00:00Z"),
+                                seed=bytes([90+idx])*32,
+                            )
+                        finally:
+                            ctx.stop()
+                    self.assertEqual(gout["effective_route_mode"], "UNIFORM_MARGINAL_BALANCED_COVERAGE")
+                    self.assertIn(expected_reason, str(gout["fallback_reason"]))
+                    routed.append(gout["fallback_reason"])
+
             print("EDGE2_PROMO_FAILCLOSED", json.dumps({
                 "effective_route_mode": out["effective_route_mode"],
                 "fallback_reason": out["fallback_reason"],
                 "negative_error": cm.exception.code,
+                "gate_fallbacks": routed,
             }, sort_keys=True))
 
     def test_03_cross_year_suspension_and_expired_time_gates(self) -> None:
