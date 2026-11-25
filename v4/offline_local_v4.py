@@ -16,6 +16,7 @@ from v4.local_production_shell import (
     DEFAULT_SCHEDULE_PATH,
     canonical_json,
     commit_production_bundle,
+    assert_issue_not_already_committed,
     default_physical_slip_plan,
     inherit_special_rule_state,
     local_promo_evidence,
@@ -75,6 +76,7 @@ def run_v4_local(
         now_utc=now_utc,
     )
     ledger = open_production_ledger(ledger_path=ledger_path, genesis_path=genesis_path)
+    assert_issue_not_already_committed(ledger, timing["target_issue"], output_root)
     previous_state, state_source = inherit_special_rule_state(
         ledger,
         latest.issue,
