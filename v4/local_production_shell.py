@@ -112,6 +112,16 @@ def _year_suspensions(schedule: LocalSchedule, year: int) -> frozenset[str]:
     return frozenset(str(x) for x in y.get("suspended_dates_bjt", []))
 
 
+def validate_local_draw_date(target_date_bjt: str, schedule_path: str | Path = DEFAULT_SCHEDULE_PATH) -> None:
+    schedule = load_local_schedule(schedule_path)
+    d = date.fromisoformat(target_date_bjt)
+    suspended = _year_suspensions(schedule, d.year)
+    if d.weekday() not in schedule.draw_weekdays_bjt:
+        raise GateBlockedError("DRAW_DATE_WRONG_WEEKDAY", target_date_bjt)
+    if target_date_bjt in suspended:
+        raise GateBlockedError("DRAW_DATE_SUSPENDED", target_date_bjt)
+
+
 def next_issue_and_draw(
     latest_issue: str,
     latest_draw_date_bjt: str,
@@ -417,6 +427,7 @@ __all__ = [
     "AppendOnlyLedger",
     "recover_staged_publish",
     "load_local_schedule",
+    "validate_local_draw_date",
     "next_issue_and_draw",
     "open_production_ledger",
     "inherit_special_rule_state",
