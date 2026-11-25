@@ -1,0 +1,15 @@
+{
+  "schema": "DLT_LOCAL_SCHEDULE_V1",
+  "timezone": "Asia/Shanghai",
+  "draw_weekdays_python": [0, 2, 5],
+  "unregistered_year": "FAIL_CLOSED",
+  "years": {
+    "2021": {"closures": [["2021-02-09", "2021-02-18"], ["2021-10-01", "2021-10-04"]], "source": "https://zhs.mof.gov.cn/zhengcefabu/202012/t20201215_3634843.htm"},
+    "2022": {"closures": [["2022-01-29", "2022-02-07"], ["2022-10-01", "2022-10-04"]], "source": "https://www.mof.gov.cn/gp/xxgkml/zhs/202112/t20211216_3775504.htm"},
+    "2023": {"closures": [["2023-01-19", "2023-01-28"], ["2023-10-01", "2023-10-04"]], "source": "https://m.mof.gov.cn/czxw/202212/t20221227_3860392.htm"},
+    "2024": {"closures": [["2024-02-08", "2024-02-17"], ["2024-10-01", "2024-10-04"]], "source": "https://zhs.mof.gov.cn/zhengcefabu/202312/t20231201_3919333.htm"},
+    "2025": {"closures": [["2025-01-27", "2025-02-05"], ["2025-10-01", "2025-10-04"]], "source": "https://zhs.mof.gov.cn/zhengcefabu/202412/t20241206_3949123.htm"},
+    "2026": {"closures": [["2026-02-14", "2026-02-23"], ["2026-10-01", "2026-10-04"]], "source": "https://zhs.mof.gov.cn/zhengcefabu/202512/t20251225_3980205.htm"}
+  },
+  "scope": "Regular Monday Wednesday Saturday draws excluding official national closures. Unlisted exceptional schedule changes must fail closed, not be inferred from outcomes."
+}
