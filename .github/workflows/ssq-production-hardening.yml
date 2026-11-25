@@ -33,6 +33,32 @@ jobs:
         run: |
           python -m py_compile local_history.py v4/*.py v4_rc2/*.py ssq_v5/*.py
 
+      - name: Materialize frozen V4 parser fixtures locally
+        run: |
+          mkdir -p /tmp/ssq_evidence
+          cat > /tmp/ssq_evidence/shanghai_ssq_previous.body <<'EOF'
+          <html><body>
+          <p>双色球每周二、四、日 21:15开奖</p>
+          <table class="lottery-history-table--ssq"><tbody><tr>
+          <td>2026134</td><td>2026-11-22</td>
+          <td><span class="lottery-history-balls--red"><i>04</i><i>05</i><i>10</i><i>17</i><i>21</i><i>32</i></span></td>
+          <td><span class="lottery-history-balls--blue"><i>08</i></span></td>
+          <td>435713586</td><td>-</td><td>-</td><td>1154982023</td>
+          </tr></tbody></table>
+          </body></html>
+          EOF
+          cat > /tmp/ssq_evidence/sichuan_ssq_current.body <<'EOF'
+          <html><body>
+          <select><option value="0">2026134</option></select>
+          <span class="lottery-time-classification">开奖时间：2026-11-22</span>
+          <div class="circle-group">
+          <span>04</span><span>05</span><span>10</span><span>17</span><span>21</span><span>32</span><span class="blue-classification">08</span>
+          </div>
+          <p>本期销售金额：435,713,586 元</p>
+          <p>下期一等奖奖池累计金额：1,154,982,023 元</p>
+          </body></html>
+          EOF
+
       - name: V4 full regression - exactly 54 tests
         run: |
           set -o pipefail
