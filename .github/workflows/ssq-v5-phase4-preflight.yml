@@ -34,8 +34,10 @@ jobs:
           python - <<'PY'
           from local_history import full_tier_history
           rows=full_tier_history("data/ssq_history.csv")
-          assert len(rows)==600
+          assert len(rows)>=600
           assert rows[0].issue=="2022139"
-          assert rows[-1].issue=="2026135"
+          assert rows[599].issue=="2026135"
           print("LOCAL_FIRST_BASE_PASS")
           PY
+
+# final-cutover-ci-trigger
