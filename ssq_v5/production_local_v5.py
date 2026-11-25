@@ -88,6 +88,13 @@ def _sha256_file(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _safe_artifact_file_sha(path: str | Path, unavailable_label: str) -> str:
+    try:
+        return _sha256_file(path)
+    except Exception as exc:
+        return hashlib.sha256(f"{unavailable_label}:{type(exc).__name__}:{exc}".encode("utf-8")).hexdigest()
+
+
 def _sha256_history_prefix(path: str | Path, trained_through_issue: str) -> str:
     raw = Path(path).read_bytes()
     lines = raw.splitlines(keepends=True)
@@ -277,7 +284,16 @@ def run_v5_local_production(
     )
 
     # Lock 1 -> Lock 2: Phase-3 frozen prefix replay then live CUSUM.
-    frozen_twin, twin, trace, lock_info = _phase3_and_cusum(records)
+    try:
+        frozen_twin, twin, trace, lock_info = _phase3_and_cusum(records)
+    except Exception as exc:
+        frozen_twin, twin, trace = None, None, []
+        lock_info = {
+            "phase3_oos_gate": "FAIL",
+            "cusum_drift_gate": "NOT_RUN",
+            "policy_gate": "NOT_RUN",
+            "fallback_reason": f"V5_OOS_GATE_EXECUTION_ERROR:{type(exc).__name__}:{exc}",
+        }
     route = V5_ROUTE_PROD
     fallback_reason = lock_info.get("fallback_reason")
     policy_result: Dict[str, Any] | None = None
@@ -304,7 +320,7 @@ def run_v5_local_production(
     policy_artifact_sha = (
         str(art["integrity_summary_sha256"])
         if art is not None
-        else _sha256_file(POLICY_RESULT_PATH)
+        else _safe_artifact_file_sha(POLICY_RESULT_PATH, "POLICY_ARTIFACT_UNAVAILABLE")
     )
 
     if route == V5_ROUTE_PROD:
@@ -393,7 +409,7 @@ def run_v5_local_production(
         "budget_rmb": 2 * ticket_count,
         "remaining_sixth_promo_rmb": remaining_sixth_promo_rmb,
         "phase3_expected_artifact_sha256": PHASE3_FROZEN_ARTIFACT,
-        "policy_result_file_sha256": _sha256_file(POLICY_RESULT_PATH),
+        "policy_result_file_sha256": _safe_artifact_file_sha(POLICY_RESULT_PATH, "POLICY_ARTIFACT_UNAVAILABLE"),
     }
     seed_sha = hashlib.sha256(seed).hexdigest()
     rule_state = {
