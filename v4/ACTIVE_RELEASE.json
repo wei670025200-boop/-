@@ -46,6 +46,8 @@
     "phase4_full_regression_workflow_run_id": 45437716365,
     "positive_production_smoke_workflow_run_id": 45437940306
   },
-  "active_release": "SSQ_V5_LOCAL_FIRST_1_0",
-  "activation_condition": "MERGE_THIS_PHASE4_CUTOVER_TO_MAIN"
+  "active_release": "SSQ_V5_LOCAL_FIRST_HARDENED_1_0",
+  "production_shell": "v4/local_production_shell.py",
+  "production_ledger_genesis": "data/production_ledger_genesis.json",
+  "local_schedule_manifest": "data/local_schedule_manifest.json"
 }
