@@ -4,7 +4,6 @@ plus exactly one canonical record, then atomically publish the staged directory.
 This requires a local filesystem supporting flock, fsync and same-filesystem rename.
 """
 from contextlib import contextmanager
-import fcntl
 import json
 import os
 from pathlib import Path
@@ -15,14 +14,23 @@ from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat
 from .balanced_coverage import balanced_tickets, exact_batch_coverage, UNIFORM_CLAIM
 from .frozen_protocol import canonical_json, sha256
 
+try:
+    import fcntl
+except ImportError:  # Windows production hosts
+    fcntl=None
+    import msvcrt
+
 ARTIFACTS=('canonical_commitment.json','physical_slip_plan.json','exact_batch_coverage.json','draw_ev_context.json','transaction_receipt.json')
 FALLBACK='DLT_V4_BALANCED_COVERAGE_FALLBACK'
+V5_ROUTE='DLT_V5'
+V5_SAMPLING_CLAIM='CSPRNG_UNIFORM_WITHOUT_REPLACEMENT_WITHIN_FROZEN_CANDIDATE_0_DOMAIN'
 GENESIS='0'*64
 
 class DuplicateIssue(ValueError): pass
 class CrashInjection(RuntimeError): pass
 
 def _sync_dir(p):
+    if os.name=='nt':return
     fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY)
     try: os.fsync(fd)
     finally: os.close(fd)
@@ -30,7 +38,7 @@ def _sync_dir(p):
 def _write(path,data,mode=0o600):
     fd,tmp=tempfile.mkstemp(prefix='.tmp-',dir=path.parent)
     try:
-        os.fchmod(fd,mode)
+        if hasattr(os,'fchmod'):os.fchmod(fd,mode)
         with os.fdopen(fd,'wb') as f: f.write(data);f.flush();os.fsync(f.fileno())
         os.replace(tmp,path);_sync_dir(path.parent)
     finally:
@@ -39,12 +47,12 @@ def _write(path,data,mode=0o600):
 def _load(path): return json.loads(path.read_bytes())
 
 def _private_bytes(path):
-    if path.is_symlink() or path.stat().st_mode&0o777!=0o600: raise ValueError('PRIVATE_FILE_PERMISSION')
+    if path.is_symlink() or (os.name!='nt' and path.stat().st_mode&0o777!=0o600): raise ValueError('PRIVATE_FILE_PERMISSION')
     return path.read_bytes()
 
 class DLTV4Engine:
-    def __init__(self,root,schedule):
-        self.root=Path(root);self.schedule=schedule
+    def __init__(self,root,schedule,ticket_factory=None):
+        self.root=Path(root);self.schedule=schedule;self.ticket_factory=ticket_factory
     def _init(self):
         self.root.mkdir(mode=0o700,parents=True,exist_ok=True)
         for name in ('pending','published','private'):
@@ -54,9 +62,15 @@ class DLTV4Engine:
     def _lock(self):
         self._init()
         with open(self.root/'lock','a+b') as f:
-            fcntl.flock(f,fcntl.LOCK_EX)
-            try:yield
-            finally:fcntl.flock(f,fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(f,fcntl.LOCK_EX)
+                try:yield
+                finally:fcntl.flock(f,fcntl.LOCK_UN)
+            else:
+                if f.tell()==0:f.write(b'\0');f.flush()
+                f.seek(0);msvcrt.locking(f.fileno(),msvcrt.LK_LOCK,1)
+                try:yield
+                finally:f.seek(0);msvcrt.locking(f.fileno(),msvcrt.LK_UNLCK,1)
     def _key(self,create=False):
         path=self.root/'private'/'ed25519.key'
         if not path.exists():
@@ -95,7 +109,8 @@ class DLTV4Engine:
         else:_write(p,seed)
     def _request(self,issue,day,ticket_count,additional,route):
         self.schedule.check(issue,day)
-        if type(ticket_count) is not int or ticket_count<1 or type(additional) is not bool or route not in ('DLT_V4_BALANCED_COVERAGE',FALLBACK):raise ValueError('INVALID_EXECUTION_REQUEST')
+        if type(ticket_count) is not int or ticket_count<1 or type(additional) is not bool or route not in ('DLT_V4_BALANCED_COVERAGE',FALLBACK,V5_ROUTE):raise ValueError('INVALID_EXECUTION_REQUEST')
+        if route==V5_ROUTE and self.ticket_factory is None:raise ValueError('DLT_V5_TICKET_FACTORY_REQUIRED')
         return {'issue':issue,'date':day,'ticket_count':ticket_count,'additional':additional,'route':route}
     def _stage(self,req):
         pending=self.root/'pending';target=pending/req['issue']
@@ -115,8 +130,9 @@ class DLTV4Engine:
     def _build(self,pending,prev):
         req,seed=self._read_stage(pending);self._request(req['issue'],req['date'],req['ticket_count'],req['additional'],req['route'])
         key=self._key();pub=key.public_key().public_bytes(Encoding.Raw,PublicFormat.Raw)
-        tickets=balanced_tickets(req['ticket_count'],seed)
-        payload={'schema':'DLT_COMMITMENT_V1',**req,'seed_sha256':sha256(seed),'uniform_marginal':UNIFORM_CLAIM,'tickets':[{'front':list(f),'back':list(b)} for f,b in tickets]}
+        tickets=self.ticket_factory(req['ticket_count'],seed,req['date']) if req['route']==V5_ROUTE else balanced_tickets(req['ticket_count'],seed)
+        claim=V5_SAMPLING_CLAIM if req['route']==V5_ROUTE else UNIFORM_CLAIM
+        payload={'schema':'DLT_COMMITMENT_V1',**req,'seed_sha256':sha256(seed),'sampling_claim':claim,'tickets':[{'front':list(f),'back':list(b)} for f,b in tickets]}
         commitment={'payload':payload,'public_key_hex':pub.hex(),'signature_hex':key.sign(canonical_json(payload)).hex(),'algorithm':'Ed25519'}
         price=3 if req['additional'] else 2
         slip={'schema':'DLT_PHYSICAL_SLIP_PLAN_V1','issue':req['issue'],'tickets':[{**t,'is_additional_bet':req['additional'],'cost_rmb':price} for t in payload['tickets']],'total_rmb':price*len(tickets)}
@@ -180,7 +196,7 @@ class DLTV4Engine:
                     if entries and self.schedule.next(entries[-1]['issue'],entries[-1]['date'])!=(issue,day):raise ValueError('ISSUE_NOT_NEXT')
             # An isolated namespace runs the identical transaction stages; no production writes.
             with tempfile.TemporaryDirectory(prefix='dlt-dry-') as tmp:
-                result=DLTV4Engine(tmp,self.schedule).execute(issue,day,ticket_count,additional,route,False)
+                result=DLTV4Engine(tmp,self.schedule,self.ticket_factory).execute(issue,day,ticket_count,additional,route,False)
                 artifacts={n:_load(Path(result['path'])/n) for n in ARTIFACTS}
                 return {'status':'DRY_RUN','issue':issue,'artifacts':artifacts,'production_commit':False}
         with self._lock():

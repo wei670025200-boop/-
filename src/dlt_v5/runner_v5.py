@@ -1,19 +1,30 @@
-"""Locked V5 router. Each gate is evaluated independently; all routes use execute."""
-from .engine_v4 import FALLBACK
+"""Unlocked V5 router. Each gate is evaluated independently; all routes use execute."""
+from .engine_v4 import FALLBACK,V5_ROUTE
 GATES=('DATA_GATE','OOS_GATE','DRIFT_GATE','POLICY_GATE')
-PHASE4_STATUS='LOCKED'
+PHASE4_STATUS='UNLOCKED'
+MAX_VALIDATED_TICKETS=18
+SCOPE_FALLBACK_REASON='POLICY_SCOPE_EXCEEDED_FALLBACK_V4'
 
 def route_gates(gates):
     if not isinstance(gates,(list,tuple)) or any(not isinstance(v,(list,tuple)) or len(v)!=2 or not isinstance(v[0],str) or not isinstance(v[1],str) for v in gates):return {'valid':False,'gate_states':{},'reason':'MALFORMED_GATES'}
     names=[v[0] for v in gates]
     if names!=list(GATES):return {'valid':False,'gate_states':{},'reason':'MISSING_DUPLICATE_OR_OUT_OF_ORDER_GATE'}
     states=dict(gates);failed=[n for n in GATES if states[n]!='PASS']
-    return {'valid':not failed,'gate_states':states,'reason':','.join(failed) if failed else 'PHASE4_LOCKED'}
+    return {'valid':not failed,'gate_states':states,'reason':','.join(failed) if failed else 'ALL_GATES_PASS'}
 
-def execute_locked(engine,issue,day,ticket_count,gates,additional=False,dry_run=False):
+def execute_unlocked(engine,issue,day,ticket_count,gates,additional=False,dry_run=False):
+    if type(ticket_count) is not int or ticket_count<1:raise ValueError('INVALID_EXECUTION_REQUEST')
+    if ticket_count>MAX_VALIDATED_TICKETS:
+        result=engine.execute(issue,day,ticket_count,additional=additional,route=FALLBACK,dry_run=dry_run)
+        decision={'valid':False,'gate_states':{},'reason':SCOPE_FALLBACK_REASON}
+        return {**result,'route':FALLBACK,'selected_strategy':FALLBACK,'gate_decision':decision,'phase4_status':PHASE4_STATUS}
     decision=route_gates(gates)
-    result=engine.execute(issue,day,ticket_count,additional=additional,route=FALLBACK,dry_run=dry_run)
-    return {**result,'route':FALLBACK,'gate_decision':decision,'phase4_status':PHASE4_STATUS}
+    route=V5_ROUTE if decision['valid'] else FALLBACK
+    result=engine.execute(issue,day,ticket_count,additional=additional,route=route,dry_run=dry_run)
+    return {**result,'route':route,'selected_strategy':route,'gate_decision':decision,'phase4_status':PHASE4_STATUS}
+
+# Compatibility name retained for callers compiled against the pre-unlock API.
+execute_locked=execute_unlocked
 
 def evaluate_validators(validators):
     """Each independent check yields a named status; errors fail closed, never skip routing."""
@@ -30,7 +41,7 @@ def evaluate_validators(validators):
 def research_validators(csv_raw,schedule,report,statutory_raw,prereg_raw,accepted_integrity,ticket_count):
     """Verify independently from local artifacts; no OOS refitting or network.
     accepted_integrity must be the separately retained reviewed six-digest receipt.
-    A hash is not an authorization or signature. Phase4 remains locked regardless.
+    A hash is not a signature; production authorization is the separately frozen artifact.
     """
     from .history_validation import validate_history
     from .training_prefix import verify_prefix
@@ -71,5 +82,7 @@ def research_validators(csv_raw,schedule,report,statutory_raw,prereg_raw,accepte
     return {'DATA_GATE':data,'OOS_GATE':oos,'DRIFT_GATE':drift,'POLICY_GATE':policy}
 
 def execute_verified(engine,issue,day,ticket_count,validators,additional=False,dry_run=False):
+    if type(ticket_count) is int and ticket_count>MAX_VALIDATED_TICKETS:
+        return execute_unlocked(engine,issue,day,ticket_count,(),additional,dry_run)
     gates,detail=evaluate_validators(validators)
-    return {**execute_locked(engine,issue,day,ticket_count,gates,additional,dry_run),'gate_detail':detail}
+    return {**execute_unlocked(engine,issue,day,ticket_count,gates,additional,dry_run),'gate_detail':detail}

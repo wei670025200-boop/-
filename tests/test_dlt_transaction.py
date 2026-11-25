@@ -1,9 +1,10 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock
-from dlt_v5.engine_v4 import DLTV4Engine, ARTIFACTS, CrashInjection, DuplicateIssue,FALLBACK
+from dlt_v5.engine_v4 import DLTV4Engine, ARTIFACTS, CrashInjection, DuplicateIssue,FALLBACK,V5_ROUTE
 from dlt_v5.local_schedule import LocalSchedule
 from dlt_v5.runner_v5 import GATES,execute_locked,route_gates
 from dlt_v5.frozen_protocol import sha256
@@ -22,7 +23,10 @@ class Transaction(unittest.TestCase):
         self.issue()
         with self.assertRaisesRegex(DuplicateIssue,'REFUSE_DUPLICATE_ISSUE'):self.issue()
     def test_key_and_seed_mode(self):
-        self.issue();self.assertEqual((self.root/'private/ed25519.key').stat().st_mode&0o777,0o600);self.assertEqual((self.root/'private/26014.seed').stat().st_mode&0o777,0o600)
+        self.issue()
+        for path in (self.root/'private/ed25519.key',self.root/'private/26014.seed'):
+            self.assertFalse(path.is_symlink())
+            if os.name!='nt':self.assertEqual(path.stat().st_mode&0o777,0o600)
     def test_ledger_next(self):
         a=self.issue();b=self.engine.execute('26015','2026-02-04',2);self.assertEqual(b['entry']['prev_sha256'],a['entry']['entry_sha256'])
     def test_ledger_gap(self):
@@ -51,5 +55,8 @@ class Transaction(unittest.TestCase):
             self.assertEqual(r['route'],FALLBACK);self.assertEqual(r['gate_decision']['reason'],failed);m.execute.assert_called_once_with('26014','2026-02-02',2,additional=False,route=FALLBACK,dry_run=True)
     def test_malformed_gate(self):
         for gates in (None,[],[('DATA_GATE','PASS')]*4):self.assertFalse(route_gates(gates)['valid'])
-    def test_locked_all_pass(self):
-        m=Mock();m.execute.return_value={};r=execute_locked(m,'26014','2026-02-02',2,[(x,'PASS') for x in GATES]);self.assertEqual(r['route'],FALLBACK);self.assertEqual(r['gate_decision']['reason'],'PHASE4_LOCKED')
+    def test_unlocked_all_pass(self):
+        m=Mock();m.execute.return_value={};r=execute_locked(m,'26014','2026-02-02',2,[(x,'PASS') for x in GATES]);self.assertEqual(r['route'],V5_ROUTE);self.assertEqual(r['gate_decision']['reason'],'ALL_GATES_PASS');m.execute.assert_called_once_with('26014','2026-02-02',2,additional=False,route=V5_ROUTE,dry_run=False)
+    def test_scope_exceeded_uses_same_engine_fallback(self):
+        m=Mock();m.execute.return_value={};r=execute_locked(m,'26014','2026-02-02',19,[(x,'PASS') for x in GATES],dry_run=True)
+        self.assertEqual((r['route'],r['gate_decision']['reason']),(FALLBACK,'POLICY_SCOPE_EXCEEDED_FALLBACK_V4'));m.execute.assert_called_once_with('26014','2026-02-02',19,additional=False,route=FALLBACK,dry_run=True)

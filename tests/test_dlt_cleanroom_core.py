@@ -4,7 +4,7 @@ from math import log
 from dlt_v5 import prereg_core as c, statutory_liability as s, PHASE4_STATUS, FULL_SYSTEM_READY
 
 class CleanroomCore(unittest.TestCase):
-    def test_import(self): self.assertEqual((PHASE4_STATUS,FULL_SYSTEM_READY),('LOCKED',False))
+    def test_import(self): self.assertEqual((PHASE4_STATUS,FULL_SYSTEM_READY),('UNLOCKED',True))
     def test_counts(self): self.assertEqual(c.theory_counts(),c.COUNTS)
     def test_space(self): self.assertEqual(c.SPACE,21425712)
     def test_win_count(self): self.assertEqual(sum(c.COUNTS),1429197)

@@ -1,13 +1,6 @@
 """Independent partial recovery checks. Not the original 42 tests."""
-from pathlib import Path
-import importlib.util
 import unittest
-
-ROOT=Path(__file__).resolve().parents[1]
-def load(name):
-    spec=importlib.util.spec_from_file_location(name,ROOT/'src'/'dlt_v5'/(name+'.py'))
-    module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); return module
-h=load('history_contract'); s=load('statutory_liability')
+from dlt_v5 import history_contract as h, statutory_liability as s
 
 def prizes(n):
     return [(c+'等奖',i+1) for i,c in enumerate('一二三四五六七八九'[:n])]

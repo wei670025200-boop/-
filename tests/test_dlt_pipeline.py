@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from datetime import date
@@ -39,7 +40,8 @@ class Pipeline(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'OOS_ONCE_CLAIM_INVALID'):verify_claim(claim,raw,spec,{**env,'GITHUB_RUN_ATTEMPT':'2'})
     def test_consume_once(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p=Path(tmp)/'marker';consume_once(p,{'test':'synthetic'});self.assertEqual(p.stat().st_mode&0o777,0o600)
+            p=Path(tmp)/'marker';consume_once(p,{'test':'synthetic'});self.assertFalse(p.is_symlink())
+            if os.name!='nt':self.assertEqual(p.stat().st_mode&0o777,0o600)
             with self.assertRaises(FileExistsError):consume_once(p,{'test':'synthetic'})
     def test_stage_tamper(self):
         with tempfile.TemporaryDirectory() as tmp:
