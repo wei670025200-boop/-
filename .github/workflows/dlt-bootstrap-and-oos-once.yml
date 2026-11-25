@@ -1,4 +1,4 @@
-name: DLT one-time 500 archive and frozen real OOS
+name: DLT one-time 17500 archive selfcheck and frozen real OOS
 on:
   push:
     branches: [dlt-bootstrap-oos-once-20261125]
@@ -8,7 +8,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: dlt-bootstrap-oos-once-20261125-500archive
+  group: dlt-bootstrap-oos-once-20261125-17500
   cancel-in-progress: false
 jobs:
   bootstrap-and-oos:
@@ -35,22 +35,17 @@ jobs:
           test ! -e data/dlt_history.csv
           test ! -e data/dlt_real_oos_once_claim.json
           mkdir -p dlt_oos_artifacts
+      - name: Fetch two public static files, hard-self-validate 780 rows, then atomically export
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/bootstrap_once/export_dlt_local_ledger.py --audit-out dlt_oos_artifacts/source_selfcheck.json 2>&1 | tee dlt_oos_artifacts/export_selfcheck.log
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Probe 500.com list plus legacy/new full-tier pages
-        shell: bash
-        run: |
-          set -euo pipefail
-          python tools/bootstrap_once/export_dlt_local_ledger.py --probe-only 2>&1 | tee dlt_oos_artifacts/probe.log
-      - name: Export latest 780 complete rows
-        shell: bash
-        run: |
-          set -euo pipefail
-          python tools/bootstrap_once/export_dlt_local_ledger.py 2>&1 | tee dlt_oos_artifacts/export.log
       - name: Install frozen numeric dependencies
         run: python -m pip install numpy==2.3.5 scipy==1.17.0 cryptography==46.0.4
-      - name: Validate exported ledger
+      - name: Validate canonical history ledger
         shell: bash
         run: |
           set -euo pipefail
@@ -67,12 +62,12 @@ jobs:
           p=Path('data/dlt_real_oos_once_claim.json')
           claim={'schema':'DLT_REAL_OOS_ONCE_CLAIM_V1','run_id':os.environ['GITHUB_RUN_ID'],'run_attempt':'1','csv_sha256':sha256(Path('data/dlt_history.csv').read_bytes()),'prereg_spec_sha256':sha256(load_spec()),'source_commit_sha':os.environ['DLT_SOURCE_COMMIT_SHA']}
           with p.open('xb') as f:f.write(canonical_json(claim))
-          print(json.dumps(claim,indent=2))
+          print("ONCE_CLAIM="+json.dumps(claim,sort_keys=True))
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/dlt_history.csv data/dlt_real_oos_once_claim.json
-          git commit -m 'DLT one-time 500 archive ledger and irreversible OOS run claim'
+          git commit -m 'DLT one-time 17500 ledger and irreversible real-OOS claim'
           git push origin HEAD:refs/heads/dlt-bootstrap-oos-once-20261125
           git fetch origin refs/heads/dlt-bootstrap-oos-once-20261125
           test "$(git rev-parse FETCH_HEAD)" = "$(git rev-parse HEAD)"
@@ -81,11 +76,11 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH=src python3 run_step2_real_oos_once.py 2>&1 | tee dlt_oos_artifacts/real_oos.log
-      - name: Upload probe export ledger and diagnostics
+      - name: Upload complete Stage2 evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dlt-500archive-oos-once-evidence
+          name: dlt-17500-stage2-evidence
           path: |
             dlt_oos_artifacts/
             data/dlt_history.csv
