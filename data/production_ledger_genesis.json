@@ -1,0 +1,12 @@
+{
+  "schema": "SSQ_PRODUCTION_LEDGER_GENESIS_1.0",
+  "frozen_through_issue": "2026135",
+  "frozen_draw_date_bjt": "2026-11-24",
+  "history_prefix_sha256": "5b86f09bc20992f75b4c8a4fdd21b937d120f78c29ad9cad66fd3384793e30c3",
+  "pool_after_rmb": 1148231435,
+  "special_rule_active": false,
+  "fuyun_prize_active": false,
+  "rule_regime": "NORMAL_POOL_100M_TO_1500M",
+  "state_source": "FROZEN_LOCAL_HISTORY_BOOTSTRAP",
+  "note": "One-time ledger genesis bridge. Subsequent production issues inherit rule state only from the append-only ledger."
+}
