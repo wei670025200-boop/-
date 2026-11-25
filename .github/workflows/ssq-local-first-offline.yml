@@ -1,109 +1,17 @@
-name: SSQ Local-First offline acceptance
+name: SSQ Local-First legacy smoke (manual only)
 
 on:
-  push:
-    branches:
-      - ssq-local-first-offline-20261124
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  offline-acceptance:
+  legacy-local-first-notice:
     runs-on: ubuntu-latest
-    env:
-      PYTHONPATH: .:ssq_v5
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install numeric dependency
-        run: python -m pip install --disable-pip-version-check numpy
-
-      - name: Validate canonical local CSV ledger
+      - name: Legacy smoke notice
         run: |
-          python - <<'PY'
-          import csv
-          from pathlib import Path
-          p=Path("data/ssq_history.csv")
-          with p.open("r",encoding="utf-8",newline="") as fh:
-              rows=list(csv.DictReader(fh))
-          assert len(rows)>=768
-          assert rows[0]["issue"]=="2021121"
-          assert rows[767]["issue"]=="2026135"
-          assert rows[-1]["issue"] >= "2026135"
-          required=["issue","date","r1","r2","r3","r4","r5","r6","blue","sales_rmb","pool_after_rmb","t1","t2","t3","t4","t5","t6","promo_sixth_double"]
-          assert list(rows[0].keys())==required
-          numeric=required[2:]
-          for row in rows:
-              for col in numeric:
-                  if row[col]!="":
-                      assert row[col].isdigit(), (row["issue"],col,row[col])
-          print("LOCAL_LEDGER_FORMAT_PASS")
-          PY
-
-      - name: Compile Local-First modules
-        run: python -m py_compile local_history.py v4/offline_local_v4.py v4/runner_v4.py ssq_v5/*.py
-
-      - name: Verify local ledger and offline V4
-        run: |
-          python - <<'PY'
-          from local_history import load_ssq_history, full_tier_history
-          from v4.runner_v4 import ACTIVE_MODE, run_v4
-          rows=load_ssq_history()
-          full=full_tier_history()
-          assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
-          assert len(rows) >= 768
-          assert rows[0].issue == "2021121"
-          assert rows[767].issue == "2026135"
-          assert len(full) >= 600
-          assert full[0].issue == "2022139"
-          assert full[599].issue == "2026135"
-          out=run_v4(2, seed=bytes.fromhex("11"*32))
-          assert out["mode"] == "LOCAL_FIRST_OFFLINE"
-          assert out["latest_completed_issue"] == rows[-1].issue
-          assert len(out["tickets"]) == 2
-          print("LOCAL_LEDGER_AND_V4_PASS")
-          PY
-
-      - name: Verify V5 local loader and frozen first-run artifact
-        run: |
-          python - <<'PY'
-          import json
-          from ssq_v5.offline_local_v5 import _to_records
-          from ssq_v5.runner_v5 import ACTIVE_MODE, PHASE4_STATUS, V5_POLICY_GATE_STATUS, validate_v5_production_artifacts
-          recs=_to_records("data/ssq_history.csv")
-          assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
-          assert PHASE4_STATUS == "PASS_PRODUCTION_ELIGIBLE"
-          assert V5_POLICY_GATE_STATUS == "PASS"
-          assert len(recs) >= 600
-          assert recs[0].issue == "2022139"
-          assert recs[599].issue == "2026135"
-          verified=validate_v5_production_artifacts("data/ssq_history.csv")
-          assert verified["trained_through_issue"] == "2026135"
-          assert verified["policy_gate_status"] == "PASS"
-          result=json.load(open("results/PHASE3_LOCAL_FIRST_RESULT.json","r",encoding="utf-8"))
-          assert result["oos_gate_status"] == "PASS"
-          assert result["artifact_sha256"] == "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
-          assert result["complete_draws"] == 600
-          print("V5_LOCAL_ARTIFACT_PASS")
-          PY
-
-      - name: Assert no lottery-network code in active Local-First entrypoints
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          paths=[Path("local_history.py"),Path("v4/offline_local_v4.py"),Path("ssq_v5/offline_local_v5.py"),Path("ssq_v5/runner_v5.py"),Path("ssq_v5/production_local_v5.py"),Path("ssq_v5/statutory_liability_v5.py"),Path("ssq_v5/policy_selector_v5.py")]
-          forbidden=("requests.","urllib.request","http://","https://","curl ","wget ")
-          for p in paths:
-              text=p.read_text("utf-8")
-              for needle in forbidden:
-                  assert needle not in text, (p,needle)
-          print("NO_LOTTERY_NETWORK_ENTRYPOINT_PASS")
-          PY
+          echo "Automatic Local-First production acceptance moved to:"
+          echo ".github/workflows/ssq-production-hardening.yml"
+          echo "This workflow is retained manual-only for historical traceability."
