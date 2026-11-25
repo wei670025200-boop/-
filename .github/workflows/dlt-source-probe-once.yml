@@ -1,0 +1,43 @@
+name: DLT read-only multi-source probe
+on:
+  push:
+    branches: [dlt-bootstrap-oos-once-20261125]
+    paths:
+      - .github/workflows/dlt-source-probe-once.yml
+      - tools/bootstrap_once/probe_dlt_sources.py
+permissions:
+  contents: read
+concurrency:
+  group: dlt-source-probe-once-20261125
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Read-only DLT source probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/dlt-bootstrap-oos-once-20261125
+          test ! -e data/dlt_history.csv
+          test ! -e data/dlt_real_oos_once_claim.json
+          python3 tools/bootstrap_once/probe_dlt_sources.py 2>&1 | tee dlt_source_probe_artifacts/probe.log
+          test ! -e data/dlt_history.csv
+          test ! -e data/dlt_real_oos_once_claim.json
+      - name: Upload read-only probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dlt-readonly-source-probe-evidence
+          path: dlt_source_probe_artifacts/
+          if-no-files-found: warn
+          retention-days: 30
