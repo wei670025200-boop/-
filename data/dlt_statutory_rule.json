@@ -1,0 +1,18 @@
+{
+  "rule_version": "DLT_STATUTORY_RULE_V2_2026_SEVEN_TIER",
+  "effective_date": "2026-02-02",
+  "effective_issue": "26014",
+  "pool_snapshot_threshold_rmb": 800000000,
+  "hysteresis": false,
+  "fixed_below_threshold_rmb": {"g3": 5000, "g4": 300, "g5": 150, "g6": 15, "g7": 5},
+  "fixed_at_or_above_threshold_rmb": {"g3": 6666, "g4": 380, "g5": 200, "g6": 18, "g7": 7},
+  "aggregate_cap_rmb_including_additional": {"g1": 100000000, "g2": 100000000},
+  "basic_ticket_rmb": 2,
+  "additional_ticket_rmb": 3,
+  "additional_bonus_ratio": 0.8,
+  "additional_eligible_tiers": ["g1", "g2"],
+  "promo_cap_scope": "PROMO_EXTRA_ONLY",
+  "negative_promo_balance": "REJECT",
+  "legacy_mapping": {"g1": ["t1"], "g1_add": ["t1_add"], "g2": ["t2"], "g2_add": ["t2_add"], "g3": ["t3", "t4"], "g4": ["t5"], "g5": ["t6", "t7"], "g6": ["t8"], "g7": ["t9"]},
+  "profit_guarantee": "NONE"
+}

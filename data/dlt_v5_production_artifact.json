@@ -1,0 +1,114 @@
+{
+  "schema": "DLT_V5_PRODUCTION_ARTIFACT_V1",
+  "phase4_status": "UNLOCKED",
+  "authorization": {
+    "approved_run_id": "45608321723",
+    "approved_run_conclusion": "success",
+    "approved_run_head_sha": "fddf4ed817e5225213dc37ca2145a0f7196a3c02",
+    "evidence_artifact_sha256": "d056004fb1eb8572b5c23e110ca5ef7cb6936a906ae2f309f53d285dd52ad7d8",
+    "oos_rerun_forbidden": true,
+    "ticket_count_min": 1,
+    "ticket_count_max": 18
+  },
+  "accepted_gate_statuses": {
+    "DATA_GATE": "PASS",
+    "OOS_GATE": "PASS",
+    "DRIFT_GATE": "PASS",
+    "POLICY_GATE": "PASS"
+  },
+  "trained_through_issue": "26134",
+  "training_prefix": {
+    "schema": "DLT_TRAINING_PREFIX_SHA256_V1",
+    "trained_through_issue": "26134",
+    "prefix_rows": 696,
+    "prefix_sha256": "35d0b8ffc906e435743aef9ef1a1069625cedd52380c013bfb50c421a4aa21bb"
+  },
+  "candidate": {
+    "candidate": 0,
+    "front_band": [0.01, 0.05],
+    "back_k": 18
+  },
+  "cusum_baseline": {
+    "mu0": 0.14129187480618388,
+    "sigma0": 0.09946808483447686,
+    "reference_through_issue": "24041",
+    "reference_rows": 100,
+    "k": 0.5,
+    "h": 5.0,
+    "window": 20
+  },
+  "accepted_residual_tail": [
+    0.095631978572617,
+    0.134541770416672,
+    0.286890990809577,
+    0.0921188291987292,
+    0.0470776883159524,
+    0.0459541264082924,
+    0.162131802572349,
+    0.0419511374146295,
+    0.236640129439572,
+    0.0928125602515846,
+    0.0401751835850572,
+    0.220267300495322,
+    0.0843726734241674,
+    0.0769554979155229,
+    0.0530520769111887,
+    0.188100010733461,
+    0.0087451851800316,
+    0.1349696559466,
+    0.144317457683176,
+    0.412939444261481
+  ],
+  "accepted_twin": {
+    "back": {
+      "ball_bias": [-0.028208919618692672, -0.016960676017177597, 0.008453415945651544, 0.0008702387646768986, 0.042741250951800876, -0.01065586534946585, 0.007018560926980795, 0.007876523624134964, 0.00608009174793322, -0.013858649022252527, -0.00864863437290974, 0.003430884448233321],
+      "ridge": {
+        "intercept": -0.15672764975101294,
+        "weights": [0.011418872167751646, -0.01584974585516886, -0.023051040476033114, 0.06526524514452121, 0.008992467234994306, -0.14774700290796075, -0.14589092349234348, 0.09861215122519132, 0.03088195169819974],
+        "winsor_high": 0.2062959640403203,
+        "winsor_low": -0.4943728577216932
+      }
+    },
+    "drift_reference": {
+      "h": 5.0,
+      "k": 0.5,
+      "mu0": 0.14129187480618388,
+      "reference_rows": 100,
+      "reference_through_issue": "24041",
+      "sigma0": 0.09946808483447686,
+      "window": 20
+    },
+    "front": {
+      "intercept": -0.30514029360889916,
+      "weights": [0.10375979040519828, 0.09880151944785759, 0.16976129722571606, -0.09068790224858103, -0.008364401589454434, 0.055530780909399426, 0.026132863993820754, -0.21997201823170323, 0.10127498050909287, 0.09049354661952586, 0.008812324531560422, 0.04717889180394671],
+      "winsor_high": 0.34082867163748654,
+      "winsor_low": -0.5812160527872726
+    },
+    "phase4_status": "LOCKED",
+    "policy_reference_ticket_count": 18,
+    "policy_selection_research_only": {
+      "back_k": 18,
+      "candidate": 0,
+      "front_band": [0.01, 0.05],
+      "score": {
+        "back_hits": 147,
+        "front_hits": 19,
+        "primary": 0.15755459571101907,
+        "score_back": 0.11722464461625118,
+        "score_front": 0.19788454680578696
+      }
+    },
+    "trained_through_issue": "26134"
+  },
+  "integrity": {
+    "history_prefix_sha256": "35d0b8ffc906e435743aef9ef1a1069625cedd52380c013bfb50c421a4aa21bb",
+    "twin_artifact_sha256": "86aaabe6ac82ac135f25eb3d3b5770f428a1a1b964f307569b8f3545cd2f27c8",
+    "statutory_rule_sha256": "c459e89a1b1f59e67300a10f7f6a48d3b9a149d08a2ed75c61420d25768f395c",
+    "prereg_spec_sha256": "38b04284be97335870908ba4e165ccd712e709667f395fcf99c853d3cb60aff5",
+    "candidate_grid_sha256": "4581d1c0d1d72bc2f971b5858ef913bac5451724977c5016f1c3719df232e652",
+    "oos_trace_sha256": "7eee9656f97d04e1f2155d5247810b6ceaf2e7cea970eb27136f741a84f77a13",
+    "integrity_summary_sha256": "58a8273667123a5f9bdc0efb699d9d4c8ec1a64b584defb7d8404eecd78ad6d1",
+    "git_commit_sha": "fddf4ed817e5225213dc37ca2145a0f7196a3c02",
+    "digital_signature": false
+  }
+}
