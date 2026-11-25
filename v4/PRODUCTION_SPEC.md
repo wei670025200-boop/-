@@ -1,158 +1,154 @@
-# SSQ V4 PRODUCTION SPEC — ACTIVE RC2.1
+# SSQ V5 LOCAL-FIRST PRODUCTION SPEC — HARDENED
 
-## 0. Active release
-Active release: `SSQ_V4_RC2_1`
+## 0. Active release after merge
+Active release: `SSQ_V5_LOCAL_FIRST_HARDENED_1_0`
 
-Live repository entrypoint: `v4/runner_v4.py`
+Default V5 entrypoint: `ssq_v5/runner_v5.py -> run_v5()`
 
-Validated implementation: `v4_rc2/`
+Default V4 fallback entrypoint: `v4/runner_v4.py -> run_v4()`
 
-The historical draft runner has been moved to `v4/legacy_runner_draft.py` and is not a production entrypoint.
+Shared production safety shell: `v4/local_production_shell.py`
 
-Release gates passed on 2026-11-24:
-- 54/54 regression + real integration tests;
-- 100,000-trial marginal audit;
-- exact 1,107,568 red-draw crosscheck;
-- Fresh Production E2E for issue 2026135;
-- no-redraw duplicate issue guard;
-- SHA-256 frozen-source verification.
+Local data inputs:
+- `data/ssq_history.csv`
+- `data/local_schedule_manifest.json`
+- `data/production_ledger_genesis.json`
+- frozen Phase-3 / Phase-4 artifacts under `results/`
 
-Promotion eligibility remains provisional until the issued physical ticket/receipt confirms the planned slip structure.
+Runtime is Local-First. Active production code performs no lottery-site HTTP requests.
 
-## 1. Scope
-Production-only system. It does not claim predictive edge and does not modify PP-AS-1.1.
+## 1. Frozen model layer
+The hardening release does not retune Phase 3 or Phase 4.
 
-Production mode:
-`UNIFORM_MARGINAL_BALANCED_COVERAGE`
+- Phase-3 frozen artifact: `2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a`
+- Phase-4 policy integrity summary: `41229a251054e53f64b0ae339675675f689678f90bb4331891e22d82624f9b23`
+- selected policy: `P_R01_005_B06`
+- V5 route: `ANTI_CROWD_SPARSE_ZONE_V1`
+- fallback route: `UNIFORM_MARGINAL_BALANCED_COVERAGE`
 
-Primary goals:
-1. Preserve exact single-ticket marginal uniformity.
-2. Increase within-batch blue coverage.
-3. Reduce redundant red exposure without unbounded rejection loops.
-4. Fail closed on schedule, suspension, source and promotion-eligibility uncertainty.
+Production gate order is strict:
+`Phase-3 OOS -> CUSUM drift -> Phase-4 Policy -> V5`.
 
-## 2. Mathematical invariants
+Any model-gate failure selects the V4 fallback candidate generator, but both routes still pass through the same durable transaction shell.
 
-### 2.1 Single-ticket marginal
-Every published 6+1 ticket must have the exact same marginal distribution as uniform sampling from the legal SSQ space.
+## 2. Shared durable transaction
+Every production route uses:
+`STAGE -> HASH VERIFY -> LEDGER COMMIT -> ATOMIC PUBLISH`.
 
-For red construction:
-- First construct deterministic abstract 6-subsets over labels {1,...,33}.
-- Then draw one globally uniform permutation pi in S_33 using the production CSPRNG.
-- Apply the same pi to every abstract red block.
-- Randomly permute batch ticket positions after mapping.
+Every published issue contains:
+- `PRIVATE_SEED_AND_NONCE.json` with mode `0600`
+- `TICKETS.json`
+- `RECEIPT.json`
+- `SPARSE_POOL_MANIFEST.json`
+- `STAGE_MANIFEST.json`
 
-For any fixed abstract 6-set A and any real 6-set B:
-P(pi(A)=B)=1/C(33,6).
+The append-only ledger is hash chained and verified before/after commit.
+A second production attempt for an already committed target issue is rejected with
+`REFUSE_DUPLICATE_ISSUE`.
 
-Thus every red ticket marginal is exactly uniform even if the abstract coverage optimizer is deterministic and label-biased.
+If a process fails after ledger commit but before publish,
+`recover_staged_publish()` verifies the staged bytes and completes publication
+without redrawing.
 
-For blue construction:
-- Each round starts from a fresh uniform random permutation of 01..16.
-- A partial round takes the first r elements.
-- Therefore each ticket-position blue marginal is exactly uniform.
-- Final red/blue pairing order is separately randomized.
+## 3. Commitment
+Every V4/V5 production bundle uses canonical JSON and binds at least:
+- `algorithm_version`
+- `rng_model`
+- `input_manifest_sha256`
+- `twin_artifact_sha256`
+- `policy_artifact_sha256`
+- `sparse_pool_sha256`
+- `circuit_breaker_status`
+- `effective_route_mode`
+- `rule_regime_state`
+- `physical_slip_plan`
+- `seed_sha256`
+- all `tickets`
 
-### 2.2 Batch distribution
-The batch is intentionally NOT IID.
-It is a negatively correlated / balanced-coverage joint distribution.
+## 4. Local schedule and time gate
+Normal SSQ schedule is frozen locally as Tue/Thu/Sun 21:15 BJT.
 
-This changes prize-frequency variance and coverage, not the jackpot probability of any individual ticket.
+The 2026 official lottery-market suspension dates are frozen in
+`data/local_schedule_manifest.json`.
 
-### 2.3 Jackpot probability
-If K distinct legal tickets are purchased for one draw:
-P(at least one jackpot)=K/17,721,088.
-No red-overlap or blue-coverage rule changes this.
+As of 2026-11-25 the 2027 lottery-market suspension notice has not yet been
+officially published. The manifest therefore marks 2027
+`PENDING_OFFICIAL_PUBLICATION` and production fails closed for a 2027 target
+until that local file is updated from the official notice. Tests use isolated
+temporary fixtures to verify the cross-year algorithm `2026152 -> 2027001`;
+they do not weaken the production fail-closed policy.
 
-## 3. Red construction
+Production is forbidden when `now_utc >= draw_at_utc`.
 
-### N <= 5
-Use five or fewer disjoint abstract 6-label slices, then apply the global uniform S_33 permutation.
-Invariant: pairwise red overlap = 0.
+## 5. Rule-state chain
+The one-time genesis bridge is frozen through issue `2026135` in
+`data/production_ledger_genesis.json`.
 
-### N > 5
-Use bounded abstract balanced construction:
-1. Minimize current abstract label-use count.
-2. Secondary objective: minimize incremental repeated-pair concentration.
-3. Duplicate repair must be bounded.
-4. No acceptance loop may run without a hard cap.
-5. Runtime ticket cap must be explicit.
+After genesis, every completed production issue inherits
+`special_rule_active_previous` only from the previous ledger record and
+persists the new state in the ledger.
 
-The optimizer is allowed to be deterministic because all real-number bias is removed by the final global random permutation.
+The 2026 hysteresis machine remains:
+- enter special at pool >= 1.5B RMB;
+- while active, remain active until pool < 0.3B RMB;
+- `fuyun_prize_active` follows the special-rule state.
 
-## 4. Blue construction
-For N <= 16:
-- uniform random permutation of 01..16;
-- use N distinct blue numbers.
+## 6. Physical slips and promotion
+The CLI creates a default exact partition of tickets into physical slips, at
+most 10 single bets per slip. A caller may provide an explicit JSON plan.
 
-For N > 16:
-- repeat independent 16-number permutation rounds;
-- all blue usage counts differ by at most one.
+Pre-purchase states are:
+- `PLANNED_ELIGIBLE`
+- `PLANNED_PARTIAL_ELIGIBLE`
+- `PLANNED_INELIGIBLE`
+- `NO_ACTIVE_PROMO`
 
-Consequences:
-- N=16 gives full blue coverage for that draw;
-- this guarantees at least one ticket has the winning blue number, not that the batch is profitable;
-- production language must use PRIZE_COVERAGE, never PROFIT_GUARANTEE.
+Post-purchase confirmation uses `confirm_published_purchase()`.
 
-## 5. Cross-year issue handling
-Forbidden:
-`previous_issue = target_issue - 1`
+If an active sixth-prize promotion lacks
+`remaining_sixth_promo_rmb`, V5 fails closed to the full transactional V4
+route. A negative balance is rejected as `INVALID_PROMO_REMAINING_RMB`.
 
-Required:
-- derive latest completed issue from at least two agreeing official sources;
-- validate target schedule separately;
-- issue rollover is therefore safe across calendar years.
+## 7. History data contract
+Archived rows before `2022139` may omit t3-t6/promotion fields.
 
-## 6. Holiday / suspension gate
-Weekday and clock-time checks are insufficient.
-Production must require an official market-status field:
-`suspension_status = NO_SUSPENSION_CONFIRMED`
-and
-`sales_open = true`.
+The active full-tier model window from `2022139` onward must contain no missing
+t3, t4, t5, t6 or promotion flag. No network backfill is performed.
 
-If holiday/suspension state is unknown:
-FAIL CLOSED.
+## 8. Output contract
+Both routes explicitly publish:
+- `prize_coverage`
+- `prize_coverage_note`
+- `profit_guarantee = "NONE"`
+- `pocket_distribution`
+- `sparse_pool_sha256`
 
-## 7. Official-source policy
-Production requires at least two independent official sources to agree on the latest completed draw.
+For 16 tickets, exact blue coverage yields `prize_coverage = 1.0`; this is not a
+profit guarantee.
 
-The implementation must not permanently hard-code Shanghai+Sichuan as the only valid pair.
-A future source registry may provide 2-of-N official-source quorum.
+V4 CSPRNG declaration remains:
+`CRYPTOGRAPHICALLY_UNIFORM_MARGINAL_UNDER_CSPRNG_ASSUMPTION`.
 
-No third-party source can satisfy the authoritative quorum.
+## 9. CLI
+Standard production command:
 
-## 8. Promotion / draw-EV layer
-Promotion uplift may enter any EV calculation only when all eligibility facts are verified from the official activity notice.
+```bash
+python3 -m ssq_v5.cli_produce --tickets 2 --promo-remaining 560000000
+```
 
-Required promotion fields:
-- active
-- source_verified
-- source_url
-- source_sha256
-- fetched_at_utc
-- eligible_bet_types
-- eligible_prize_tiers
-- min_physical_ticket_amount_rmb (nullable)
-- requires_same_physical_ticket
-- activity_start/end or issue scope
-- stacking / exclusion rules if published
+Dry-run uses a temporary ledger and output directory:
 
-Unknown eligibility => `UNKNOWN_BLOCK_EV_UPLIFT`.
+```bash
+python3 -m ssq_v5.cli_produce --tickets 2 --promo-remaining 560000000 --dry-run
+```
 
-Planned eligibility is not final eligibility.
-The issued physical ticket / receipt must later confirm that the purchase was structured as planned.
+Custom physical slip plans may be supplied with `--slip-plan-json FILE`.
 
-Never hard-code “20 RMB” or any other threshold as a permanent SSQ rule. Thresholds are promotion-specific.
-
-## 9. Production vs research separation
-PP-AS-1.1 remains frozen and failed.
-No PP-AS-1.1 parameter or threshold may be changed in V4.
-
-PP-AS-1.2 is a separate research epoch.
-No PP-AS-1.2 output may affect production unless that protocol later passes both its behavior gate and economic gate.
-
-## 10. Naming
-Current V4 production route:
-`UNIFORM_MARGINAL_BALANCED_COVERAGE`
-
-If a future validated popularity filter makes blue/red selection non-uniform, the route name and protocol version must change. It must not continue to claim UNIFORM_MARGINAL.
+## 10. CI acceptance
+Release acceptance requires:
+- V4 regression + integration: exactly 54 tests;
+- frozen V5 model regression: exactly 15 tests;
+- hardened production E2E boundaries: exactly 5 tests;
+- active history-window integrity;
+- zero HTTP dependency in the active production chain;
+- obsolete heuristic V5 liability/regime selectors absent.
