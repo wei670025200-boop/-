@@ -87,21 +87,6 @@ def _combo_lex_index(reds: Sequence[int]) -> int:
     return rank
 
 
-def _next_issue(issue: str) -> str:
-    y = int(issue[:4])
-    n = int(issue[4:])
-    return f"{y}{n+1:03d}"
-
-
-def _next_draw_date(last_date: str) -> str:
-    d = date.fromisoformat(last_date)
-    # SSQ normal draw weekdays: Tue(1), Thu(3), Sun(6)
-    for k in range(1, 8):
-        cand = d + timedelta(days=k)
-        if cand.weekday() in {1, 3, 6}:
-            return cand.isoformat()
-    raise RuntimeError("no next draw date")
-
 
 @dataclass(frozen=True)
 class CircuitBreakerDecision:
@@ -306,8 +291,9 @@ def _current_e2e(
     rule,
 ) -> Dict[str, Any]:
     combos = generate_all_red_combinations_1based()
-    target_issue = _next_issue(records[-1].issue)
-    target_date = _next_draw_date(records[-1].draw_date_bjt)
+    timing = next_issue_and_draw(records[-1].issue, records[-1].draw_date_bjt)
+    target_issue = timing["target_issue"]
+    target_date = timing["target_draw_date_bjt"]
     ctx = build_causal_context_from_history(records, target_issue, target_date, sentiment=None)
     red_density, blue_density, weird = score_full_space_density(combos, ctx, twin_params)
     nb = compute_exact_all_neighborhoods(combos, red_density)

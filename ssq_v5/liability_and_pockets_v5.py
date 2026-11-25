@@ -96,27 +96,6 @@ def compute_exact_neighborhood_densities(
     return neighbor_5, neighbor_4
 
 
-def compute_red_liability_score(
-    red_density: np.ndarray,
-    neighbor_5: np.ndarray,
-    neighbor_4: np.ndarray,
-    weird_mask: np.ndarray,
-) -> np.ndarray:
-    """
-    结合双色球官方固定奖与浮动奖的归一化赔付结构计算红球综合赔付敞口：
-    - 精确层(6红): 均值归一化至 1.0
-    - 5红邻域(三等奖3000元/四等奖200元): 除以162归一化至 1.0
-    - 4红邻域(四等奖200元/五等奖10元): 除以5265归一化至 1.0
-    权重按双色球官方各层期望赔付占比设定（头二浮动敞口 50%，5红固定敞口 20%，4红固定敞口 30%）；
-    反身性怪号掩码强制置为 +inf，绝对禁止进入稀疏池。
-    """
-    n6_norm = red_density
-    n5_norm = neighbor_5 / 162.0
-    n4_norm = neighbor_4 / 5265.0
-    liability = 0.50 * n6_norm + 0.20 * n5_norm + 0.30 * n4_norm
-    liability = np.where(weird_mask, np.inf, liability)
-    return liability
-
 
 @dataclass(frozen=True)
 class RegimeRoutingPolicy:
@@ -125,35 +104,6 @@ class RegimeRoutingPolicy:
     red_percentile_high: float
     blue_keep_count: int
 
-
-def select_regime_policy(
-    pool_after_prev_rmb: float,
-    special_rule_active: bool,
-    promo_active: bool,
-    ticket_count: int,
-) -> RegimeRoutingPolicy:
-    """严格对齐 Phase 1 修正后的 2026 滞回规则状态机，按盘面水位路由稀疏池分位区间。"""
-    if special_rule_active or promo_active:
-        base_blue_keep = 10
-        p_lo, p_hi = 2.0, 8.0
-        name = "HIGH_POOL_OR_PROMO_BALANCED_LIABILITY"
-    elif pool_after_prev_rmb < 100_000_000.0:
-        base_blue_keep = 6
-        p_lo, p_hi = 0.5, 2.5
-        name = "DEEP_SPARSE_POOL_ACCUMULATION"
-    else:
-        base_blue_keep = 8
-        p_lo, p_hi = 1.0, 5.0
-        name = "NORMAL_LOW_LIABILITY_SPARSE"
-
-    # 若单期投注数大于蓝球裁剪上限，自动扩充至 min(16, max(base_blue_keep, ticket_count)) 保证蓝球无放回可行
-    blue_keep = 16 if ticket_count >= 16 else max(base_blue_keep, ticket_count)
-    return RegimeRoutingPolicy(
-        regime_name=name,
-        red_percentile_low=p_lo,
-        red_percentile_high=p_hi,
-        blue_keep_count=blue_keep,
-    )
 
 
 def _compute_orthogonal_pocket_key(reds: Sequence[int]) -> str:

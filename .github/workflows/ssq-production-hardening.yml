@@ -1,0 +1,166 @@
+name: SSQ V5 production-shell hardening
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - ssq-v5-production-shell-hardening
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONPATH: .:v4_rc2:ssq_v5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install numeric dependency
+        run: python -m pip install --disable-pip-version-check numpy
+
+      - name: Compile production modules
+        run: |
+          python -m py_compile local_history.py v4/*.py v4_rc2/*.py ssq_v5/*.py
+
+      - name: Materialize frozen V4 parser fixtures locally
+        run: |
+          mkdir -p /tmp/ssq_evidence
+          cat > /tmp/ssq_evidence/shanghai_ssq_previous.body <<'EOF'
+          <html><body>
+          <p>双色球每周二、四、日 21:15开奖</p>
+          <table class="lottery-history-table--ssq"><tbody><tr>
+          <td>2026134</td><td>2026-11-22</td>
+          <td><span class="lottery-history-balls--red"><i>04</i><i>05</i><i>10</i><i>17</i><i>21</i><i>32</i></span></td>
+          <td><span class="lottery-history-balls--blue"><i>08</i></span></td>
+          <td>435713586</td><td>-</td><td>-</td><td>1154982023</td>
+          </tr></tbody></table>
+          </body></html>
+          EOF
+          cat > /tmp/ssq_evidence/sichuan_ssq_current.body <<'EOF'
+          <html><body>
+          <select><option value="0">2026134</option></select>
+          <span class="lottery-time-classification">开奖时间：2026-11-22</span>
+          <div class="circle-group">
+          <span>04</span><span>05</span><span>10</span><span>17</span><span>21</span><span>32</span><span class="blue-classification">08</span>
+          </div>
+          <p>本期销售金额：435,713,586 元</p>
+          <p>下期一等奖奖池累计金额：1,154,982,023 元</p>
+          </body></html>
+          EOF
+
+      - name: V4 full regression - exactly 54 tests
+        run: |
+          set -o pipefail
+          python -m unittest v4_rc2.test_v4_regression v4_rc2.test_v4_real_integration -v 2>&1 | tee /tmp/v4-tests.log
+          grep -q "Ran 54 tests" /tmp/v4-tests.log
+          grep -q "^OK$" /tmp/v4-tests.log
+
+      - name: V5 frozen-model regression - exactly 15 tests
+        run: |
+          set -o pipefail
+          python -m unittest ssq_v5.test_v5_policy_patch ssq_v5.test_v5_regression_local -v 2>&1 | tee /tmp/v5-tests.log
+          grep -q "Ran 15 tests" /tmp/v5-tests.log
+          grep -q "^OK$" /tmp/v5-tests.log
+
+      - name: Production-shell E2E boundaries - exactly 5 tests
+        run: |
+          set -o pipefail
+          python -m unittest ssq_v5.test_v5_production_shell_e2e -v 2>&1 | tee /tmp/e2e-tests.log
+          grep -q "Ran 5 tests" /tmp/e2e-tests.log
+          grep -q "^OK$" /tmp/e2e-tests.log
+          grep "EDGE[1-5]_" /tmp/e2e-tests.log
+
+      - name: Local history active-window integrity
+        run: |
+          python - <<'PY'
+          from local_history import load_ssq_history, full_tier_history
+          rows=load_ssq_history()
+          full=full_tier_history()
+          assert len(rows) >= 768
+          assert rows[0].issue == "2021121"
+          assert rows[767].issue == "2026135"
+          assert len(full) >= 600
+          assert full[0].issue == "2022139"
+          assert full[599].issue == "2026135"
+          print("ACTIVE_FULL_TIER_WINDOW_ZERO_BLANKS_PASS")
+          PY
+
+      - name: Assert active production chain has no HTTP lottery dependency
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          paths=[
+              Path("local_history.py"),
+              Path("v4/local_production_shell.py"),
+              Path("v4/offline_local_v4.py"),
+              Path("v4/runner_v4.py"),
+              Path("ssq_v5/production_local_v5.py"),
+              Path("ssq_v5/runner_v5.py"),
+              Path("ssq_v5/statutory_liability_v5.py"),
+              Path("ssq_v5/policy_selector_v5.py"),
+          ]
+          forbidden=("requests.","urllib.request","http://","https://","httpx.","aiohttp","curl ","wget ")
+          for p in paths:
+              text=p.read_text("utf-8")
+              for needle in forbidden:
+                  assert needle not in text, (str(p), needle)
+          print("ACTIVE_PRODUCTION_ZERO_NETWORK_PASS")
+          PY
+
+      - name: Verify frozen 2026135 ledger genesis matches local historical replay
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from ssq_v5.offline_local_v5 import _to_records
+          from ssq_v5.phase4_real_policy_gate_v5 import _regime_states
+          rows=_to_records("data/ssq_history.csv")
+          states=_regime_states(rows)
+          genesis=json.loads(Path("data/production_ledger_genesis.json").read_text("utf-8"))
+          assert rows[-1].issue=="2026135"
+          assert genesis["frozen_through_issue"]=="2026135"
+          assert bool(states[-1][0])==bool(genesis["special_rule_active"])
+          assert bool(states[-1][1])==bool(genesis["fuyun_prize_active"])
+          print("LEDGER_GENESIS_STATE_REPLAY_PASS", states[-1], genesis["special_rule_active"])
+          PY
+
+      - name: CLI dry-run smoke must not touch production runtime
+        run: |
+          rm -rf runtime
+          python -m ssq_v5.cli_produce \
+            --tickets 2 \
+            --promo-remaining 560000000 \
+            --dry-run \
+            --now-utc 2026-11-25T00:00:00Z > /tmp/cli-dryrun.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("/tmp/cli-dryrun.json").read_text("utf-8"))
+          assert x["effective_route_mode"]=="ANTI_CROWD_SPARSE_ZONE_V1"
+          assert x["target_issue"]=="2026136"
+          assert str(x["published_dir"]).startswith("/tmp/ssq_v5_dryrun_")
+          assert not Path("runtime").exists()
+          print("CLI_DRY_RUN_NO_PRODUCTION_POLLUTION_PASS", x["target_issue"], x["published_dir"])
+          PY
+
+      - name: Assert obsolete V5 heuristic selectors are absent
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path("ssq_v5/liability_and_pockets_v5.py").read_text("utf-8")
+          assert "def compute_red_liability_score" not in p
+          assert "def select_regime_policy" not in p
+          assert "0.50 * n6_norm + 0.20 * n5_norm + 0.30 * n4_norm" not in p
+          print("OLD_HEURISTIC_CODE_REMOVED_PASS")
+          PY

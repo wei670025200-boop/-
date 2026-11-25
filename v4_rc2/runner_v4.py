@@ -111,6 +111,7 @@ class AppendOnlyLedger:
         commitment_sha256: str,
         stage_manifest_sha256: str,
         meta: Dict[str, Any],
+        system_version: str = SYSTEM_VERSION,
     ) -> Dict[str, Any]:
         ok, head_hash = self.verify_chain()
         if not ok:
@@ -123,7 +124,7 @@ class AppendOnlyLedger:
 
         body = {
             "prev_sha256": head_hash,
-            "system_version": SYSTEM_VERSION,
+            "system_version": system_version,
             "target_issue": target_issue,
             "commitment_sha256": commitment_sha256,
             "stage_manifest_sha256": stage_manifest_sha256,
