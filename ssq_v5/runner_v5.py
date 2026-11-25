@@ -16,6 +16,7 @@ from ssq_v5.production_local_v5 import (
     run_v5_local_production,
     validate_v5_production_artifacts,
 )
+from v4.local_production_shell import confirm_published_purchase, recover_staged_publish, open_production_ledger
 
 ACTIVE_MODE = "LOCAL_FIRST_OFFLINE"
 PHASE4_STATUS = "PASS_PRODUCTION_ELIGIBLE"
@@ -32,5 +33,8 @@ __all__ = [
     "run_phase3_local",
     "validate_v5_production_artifacts",
     "run_v5_local_production",
+    "confirm_published_purchase",
+    "recover_staged_publish",
+    "open_production_ledger",
     "run_v5",
 ]
