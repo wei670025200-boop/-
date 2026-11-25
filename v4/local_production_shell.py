@@ -201,6 +201,21 @@ def open_production_ledger(
     return AppendOnlyLedger(Path(ledger_path), genesis_prev_sha256=genesis["genesis_file_sha256"])
 
 
+def assert_issue_not_already_committed(
+    ledger: AppendOnlyLedger,
+    target_issue: str,
+    output_root: str | Path,
+) -> None:
+    root = Path(output_root)
+    if ledger.find_issue_record(target_issue) is not None or (root / f"issue_{target_issue}").exists():
+        raise GateBlockedError("REFUSE_DUPLICATE_ISSUE", f"Issue {target_issue} already exists.")
+    if (root / f".staging_{target_issue}").exists():
+        raise GateBlockedError(
+            "UNRECOVERED_STAGING_EXISTS",
+            f"Run recover_staged_publish({target_issue!r}) before retrying.",
+        )
+
+
 def inherit_special_rule_state(
     ledger: AppendOnlyLedger,
     latest_completed_issue: str,
@@ -430,6 +445,7 @@ __all__ = [
     "validate_local_draw_date",
     "next_issue_and_draw",
     "open_production_ledger",
+    "assert_issue_not_already_committed",
     "inherit_special_rule_state",
     "default_physical_slip_plan",
     "local_promo_evidence",
