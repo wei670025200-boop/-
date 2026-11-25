@@ -87,7 +87,9 @@ class DLTV4Engine:
                     seed=_private_bytes(self.root/'private'/(e['issue']+'.seed'))
                     if sha256(seed)!=_load(p/ARTIFACTS[0])['payload']['seed_sha256']:raise ValueError('ARCHIVED_SEED_MISMATCH')
     def _archive_seed(self,pending,issue):
-        seed=_private_bytes(pending/'seed.bin');p=self.root/'private'/(issue+'.seed')
+        req,seed=self._read_stage(pending);p=self.root/'private'/(issue+'.seed')
+        c=_load(self.root/'published'/issue/ARTIFACTS[0]);
+        if sha256(seed)!=c['payload']['seed_sha256']:raise ValueError('ARCHIVED_SEED_MISMATCH')
         if p.exists():
             if _private_bytes(p)!=seed:raise ValueError('ARCHIVED_SEED_MISMATCH')
         else:_write(p,seed)
@@ -98,11 +100,21 @@ class DLTV4Engine:
     def _stage(self,req):
         pending=self.root/'pending';target=pending/req['issue']
         tmp=Path(tempfile.mkdtemp(prefix='.stage-',dir=pending))
-        _write(tmp/'request.json',canonical_json(req));_write(tmp/'seed.bin',os.urandom(32))
+        seed=os.urandom(32);key=self._key(create=True)
+        binding={'request':req,'seed_sha256':sha256(seed)}
+        _write(tmp/'request.json',canonical_json(req));_write(tmp/'seed.bin',seed);_write(tmp/'stage_signature.bin',key.sign(canonical_json(binding)))
         os.rename(tmp,target);_sync_dir(pending);return target
+    def _read_stage(self,pending):
+        req=_load(pending/'request.json');seed=_private_bytes(pending/'seed.bin')
+        if pending.name!=req['issue']:raise ValueError('STAGED_ISSUE_MISMATCH')
+        self._key().public_key().verify(_private_bytes(pending/'stage_signature.bin'),canonical_json({'request':req,'seed_sha256':sha256(seed)}))
+        return req,seed
+    def _discard_stage(self,pending):
+        target=Path(tempfile.mkdtemp(prefix='.done-',dir=pending.parent));target.rmdir()
+        os.rename(pending,target);_sync_dir(target.parent);shutil.rmtree(target)
     def _build(self,pending,prev):
-        req=_load(pending/'request.json');self._request(req['issue'],req['date'],req['ticket_count'],req['additional'],req['route'])
-        seed=_private_bytes(pending/'seed.bin');key=self._key(create=True);pub=key.public_key().public_bytes(Encoding.Raw,PublicFormat.Raw)
+        req,seed=self._read_stage(pending);self._request(req['issue'],req['date'],req['ticket_count'],req['additional'],req['route'])
+        key=self._key();pub=key.public_key().public_bytes(Encoding.Raw,PublicFormat.Raw)
         tickets=balanced_tickets(req['ticket_count'],seed)
         payload={'schema':'DLT_COMMITMENT_V1',**req,'seed_sha256':sha256(seed),'uniform_marginal':UNIFORM_CLAIM,'tickets':[{'front':list(f),'back':list(b)} for f,b in tickets]}
         commitment={'payload':payload,'public_key_hex':pub.hex(),'signature_hex':key.sign(canonical_json(payload)).hex(),'algorithm':'Ed25519'}
@@ -134,10 +146,10 @@ class DLTV4Engine:
         p=c['payload'];slip=_load(bundle/ARTIFACTS[1]);price=3 if p['additional'] else 2
         if p['issue']!=entry['issue'] or p['date']!=entry['date'] or len(p['tickets'])!=p['ticket_count'] or slip['issue']!=p['issue'] or slip['tickets']!=[{**t,'is_additional_bet':p['additional'],'cost_rmb':price} for t in p['tickets']] or slip['total_rmb']!=price*p['ticket_count']:raise ValueError('PHYSICAL_SLIP_MISMATCH')
     def _finish(self,pending,crash_after=None):
-        req=_load(pending/'request.json');issue=req['issue'];raw,entries=self._ledger();found=next((e for e in entries if e['issue']==issue),None);published=self.root/'published'/issue
+        req,_=self._read_stage(pending);issue=req['issue'];raw,entries=self._ledger();found=next((e for e in entries if e['issue']==issue),None);published=self.root/'published'/issue
         self._check_published(entries,allow_pending=issue)
         if found is not None and published.exists():
-            self._verify(published,found);self._archive_seed(pending,issue);shutil.rmtree(pending);_sync_dir(pending.parent);return {'status':'PUBLISHED','issue':issue,'entry':found,'path':str(published)}
+            self._verify(published,found);self._archive_seed(pending,issue);self._discard_stage(pending);return {'status':'PUBLISHED','issue':issue,'entry':found,'path':str(published)}
         if found is None and entries and self.schedule.next(entries[-1]['issue'],entries[-1]['date'])!=(issue,req['date']):raise ValueError('ISSUE_NOT_NEXT')
         if found is not None and found!=entries[-1]:raise ValueError('PENDING_LEDGER_ORDER')
         prev=found['prev_sha256'] if found else entries[-1]['entry_sha256'] if entries else GENESIS
@@ -149,7 +161,7 @@ class DLTV4Engine:
         if published.exists():raise ValueError('PUBLISH_COLLISION')
         os.rename(bundle,published);_sync_dir(published.parent);_sync_dir(pending)
         if crash_after=='ATOMIC PUBLISH':raise CrashInjection(crash_after)
-        self._verify(published,entry);self._archive_seed(pending,issue);shutil.rmtree(pending);_sync_dir(pending.parent)
+        self._verify(published,entry);self._archive_seed(pending,issue);self._discard_stage(pending)
         return {'status':'PUBLISHED','issue':issue,'entry':entry,'path':str(published)}
     def _recover(self):
         paths=sorted(p for p in (self.root/'pending').iterdir() if not p.name.startswith('.'))
@@ -160,6 +172,12 @@ class DLTV4Engine:
     def execute(self,issue,day,ticket_count,additional=False,route='DLT_V4_BALANCED_COVERAGE',dry_run=False,crash_after=None):
         req=self._request(issue,day,ticket_count,additional,route)
         if dry_run:
+            if self.root.exists():
+                with self._lock():
+                    if any(not p.name.startswith('.') for p in (self.root/'pending').iterdir()):raise ValueError('PENDING_RECOVERY_REQUIRED')
+                    _,entries=self._ledger();self._check_published(entries)
+                    if any(e['issue']==issue for e in entries):raise DuplicateIssue('REFUSE_DUPLICATE_ISSUE')
+                    if entries and self.schedule.next(entries[-1]['issue'],entries[-1]['date'])!=(issue,day):raise ValueError('ISSUE_NOT_NEXT')
             # An isolated namespace runs the identical transaction stages; no production writes.
             with tempfile.TemporaryDirectory(prefix='dlt-dry-') as tmp:
                 result=DLTV4Engine(tmp,self.schedule).execute(issue,day,ticket_count,additional,route,False)
