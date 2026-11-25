@@ -138,6 +138,27 @@ class TestV5LocalFirstRegression(unittest.TestCase):
         self.assertEqual(out["effective_route"],"UNIFORM_MARGINAL_BALANCED_COVERAGE")
         self.assertEqual(out["fallback_reason"],"LOCAL_PROMO_REMAINING_RMB_REQUIRED")
 
+    def test_09_append_new_draw_does_not_invalidate_frozen_training_prefix(self):
+        with tempfile.TemporaryDirectory() as td:
+            p=Path(td)/"ssq_history.csv"
+            original=Path("data/ssq_history.csv").read_bytes()
+            self.assertTrue(original.endswith(b"\n"))
+            p.write_bytes(
+                original
+                + b"2026136,2026-11-26,3,9,14,18,25,31,6,410000000,1130000000,8,166,1800,90000,1600000,12000000,1\n"
+            )
+            art=validate_v5_production_artifacts(p)
+            self.assertEqual(art["trained_through_issue"],"2026135")
+            self.assertNotEqual(art["current_history_csv_sha256"],art["training_history_prefix_sha256"])
+            out=run_v5_local_production(
+                2,
+                history_path=p,
+                remaining_sixth_promo_rmb=None,
+                seed=bytes.fromhex("44"*32),
+            )
+            self.assertEqual(out["effective_route"],"UNIFORM_MARGINAL_BALANCED_COVERAGE")
+            self.assertEqual(out["fallback_reason"],"LOCAL_PROMO_REMAINING_RMB_REQUIRED")
+
 
 if __name__=="__main__":
     unittest.main()
