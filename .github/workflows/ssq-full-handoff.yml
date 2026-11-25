@@ -1,0 +1,48 @@
+name: SSQ full desktop handoff audit
+
+on:
+  push:
+    branches:
+      - ssq-v5-full-handoff-20261125
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  handoff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install only the dependency used by current SSQ acceptance
+        run: python -m pip install --disable-pip-version-check numpy
+
+      - name: Build, audit, test and independently verify SSQ handoff
+        env:
+          SSQ_SOURCE_COMMIT: cbfe42055aec13fcf0642bf144afdfdab88e7f44
+          SSQ_CODE_COMMIT: 91563513bc560fb7cbd0e48f8abf3803b77a575b
+          SSQ_BUILD_DATE: '20261125'
+        run: |
+          set -o pipefail
+          python tools/ssq_handoff_builder.py | tee ssq_handoff_builder.log
+
+      - name: Upload final SSQ handoff
+        uses: actions/upload-artifact@v4
+        with:
+          name: SSQ_V5_FULL_DESKTOP_HANDOFF_cbfe420_20261125
+          path: |
+            _ssq_handoff_out/SSQ_V5_FULL_DESKTOP_HANDOFF_cbfe420_20261125.zip
+            _ssq_handoff_out/SSQ_V5_FULL_DESKTOP_HANDOFF_cbfe420_20261125.zip.sha256
+            _ssq_handoff_out/FINAL_ZIP_VALIDATION.json
+            _ssq_handoff_out/HANDOFF_SUMMARY.json
+            ssq_handoff_builder.log
+          if-no-files-found: error
+          retention-days: 30
