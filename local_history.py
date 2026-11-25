@@ -72,6 +72,7 @@ def load_ssq_history(path: str | Path = DEFAULT_HISTORY_PATH) -> List[LocalHisto
         raise ValueError("duplicate issue in SSQ history ledger")
     if any(rows[i].date >= rows[i + 1].date for i in range(len(rows) - 1)):
         raise ValueError("history dates must be strictly increasing")
+    validate_active_full_tier_window(rows)
     return rows
 
 
@@ -81,3 +82,19 @@ def latest_completed(path: str | Path = DEFAULT_HISTORY_PATH) -> LocalHistoryRow
 
 def full_tier_history(path: str | Path = DEFAULT_HISTORY_PATH) -> List[LocalHistoryRow]:
     return [r for r in load_ssq_history(path) if r.has_full_tiers]
+
+
+def validate_active_full_tier_window(
+    rows: Sequence[LocalHistoryRow],
+    active_start_issue: str = "2022139",
+) -> None:
+    """Archive rows before active_start may omit t3-t6; active model window may not."""
+    active = [r for r in rows if r.issue >= active_start_issue]
+    if not active:
+        raise ValueError(f"no active full-tier rows >= {active_start_issue}")
+    missing = [r.issue for r in active if not r.has_full_tiers or r.promo_sixth_double is None]
+    if missing:
+        raise ValueError(f"active full-tier window contains missing fields: {missing[:10]}")
+    if active[0].issue != active_start_issue:
+        raise ValueError(f"active window must start at {active_start_issue}, got {active[0].issue}")
+
