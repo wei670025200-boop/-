@@ -34,9 +34,10 @@ jobs:
           p=Path("data/ssq_history.csv")
           with p.open("r",encoding="utf-8",newline="") as fh:
               rows=list(csv.DictReader(fh))
-          assert len(rows)==768
+          assert len(rows)>=768
           assert rows[0]["issue"]=="2021121"
-          assert rows[-1]["issue"]=="2026135"
+          assert rows[767]["issue"]=="2026135"
+          assert rows[-1]["issue"] >= "2026135"
           required=["issue","date","r1","r2","r3","r4","r5","r6","blue","sales_rmb","pool_after_rmb","t1","t2","t3","t4","t5","t6","promo_sixth_double"]
           assert list(rows[0].keys())==required
           numeric=required[2:]
@@ -58,15 +59,15 @@ jobs:
           rows=load_ssq_history()
           full=full_tier_history()
           assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
-          assert len(rows) == 768
+          assert len(rows) >= 768
           assert rows[0].issue == "2021121"
-          assert rows[-1].issue == "2026135"
-          assert len(full) == 600
+          assert rows[767].issue == "2026135"
+          assert len(full) >= 600
           assert full[0].issue == "2022139"
-          assert full[-1].issue == "2026135"
+          assert full[599].issue == "2026135"
           out=run_v4(2, seed=bytes.fromhex("11"*32))
           assert out["mode"] == "LOCAL_FIRST_OFFLINE"
-          assert out["latest_completed_issue"] == "2026135"
+          assert out["latest_completed_issue"] == rows[-1].issue
           assert len(out["tickets"]) == 2
           print("LOCAL_LEDGER_AND_V4_PASS")
           PY
@@ -76,13 +77,17 @@ jobs:
           python - <<'PY'
           import json
           from ssq_v5.offline_local_v5 import _to_records
-          from ssq_v5.runner_v5 import ACTIVE_MODE, PHASE4_STATUS
+          from ssq_v5.runner_v5 import ACTIVE_MODE, PHASE4_STATUS, V5_POLICY_GATE_STATUS, validate_v5_production_artifacts
           recs=_to_records("data/ssq_history.csv")
           assert ACTIVE_MODE == "LOCAL_FIRST_OFFLINE"
-          assert PHASE4_STATUS == "LOCKED"
-          assert len(recs) == 600
+          assert PHASE4_STATUS == "PASS_PRODUCTION_ELIGIBLE"
+          assert V5_POLICY_GATE_STATUS == "PASS"
+          assert len(recs) >= 600
           assert recs[0].issue == "2022139"
-          assert recs[-1].issue == "2026135"
+          assert recs[599].issue == "2026135"
+          verified=validate_v5_production_artifacts("data/ssq_history.csv")
+          assert verified["trained_through_issue"] == "2026135"
+          assert verified["policy_gate_status"] == "PASS"
           result=json.load(open("results/PHASE3_LOCAL_FIRST_RESULT.json","r",encoding="utf-8"))
           assert result["oos_gate_status"] == "PASS"
           assert result["artifact_sha256"] == "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
@@ -94,7 +99,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          paths=[Path("local_history.py"),Path("v4/offline_local_v4.py"),Path("ssq_v5/offline_local_v5.py"),Path("ssq_v5/runner_v5.py")]
+          paths=[Path("local_history.py"),Path("v4/offline_local_v4.py"),Path("ssq_v5/offline_local_v5.py"),Path("ssq_v5/runner_v5.py"),Path("ssq_v5/production_local_v5.py"),Path("ssq_v5/statutory_liability_v5.py"),Path("ssq_v5/policy_selector_v5.py")]
           forbidden=("requests.","urllib.request","http://","https://","curl ","wget ")
           for p in paths:
               text=p.read_text("utf-8")
