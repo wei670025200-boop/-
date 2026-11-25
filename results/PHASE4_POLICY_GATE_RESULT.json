@@ -1,0 +1,4471 @@
+{
+  "e2e": {
+    "circuit_breaker": {
+      "cusum_stat": 0.186351,
+      "reason": "WITHIN_DRIFT_BOUNDS",
+      "rolling_20_mae": 0.140261,
+      "status": "OK",
+      "tripped": false
+    },
+    "exercises": {
+      "2": {
+        "blue_unique": true,
+        "blue_values": [
+          12,
+          13
+        ],
+        "candidate_blue_pool": [
+          14,
+          15,
+          13,
+          4,
+          2,
+          12
+        ],
+        "pocket_distribution": {
+          "S_HI|DROP_Z1|ODD_33|SP_MID": 1,
+          "S_MID|DROP_Z1|ODD_HI|SP_MID": 1
+        },
+        "route": "V5_PRODUCTION_ELIGIBLE",
+        "selected_policy_id": "P_R01_005_B06",
+        "ticket_count": 2,
+        "tickets": [
+          {
+            "blue": 12,
+            "formatted": "12 13 22 24 31 33 + 12",
+            "liability_percentile": 3.9933,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 58667470.83,
+              "tier2_rmb": 12702517.71,
+              "tier3_rmb": 4846207.02,
+              "tier4_rmb": 15906826.24,
+              "tier5_rmb": 14693860.77,
+              "tier6_base_rmb": 57150666.32,
+              "tier6_promo_extra_rmb": 57150666.32,
+              "total_plugin_statutory_rmb_exposure": 221118215.21
+            },
+            "pocket_key": "S_HI|DROP_Z1|ODD_33|SP_MID",
+            "reds": [
+              12,
+              13,
+              22,
+              24,
+              31,
+              33
+            ]
+          },
+          {
+            "blue": 13,
+            "formatted": "13 14 15 16 25 33 + 13",
+            "liability_percentile": 4.8758,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 55935715.94,
+              "tier2_rmb": 17554252.27,
+              "tier3_rmb": 4165079.17,
+              "tier4_rmb": 14420675.87,
+              "tier5_rmb": 13870635.09,
+              "tier6_base_rmb": 48942449.16,
+              "tier6_promo_extra_rmb": 48942449.16,
+              "total_plugin_statutory_rmb_exposure": 203831256.66
+            },
+            "pocket_key": "S_MID|DROP_Z1|ODD_HI|SP_MID",
+            "reds": [
+              13,
+              14,
+              15,
+              16,
+              25,
+              33
+            ]
+          }
+        ]
+      },
+      "8": {
+        "blue_unique": true,
+        "blue_values": [
+          14,
+          12,
+          3,
+          2,
+          13,
+          16,
+          4,
+          15
+        ],
+        "candidate_blue_pool": [
+          14,
+          15,
+          13,
+          4,
+          2,
+          12,
+          3,
+          16
+        ],
+        "pocket_distribution": {
+          "S_HI|DROP_Z1|ODD_33|SP_MID": 1,
+          "S_HI|DROP_Z2|ODD_HI|SP_MID": 1,
+          "S_HI|DROP_Z2|ODD_HI|SP_WIDE": 1,
+          "S_HI|NO_DROP|ODD_33|SP_WIDE": 1,
+          "S_HI|NO_DROP|ODD_HI|SP_MID": 1,
+          "S_HI|NO_DROP|ODD_HI|SP_WIDE": 1,
+          "S_LO|DROP_Z2|ODD_LO|SP_WIDE": 1,
+          "S_MID|DROP_Z1|ODD_33|SP_NARROW": 1
+        },
+        "route": "V5_PRODUCTION_ELIGIBLE",
+        "selected_policy_id": "P_R01_005_B06",
+        "ticket_count": 8,
+        "tickets": [
+          {
+            "blue": 14,
+            "formatted": "11 14 21 25 30 33 + 14",
+            "liability_percentile": 3.9013,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 54453711.4,
+              "tier2_rmb": 19271676.91,
+              "tier3_rmb": 3900244.8,
+              "tier4_rmb": 13879264.25,
+              "tier5_rmb": 13613610.26,
+              "tier6_base_rmb": 46039235.28,
+              "tier6_promo_extra_rmb": 46039235.28,
+              "total_plugin_statutory_rmb_exposure": 197196978.19
+            },
+            "pocket_key": "S_HI|NO_DROP|ODD_HI|SP_MID",
+            "reds": [
+              11,
+              14,
+              21,
+              25,
+              30,
+              33
+            ]
+          },
+          {
+            "blue": 12,
+            "formatted": "02 20 23 27 31 32 + 12",
+            "liability_percentile": 2.713,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 58425839.21,
+              "tier2_rmb": 12777064.15,
+              "tier3_rmb": 4787726.16,
+              "tier4_rmb": 15742901.63,
+              "tier5_rmb": 14578016.02,
+              "tier6_base_rmb": 57170698.56,
+              "tier6_promo_extra_rmb": 57170698.56,
+              "total_plugin_statutory_rmb_exposure": 220652944.29
+            },
+            "pocket_key": "S_HI|NO_DROP|ODD_33|SP_WIDE",
+            "reds": [
+              2,
+              20,
+              23,
+              27,
+              31,
+              32
+            ]
+          },
+          {
+            "blue": 3,
+            "formatted": "03 17 22 24 27 33 + 03",
+            "liability_percentile": 4.3074,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 58866262.38,
+              "tier2_rmb": 12563335.47,
+              "tier3_rmb": 4873134.07,
+              "tier4_rmb": 15973765.45,
+              "tier5_rmb": 14731667.13,
+              "tier6_base_rmb": 57363194.5,
+              "tier6_promo_extra_rmb": 57363194.5,
+              "total_plugin_statutory_rmb_exposure": 221734553.49
+            },
+            "pocket_key": "S_HI|NO_DROP|ODD_HI|SP_WIDE",
+            "reds": [
+              3,
+              17,
+              22,
+              24,
+              27,
+              33
+            ]
+          },
+          {
+            "blue": 2,
+            "formatted": "07 10 25 26 31 33 + 02",
+            "liability_percentile": 2.9022,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 57113068.13,
+              "tier2_rmb": 14401617.22,
+              "tier3_rmb": 4606671.9,
+              "tier4_rmb": 15429039.98,
+              "tier5_rmb": 14468026.89,
+              "tier6_base_rmb": 54224044.93,
+              "tier6_promo_extra_rmb": 54224044.93,
+              "total_plugin_statutory_rmb_exposure": 214466513.99
+            },
+            "pocket_key": "S_HI|DROP_Z2|ODD_HI|SP_MID",
+            "reds": [
+              7,
+              10,
+              25,
+              26,
+              31,
+              33
+            ]
+          },
+          {
+            "blue": 13,
+            "formatted": "13 15 16 19 22 32 + 13",
+            "liability_percentile": 4.7149,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 55788895.87,
+              "tier2_rmb": 17525953.84,
+              "tier3_rmb": 4190081.31,
+              "tier4_rmb": 14482138.77,
+              "tier5_rmb": 13899388.97,
+              "tier6_base_rmb": 48941436.54,
+              "tier6_promo_extra_rmb": 48941436.54,
+              "total_plugin_statutory_rmb_exposure": 203769331.86
+            },
+            "pocket_key": "S_MID|DROP_Z1|ODD_33|SP_NARROW",
+            "reds": [
+              13,
+              15,
+              16,
+              19,
+              22,
+              32
+            ]
+          },
+          {
+            "blue": 16,
+            "formatted": "12 15 17 21 30 32 + 16",
+            "liability_percentile": 4.5598,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 59430274.5,
+              "tier2_rmb": 11667328.42,
+              "tier3_rmb": 5025014.78,
+              "tier4_rmb": 16324465.32,
+              "tier5_rmb": 14933621.96,
+              "tier6_base_rmb": 58802940.89,
+              "tier6_promo_extra_rmb": 58802940.89,
+              "total_plugin_statutory_rmb_exposure": 224986586.76
+            },
+            "pocket_key": "S_HI|DROP_Z1|ODD_33|SP_MID",
+            "reds": [
+              12,
+              15,
+              17,
+              21,
+              30,
+              32
+            ]
+          },
+          {
+            "blue": 4,
+            "formatted": "01 10 23 29 30 33 + 04",
+            "liability_percentile": 2.4336,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 56899991.68,
+              "tier2_rmb": 14785001.27,
+              "tier3_rmb": 4525756.47,
+              "tier4_rmb": 15222546.09,
+              "tier5_rmb": 14338847.25,
+              "tier6_base_rmb": 53665571.32,
+              "tier6_promo_extra_rmb": 53665571.32,
+              "total_plugin_statutory_rmb_exposure": 213103285.4
+            },
+            "pocket_key": "S_HI|DROP_Z2|ODD_HI|SP_WIDE",
+            "reds": [
+              1,
+              10,
+              23,
+              29,
+              30,
+              33
+            ]
+          },
+          {
+            "blue": 15,
+            "formatted": "02 04 05 10 30 32 + 15",
+            "liability_percentile": 3.7952,
+            "plugin_statutory_rmb_breakdown": {
+              "exposure_label": "PLUG_IN_STATUTORY_RMB_EXPOSURE",
+              "fuyun_rmb": 0.0,
+              "tier1_rmb": 54681742.66,
+              "tier2_rmb": 19009136.14,
+              "tier3_rmb": 3932509.52,
+              "tier4_rmb": 13908903.05,
+              "tier5_rmb": 13597801.85,
+              "tier6_base_rmb": 46541269.26,
+              "tier6_promo_extra_rmb": 46541269.26,
+              "total_plugin_statutory_rmb_exposure": 198212631.75
+            },
+            "pocket_key": "S_LO|DROP_Z2|ODD_LO|SP_WIDE",
+            "reds": [
+              2,
+              4,
+              5,
+              10,
+              30,
+              32
+            ]
+          }
+        ]
+      }
+    },
+    "fuyun_prize_active": false,
+    "locks": {
+      "cusum_drift_gate": "OK",
+      "phase3_oos_gate": "PASS",
+      "policy_gate": "PASS"
+    },
+    "production_eligible": true,
+    "promo_flag_carried_from_latest_local_row": true,
+    "promo_remaining_mode": "LOCAL_FLAG_ONLY_CAUSAL_NONBINDING_UPPER_BOUND_FROM_LATEST_SALES",
+    "special_rule_active": false,
+    "target_draw_date": "2026-11-26",
+    "target_issue": "2026136"
+  },
+  "execution_mode": "LOCAL_FIRST_OFFLINE",
+  "git_commit_sha": "64003f9c2bac6be4177fd876289c803fc69df2da",
+  "historical_promo_remaining_mode": "LOCAL_FLAG_ONLY_CAUSAL_NONBINDING_UPPER_BOUND_FROM_PREVIOUS_SALES",
+  "history_csv_sha256": "5b86f09bc20992f75b4c8a4fdd21b937d120f78c29ad9cad66fd3384793e30c3",
+  "history_draws": 600,
+  "history_range": [
+    "2022139",
+    "2026135"
+  ],
+  "phase3_frozen_artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a",
+  "phase3_frozen_ledger_sha256": "4ce4382f170253feee0a42aaaa3074e76ac8c121c780b8a26244599118347c45",
+  "phase3_semantic_reproduction": true,
+  "policy_gate_artifact": {
+    "auxiliary_ci95": [
+      -0.18018333,
+      0.35451875
+    ],
+    "auxiliary_mean_score": 0.10775,
+    "candidate_selection_counts": {
+      "P_R01_005_B05": 143,
+      "P_R01_005_B06": 257,
+      "P_R01_005_B08": 0,
+      "P_R01_010_B05": 0,
+      "P_R01_010_B06": 0,
+      "P_R01_010_B08": 0,
+      "P_R01_020_B05": 0,
+      "P_R01_020_B06": 0,
+      "P_R01_020_B08": 0
+    },
+    "frozen_candidate_grid": [
+      {
+        "blue_keep_count": 5,
+        "policy_id": "P_R01_005_B05",
+        "red_percentile_high": 5.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 6,
+        "policy_id": "P_R01_005_B06",
+        "red_percentile_high": 5.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 8,
+        "policy_id": "P_R01_005_B08",
+        "red_percentile_high": 5.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 5,
+        "policy_id": "P_R01_010_B05",
+        "red_percentile_high": 10.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 6,
+        "policy_id": "P_R01_010_B06",
+        "red_percentile_high": 10.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 8,
+        "policy_id": "P_R01_010_B08",
+        "red_percentile_high": 10.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 5,
+        "policy_id": "P_R01_020_B05",
+        "red_percentile_high": 20.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 6,
+        "policy_id": "P_R01_020_B06",
+        "red_percentile_high": 20.0,
+        "red_percentile_low": 1.0
+      },
+      {
+        "blue_keep_count": 8,
+        "policy_id": "P_R01_020_B08",
+        "red_percentile_high": 20.0,
+        "red_percentile_low": 1.0
+      }
+    ],
+    "git_commit_sha": "64003f9c2bac6be4177fd876289c803fc69df2da",
+    "history_csv_sha256": "5b86f09bc20992f75b4c8a4fdd21b937d120f78c29ad9cad66fd3384793e30c3",
+    "integrity_summary_sha256": "41229a251054e53f64b0ae339675675f689678f90bb4331891e22d82624f9b23",
+    "objective": "ANTI_SHARING_CROWDING_SUPPRESSION",
+    "oos_trace_sha256": "68a18cf12833caeb0083ec127674768ac9febee26c5a705089c14dce2d32370f",
+    "outer_ci95": [
+      0.12083757,
+      0.23869674
+    ],
+    "outer_mean_score": 0.17045425,
+    "outer_oos_draws": 400,
+    "policy_gate_status": "PASS",
+    "protocol_hyperparameters": {
+      "bootstrap_block_size": 12,
+      "bootstrap_replicates": 2000,
+      "bootstrap_seed": 20261124,
+      "outer_oos_draws": 400,
+      "outer_oos_start_index": 200,
+      "policy_record_start_index": 100,
+      "primary_blue_weight": 0.5,
+      "primary_red_weight": 0.5
+    },
+    "protocol_version": "SSQ_V5_NESTED_POLICY_GATE_2.0_LOCAL_FIRST",
+    "rule_document_sha256": "bd9161fe5da2a0eebfcfb215000a7398f2d3b8556640564f545c0beaa8dfbb97",
+    "selected_policy": {
+      "blue_keep_count": 6,
+      "policy_id": "P_R01_005_B06",
+      "red_percentile_high": 5.0,
+      "red_percentile_low": 1.0
+    },
+    "trained_through_issue": "2026135",
+    "twin_artifact_sha256": "2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
+  },
+  "policy_records_count": 500,
+  "policy_records_sha256": "4fe208900a3f3234c431ca230a32b7f98adafb82d84d3b37ac799dfbeb2d091f",
+  "policy_trace": [
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 96.34163035,
+      "auxiliary_score": -1.0,
+      "issue": "2024038",
+      "primary_score": -0.18936843,
+      "realized_blue_crowding_ratio": 0.73762921,
+      "realized_red_crowding_ratio": 0.88363392,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 61.08309948,
+      "auxiliary_score": -1.0,
+      "issue": "2024039",
+      "primary_score": -0.05973042,
+      "realized_blue_crowding_ratio": 1.03839962,
+      "realized_red_crowding_ratio": 0.84213955,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 80.46226795,
+      "auxiliary_score": -1.0,
+      "issue": "2024040",
+      "primary_score": -0.17375361,
+      "realized_blue_crowding_ratio": 0.84872904,
+      "realized_red_crowding_ratio": 0.80376374,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 24.28560836,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024041",
+      "primary_score": 0.26162396,
+      "realized_blue_crowding_ratio": 0.77249746,
+      "realized_red_crowding_ratio": 1.14407703,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 16.79606214,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024042",
+      "primary_score": 0.10365586,
+      "realized_blue_crowding_ratio": 0.70175354,
+      "realized_red_crowding_ratio": 0.71023428,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 41.20774605,
+      "auxiliary_score": -1.0,
+      "issue": "2024043",
+      "primary_score": 0.10177911,
+      "realized_blue_crowding_ratio": 1.15743825,
+      "realized_red_crowding_ratio": 1.04611997,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 4.83163061,
+      "auxiliary_score": 11.5,
+      "issue": "2024044",
+      "primary_score": -0.63564725,
+      "realized_blue_crowding_ratio": 1.19085793,
+      "realized_red_crowding_ratio": 1.06092302,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 90.84427578,
+      "auxiliary_score": -1.0,
+      "issue": "2024045",
+      "primary_score": 0.15190432,
+      "realized_blue_crowding_ratio": 1.02546855,
+      "realized_red_crowding_ratio": 1.27834009,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 73.30720391,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024046",
+      "primary_score": 0.09131247,
+      "realized_blue_crowding_ratio": 0.84554479,
+      "realized_red_crowding_ratio": 0.9251996,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 62.70758016,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024047",
+      "primary_score": 0.08877197,
+      "realized_blue_crowding_ratio": 0.79867236,
+      "realized_red_crowding_ratio": 0.84199786,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 98.28023001,
+      "auxiliary_score": -1.0,
+      "issue": "2024048",
+      "primary_score": -0.09031432,
+      "realized_blue_crowding_ratio": 0.8513812,
+      "realized_red_crowding_ratio": 0.96799016,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 1.57280385,
+      "auxiliary_score": 11.5,
+      "issue": "2024049",
+      "primary_score": 1.25554617,
+      "realized_blue_crowding_ratio": 1.04981539,
+      "realized_red_crowding_ratio": 0.89744679,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 27.37287096,
+      "auxiliary_score": -1.0,
+      "issue": "2024050",
+      "primary_score": -0.13675385,
+      "realized_blue_crowding_ratio": 0.80274781,
+      "realized_red_crowding_ratio": 0.92374449,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 97.38521954,
+      "auxiliary_score": -1.0,
+      "issue": "2024051",
+      "primary_score": 0.11009296,
+      "realized_blue_crowding_ratio": 1.00927579,
+      "realized_red_crowding_ratio": 1.21091012,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 61.40133068,
+      "auxiliary_score": -1.0,
+      "issue": "2024052",
+      "primary_score": -0.06225734,
+      "realized_blue_crowding_ratio": 0.86957297,
+      "realized_red_crowding_ratio": 1.00591235,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 2.96175743,
+      "auxiliary_score": 11.5,
+      "issue": "2024053",
+      "primary_score": -0.84137905,
+      "realized_blue_crowding_ratio": 1.38705571,
+      "realized_red_crowding_ratio": 1.08624224,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 23.85119726,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024054",
+      "primary_score": 0.27870892,
+      "realized_blue_crowding_ratio": 0.74293151,
+      "realized_red_crowding_ratio": 1.12897036,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 88.1727432,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024055",
+      "primary_score": 0.2593866,
+      "realized_blue_crowding_ratio": 0.61667201,
+      "realized_red_crowding_ratio": 0.87989323,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 73.41500443,
+      "auxiliary_score": -1.0,
+      "issue": "2024056",
+      "primary_score": 0.08270236,
+      "realized_blue_crowding_ratio": 1.12735481,
+      "realized_red_crowding_ratio": 1.03804991,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 91.13744756,
+      "auxiliary_score": -1.0,
+      "issue": "2024057",
+      "primary_score": 0.39277664,
+      "realized_blue_crowding_ratio": 1.28103218,
+      "realized_red_crowding_ratio": 1.5045211,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 85.58077767,
+      "auxiliary_score": -1.0,
+      "issue": "2024058",
+      "primary_score": -0.10460623,
+      "realized_blue_crowding_ratio": 0.87768034,
+      "realized_red_crowding_ratio": 0.91310721,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 11.67762892,
+      "auxiliary_score": -1.0,
+      "issue": "2024059",
+      "primary_score": -0.0345148,
+      "realized_blue_crowding_ratio": 1.13479657,
+      "realized_red_crowding_ratio": 0.79617383,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 68.38887658,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024060",
+      "primary_score": 0.08904678,
+      "realized_blue_crowding_ratio": 0.89573349,
+      "realized_red_crowding_ratio": 1.00431605,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 80.75371004,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024061",
+      "primary_score": 0.02782138,
+      "realized_blue_crowding_ratio": 0.87179183,
+      "realized_red_crowding_ratio": 0.84196247,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 49.72446226,
+      "auxiliary_score": -1.0,
+      "issue": "2024062",
+      "primary_score": -0.18071724,
+      "realized_blue_crowding_ratio": 0.83787171,
+      "realized_red_crowding_ratio": 0.80069381,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 27.66775386,
+      "auxiliary_score": -1.0,
+      "issue": "2024063",
+      "primary_score": -0.07916909,
+      "realized_blue_crowding_ratio": 0.93586521,
+      "realized_red_crowding_ratio": 0.9057966,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 73.22554549,
+      "auxiliary_score": -1.0,
+      "issue": "2024064",
+      "primary_score": 0.28726324,
+      "realized_blue_crowding_ratio": 1.1881119,
+      "realized_red_crowding_ratio": 1.38641458,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 88.86774283,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024065",
+      "primary_score": 0.36100846,
+      "realized_blue_crowding_ratio": 0.67531913,
+      "realized_red_crowding_ratio": 1.18088213,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 13.49559815,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024066",
+      "primary_score": 0.12223369,
+      "realized_blue_crowding_ratio": 0.79274435,
+      "realized_red_crowding_ratio": 0.89904131,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024067",
+      "primary_score": 0.01738389,
+      "realized_blue_crowding_ratio": 0.89021892,
+      "realized_red_crowding_ratio": 0.85179931,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 52.30178821,
+      "auxiliary_score": -1.0,
+      "issue": "2024068",
+      "primary_score": 0.31567643,
+      "realized_blue_crowding_ratio": 1.26962465,
+      "realized_red_crowding_ratio": 1.3617282,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 26.84594127,
+      "auxiliary_score": -1.0,
+      "issue": "2024069",
+      "primary_score": 0.04829693,
+      "realized_blue_crowding_ratio": 1.20202654,
+      "realized_red_crowding_ratio": 0.89456733,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 41.24814748,
+      "auxiliary_score": -1.0,
+      "issue": "2024070",
+      "primary_score": -0.14314602,
+      "realized_blue_crowding_ratio": 0.87784487,
+      "realized_red_crowding_ratio": 0.8358631,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 63.33584614,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024071",
+      "primary_score": 0.22693294,
+      "realized_blue_crowding_ratio": 0.69564664,
+      "realized_red_crowding_ratio": 0.94661027,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 92.66661787,
+      "auxiliary_score": -1.0,
+      "issue": "2024072",
+      "primary_score": -0.1924989,
+      "realized_blue_crowding_ratio": 0.8790811,
+      "realized_red_crowding_ratio": 0.7359211,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 99.4167935,
+      "auxiliary_score": -1.0,
+      "issue": "2024073",
+      "primary_score": 0.09560844,
+      "realized_blue_crowding_ratio": 0.92005763,
+      "realized_red_crowding_ratio": 1.27115925,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 24.00111033,
+      "auxiliary_score": -1.0,
+      "issue": "2024074",
+      "primary_score": 0.48010224,
+      "realized_blue_crowding_ratio": 1.40675599,
+      "realized_red_crowding_ratio": 1.55344849,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 54.19761337,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024075",
+      "primary_score": 0.27538976,
+      "realized_blue_crowding_ratio": 0.8263164,
+      "realized_red_crowding_ratio": 1.26130685,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 1.56006552,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024076",
+      "primary_score": 4.43292129,
+      "realized_blue_crowding_ratio": 0.8688403,
+      "realized_red_crowding_ratio": 0.6396982,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 51.29336856,
+      "auxiliary_score": -1.0,
+      "issue": "2024077",
+      "primary_score": 0.27064855,
+      "realized_blue_crowding_ratio": 1.47525469,
+      "realized_red_crowding_ratio": 1.06604242,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 79.74966324,
+      "auxiliary_score": -1.0,
+      "issue": "2024078",
+      "primary_score": 0.30271585,
+      "realized_blue_crowding_ratio": 1.3640452,
+      "realized_red_crowding_ratio": 1.2413865,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 82.64772901,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024079",
+      "primary_score": 0.20100196,
+      "realized_blue_crowding_ratio": 0.92908421,
+      "realized_red_crowding_ratio": 1.28381093,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 72.25543589,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024080",
+      "primary_score": 0.15214683,
+      "realized_blue_crowding_ratio": 0.8292787,
+      "realized_red_crowding_ratio": 1.01975816,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 42.55582289,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024081",
+      "primary_score": 0.12578544,
+      "realized_blue_crowding_ratio": 0.71695892,
+      "realized_red_crowding_ratio": 0.77983574,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 41.86015782,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024082",
+      "primary_score": -0.05083245,
+      "realized_blue_crowding_ratio": 0.92449957,
+      "realized_red_crowding_ratio": 0.77250105,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 11.31686793,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024083",
+      "primary_score": 0.25941613,
+      "realized_blue_crowding_ratio": 0.69046007,
+      "realized_red_crowding_ratio": 1.00293237,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 76.824885,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024084",
+      "primary_score": 0.17630649,
+      "realized_blue_crowding_ratio": 0.64654671,
+      "realized_red_crowding_ratio": 0.76352416,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024085",
+      "primary_score": 0.15551438,
+      "realized_blue_crowding_ratio": 0.58153793,
+      "realized_red_crowding_ratio": 0.61359198,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2024086",
+      "primary_score": 0.08583613,
+      "realized_blue_crowding_ratio": 1.15567357,
+      "realized_red_crowding_ratio": 1.0159987,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 62.73457782,
+      "auxiliary_score": -1.0,
+      "issue": "2024087",
+      "primary_score": 0.23213101,
+      "realized_blue_crowding_ratio": 1.11979198,
+      "realized_red_crowding_ratio": 1.34447005,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 18.38133661,
+      "auxiliary_score": -1.0,
+      "issue": "2024088",
+      "primary_score": 0.04008911,
+      "realized_blue_crowding_ratio": 1.0083971,
+      "realized_red_crowding_ratio": 1.07178112,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 78.50432819,
+      "auxiliary_score": -1.0,
+      "issue": "2024089",
+      "primary_score": -0.03494142,
+      "realized_blue_crowding_ratio": 0.89355938,
+      "realized_red_crowding_ratio": 1.03655779,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 5.67084497,
+      "auxiliary_score": -1.0,
+      "issue": "2024090",
+      "primary_score": -0.0616512,
+      "realized_blue_crowding_ratio": 0.98873573,
+      "realized_red_crowding_ratio": 0.88796186,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 47.24176808,
+      "auxiliary_score": -1.0,
+      "issue": "2024091",
+      "primary_score": -0.27137269,
+      "realized_blue_crowding_ratio": 0.77363449,
+      "realized_red_crowding_ratio": 0.68362013,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 93.53462453,
+      "auxiliary_score": -1.0,
+      "issue": "2024092",
+      "primary_score": 0.19787913,
+      "realized_blue_crowding_ratio": 1.0510492,
+      "realized_red_crowding_ratio": 1.34470907,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2024093",
+      "primary_score": -0.15897975,
+      "realized_blue_crowding_ratio": 0.78890738,
+      "realized_red_crowding_ratio": 0.89313311,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 93.02708704,
+      "auxiliary_score": -1.0,
+      "issue": "2024094",
+      "primary_score": 1.44568595,
+      "realized_blue_crowding_ratio": 2.19524071,
+      "realized_red_crowding_ratio": 2.69613119,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 77.96131152,
+      "auxiliary_score": -1.0,
+      "issue": "2024095",
+      "primary_score": 0.50723958,
+      "realized_blue_crowding_ratio": 1.27224737,
+      "realized_red_crowding_ratio": 1.74223179,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 33.82128846,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024096",
+      "primary_score": -0.00066062,
+      "realized_blue_crowding_ratio": 0.86545897,
+      "realized_red_crowding_ratio": 0.77444373,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 39.6561214,
+      "auxiliary_score": -1.0,
+      "issue": "2024097",
+      "primary_score": -0.22168205,
+      "realized_blue_crowding_ratio": 0.82755009,
+      "realized_red_crowding_ratio": 0.72908582,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 81.87930692,
+      "auxiliary_score": -1.0,
+      "issue": "2024098",
+      "primary_score": -0.09532685,
+      "realized_blue_crowding_ratio": 0.77089949,
+      "realized_red_crowding_ratio": 1.0384468,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 91.72738775,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024099",
+      "primary_score": -0.02963211,
+      "realized_blue_crowding_ratio": 0.93331901,
+      "realized_red_crowding_ratio": 0.82960081,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 43.90902151,
+      "auxiliary_score": -1.0,
+      "issue": "2024100",
+      "primary_score": -0.03191128,
+      "realized_blue_crowding_ratio": 1.04059111,
+      "realized_red_crowding_ratio": 0.89558634,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 83.32976849,
+      "auxiliary_score": -1.0,
+      "issue": "2024101",
+      "primary_score": 0.25937071,
+      "realized_blue_crowding_ratio": 1.40563141,
+      "realized_red_crowding_ratio": 1.11311001,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 54.8064958,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024102",
+      "primary_score": 0.25327906,
+      "realized_blue_crowding_ratio": 0.81464158,
+      "realized_red_crowding_ratio": 1.19762742,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 3.2172907,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024103",
+      "primary_score": 3.38526312,
+      "realized_blue_crowding_ratio": 0.85127489,
+      "realized_red_crowding_ratio": 0.72822287,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 65.52278122,
+      "auxiliary_score": -1.0,
+      "issue": "2024104",
+      "primary_score": 0.18611467,
+      "realized_blue_crowding_ratio": 1.0024754,
+      "realized_red_crowding_ratio": 1.36975395,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 3.84156526,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024105",
+      "primary_score": 2.07184733,
+      "realized_blue_crowding_ratio": 1.0323662,
+      "realized_red_crowding_ratio": 0.8250984,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 17.5050692,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024106",
+      "primary_score": 0.22162951,
+      "realized_blue_crowding_ratio": 0.67399037,
+      "realized_red_crowding_ratio": 0.89990963,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 70.30498859,
+      "auxiliary_score": -1.0,
+      "issue": "2024107",
+      "primary_score": 0.44806644,
+      "realized_blue_crowding_ratio": 1.57208684,
+      "realized_red_crowding_ratio": 1.32404604,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 46.72590953,
+      "auxiliary_score": -1.0,
+      "issue": "2024108",
+      "primary_score": 0.12093106,
+      "realized_blue_crowding_ratio": 1.1467811,
+      "realized_red_crowding_ratio": 1.09508102,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 15.19372284,
+      "auxiliary_score": -1.0,
+      "issue": "2024109",
+      "primary_score": -0.0351626,
+      "realized_blue_crowding_ratio": 1.08557513,
+      "realized_red_crowding_ratio": 0.84409966,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 1.99165162,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024110",
+      "primary_score": 3.74985286,
+      "realized_blue_crowding_ratio": 0.98450074,
+      "realized_red_crowding_ratio": 0.6885886,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 52.63783805,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024111",
+      "primary_score": 0.10743697,
+      "realized_blue_crowding_ratio": 0.80819034,
+      "realized_red_crowding_ratio": 0.89519117,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 23.22649274,
+      "auxiliary_score": -1.0,
+      "issue": "2024112",
+      "primary_score": -0.02729144,
+      "realized_blue_crowding_ratio": 1.02780281,
+      "realized_red_crowding_ratio": 0.91761432,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 55.33979567,
+      "auxiliary_score": -1.0,
+      "issue": "2024113",
+      "primary_score": 0.00674047,
+      "realized_blue_crowding_ratio": 1.10986394,
+      "realized_red_crowding_ratio": 0.90361701,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 29.95329586,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024114",
+      "primary_score": 0.07217783,
+      "realized_blue_crowding_ratio": 0.83720382,
+      "realized_red_crowding_ratio": 0.8730287,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 53.61517424,
+      "auxiliary_score": -1.0,
+      "issue": "2024115",
+      "primary_score": 0.62932412,
+      "realized_blue_crowding_ratio": 1.62643489,
+      "realized_red_crowding_ratio": 1.63221334,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 9.92793322,
+      "auxiliary_score": -1.0,
+      "issue": "2024116",
+      "primary_score": -0.15807295,
+      "realized_blue_crowding_ratio": 0.94066863,
+      "realized_red_crowding_ratio": 0.74318547,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 20.66960029,
+      "auxiliary_score": -1.0,
+      "issue": "2024117",
+      "primary_score": -0.04829115,
+      "realized_blue_crowding_ratio": 1.11023817,
+      "realized_red_crowding_ratio": 0.79317952,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024118",
+      "primary_score": 0.08277149,
+      "realized_blue_crowding_ratio": 0.74252155,
+      "realized_red_crowding_ratio": 0.73641223,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 14.60804361,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024119",
+      "primary_score": 0.1929233,
+      "realized_blue_crowding_ratio": 0.54338162,
+      "realized_red_crowding_ratio": 0.62481596,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 83.0534222,
+      "auxiliary_score": -1.0,
+      "issue": "2024120",
+      "primary_score": 0.35612334,
+      "realized_blue_crowding_ratio": 1.18335848,
+      "realized_red_crowding_ratio": 1.5288882,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 2.69102545,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024121",
+      "primary_score": 2.20840729,
+      "realized_blue_crowding_ratio": 0.99750231,
+      "realized_red_crowding_ratio": 0.81613951,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 74.93110355,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024122",
+      "primary_score": 0.28261378,
+      "realized_blue_crowding_ratio": 0.77479115,
+      "realized_red_crowding_ratio": 1.18987948,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 19.40850295,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024123",
+      "primary_score": -0.119025,
+      "realized_blue_crowding_ratio": 1.02673605,
+      "realized_red_crowding_ratio": 0.80651009,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 41.36866992,
+      "auxiliary_score": -1.0,
+      "issue": "2024124",
+      "primary_score": 0.11884729,
+      "realized_blue_crowding_ratio": 1.25133423,
+      "realized_red_crowding_ratio": 0.98636036,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 62.02980966,
+      "auxiliary_score": -1.0,
+      "issue": "2024125",
+      "primary_score": -0.07364947,
+      "realized_blue_crowding_ratio": 1.00181678,
+      "realized_red_crowding_ratio": 0.85088428,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 5.75488549,
+      "auxiliary_score": -1.0,
+      "issue": "2024126",
+      "primary_score": -0.04096932,
+      "realized_blue_crowding_ratio": 1.21574641,
+      "realized_red_crowding_ratio": 0.70231496,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 15.70610899,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024127",
+      "primary_score": 0.09664085,
+      "realized_blue_crowding_ratio": 0.76640445,
+      "realized_red_crowding_ratio": 0.80395577,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 52.99004412,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024128",
+      "primary_score": -0.03324482,
+      "realized_blue_crowding_ratio": 0.88249523,
+      "realized_red_crowding_ratio": 0.73766909,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 30.92578386,
+      "auxiliary_score": -1.0,
+      "issue": "2024129",
+      "primary_score": -0.06314543,
+      "realized_blue_crowding_ratio": 0.99142762,
+      "realized_red_crowding_ratio": 0.88228153,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 52.53231883,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024130",
+      "primary_score": 0.25338609,
+      "realized_blue_crowding_ratio": 0.57150242,
+      "realized_red_crowding_ratio": 0.79260954,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 19.19499288,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024131",
+      "primary_score": 0.10003536,
+      "realized_blue_crowding_ratio": 0.91820129,
+      "realized_red_crowding_ratio": 1.06373953,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 11.69048454,
+      "auxiliary_score": -1.0,
+      "issue": "2024132",
+      "primary_score": -0.13082165,
+      "realized_blue_crowding_ratio": 1.04505085,
+      "realized_red_crowding_ratio": 0.69330585,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 0.32920097,
+      "auxiliary_score": -1.0,
+      "issue": "2024133",
+      "primary_score": -0.26150913,
+      "realized_blue_crowding_ratio": 0.79154601,
+      "realized_red_crowding_ratio": 0.68543574,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 66.43233794,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024134",
+      "primary_score": 0.13138457,
+      "realized_blue_crowding_ratio": 0.67349963,
+      "realized_red_crowding_ratio": 0.71860187,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 46.72210704,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024135",
+      "primary_score": 0.22180425,
+      "realized_blue_crowding_ratio": 0.76999544,
+      "realized_red_crowding_ratio": 1.06026755,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 44.32720086,
+      "auxiliary_score": -1.0,
+      "issue": "2024136",
+      "primary_score": 0.15790728,
+      "realized_blue_crowding_ratio": 1.2871431,
+      "realized_red_crowding_ratio": 1.02867145,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 80.01342281,
+      "auxiliary_score": -1.0,
+      "issue": "2024137",
+      "primary_score": 0.10003507,
+      "realized_blue_crowding_ratio": 0.89850706,
+      "realized_red_crowding_ratio": 1.30156309,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 92.42722969,
+      "auxiliary_score": -1.0,
+      "issue": "2024138",
+      "primary_score": 0.18104364,
+      "realized_blue_crowding_ratio": 0.97572609,
+      "realized_red_crowding_ratio": 1.38636118,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 76.2989334,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024139",
+      "primary_score": 0.10398266,
+      "realized_blue_crowding_ratio": 0.78990589,
+      "realized_red_crowding_ratio": 0.85780847,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 66.94697416,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024140",
+      "primary_score": 0.12346419,
+      "realized_blue_crowding_ratio": 0.86399687,
+      "realized_red_crowding_ratio": 1.0202565,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 51.51405974,
+      "auxiliary_score": -1.0,
+      "issue": "2024141",
+      "primary_score": -0.15934967,
+      "realized_blue_crowding_ratio": 0.79999553,
+      "realized_red_crowding_ratio": 0.88130512,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 91.77567162,
+      "auxiliary_score": -1.0,
+      "issue": "2024142",
+      "primary_score": 0.45931353,
+      "realized_blue_crowding_ratio": 1.44943143,
+      "realized_red_crowding_ratio": 1.46919563,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 9.91463391,
+      "auxiliary_score": -1.0,
+      "issue": "2024143",
+      "primary_score": -0.01450832,
+      "realized_blue_crowding_ratio": 0.9514889,
+      "realized_red_crowding_ratio": 1.01949445,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 31.59571839,
+      "auxiliary_score": -1.0,
+      "issue": "2024144",
+      "primary_score": 0.07487972,
+      "realized_blue_crowding_ratio": 1.05920088,
+      "realized_red_crowding_ratio": 1.09055856,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 46.49875468,
+      "auxiliary_score": -1.0,
+      "issue": "2024145",
+      "primary_score": 0.05789995,
+      "realized_blue_crowding_ratio": 1.14284776,
+      "realized_red_crowding_ratio": 0.97295214,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 12.84255756,
+      "auxiliary_score": -1.0,
+      "issue": "2024146",
+      "primary_score": 0.15247057,
+      "realized_blue_crowding_ratio": 0.96507878,
+      "realized_red_crowding_ratio": 1.33986235,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 83.48232789,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024147",
+      "primary_score": 0.06898686,
+      "realized_blue_crowding_ratio": 0.99323209,
+      "realized_red_crowding_ratio": 1.12669388,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 40.41266612,
+      "auxiliary_score": -1.0,
+      "issue": "2024148",
+      "primary_score": -0.16051623,
+      "realized_blue_crowding_ratio": 0.85513576,
+      "realized_red_crowding_ratio": 0.82383179,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 70.57313155,
+      "auxiliary_score": 0.33333333,
+      "issue": "2024149",
+      "primary_score": 0.19822371,
+      "realized_blue_crowding_ratio": 0.80879673,
+      "realized_red_crowding_ratio": 1.07777529,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 4.90484248,
+      "auxiliary_score": 12.83333333,
+      "issue": "2024150",
+      "primary_score": 3.80597493,
+      "realized_blue_crowding_ratio": 0.8694313,
+      "realized_red_crowding_ratio": 0.69190269,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 36.95476928,
+      "auxiliary_score": -1.0,
+      "issue": "2024151",
+      "primary_score": -0.14879641,
+      "realized_blue_crowding_ratio": 0.86910397,
+      "realized_red_crowding_ratio": 0.83330322,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 19.87451756,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025001",
+      "primary_score": 0.332507,
+      "realized_blue_crowding_ratio": 0.58388586,
+      "realized_red_crowding_ratio": 0.97149042,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 45.25443015,
+      "auxiliary_score": -1.0,
+      "issue": "2025002",
+      "primary_score": 0.01956119,
+      "realized_blue_crowding_ratio": 0.98759714,
+      "realized_red_crowding_ratio": 1.05152523,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 68.58962354,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025003",
+      "primary_score": 0.14814638,
+      "realized_blue_crowding_ratio": 0.72997455,
+      "realized_red_crowding_ratio": 0.84625034,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 8.78387435,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025004",
+      "primary_score": 0.06290077,
+      "realized_blue_crowding_ratio": 1.04799307,
+      "realized_red_crowding_ratio": 1.20578998,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 62.74612882,
+      "auxiliary_score": -1.0,
+      "issue": "2025005",
+      "primary_score": 0.34435425,
+      "realized_blue_crowding_ratio": 1.51738358,
+      "realized_red_crowding_ratio": 1.17132492,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 73.08921905,
+      "auxiliary_score": -1.0,
+      "issue": "2025006",
+      "primary_score": 0.11195402,
+      "realized_blue_crowding_ratio": 1.1263052,
+      "realized_red_crowding_ratio": 1.09760284,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 85.4754886,
+      "auxiliary_score": -1.0,
+      "issue": "2025007",
+      "primary_score": 0.06648516,
+      "realized_blue_crowding_ratio": 1.13682308,
+      "realized_red_crowding_ratio": 0.99614724,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 31.27966546,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025008",
+      "primary_score": 0.07879743,
+      "realized_blue_crowding_ratio": 0.7198699,
+      "realized_red_crowding_ratio": 0.69071137,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 55.32602176,
+      "auxiliary_score": -1.0,
+      "issue": "2025009",
+      "primary_score": 0.0567769,
+      "realized_blue_crowding_ratio": 0.97860649,
+      "realized_red_crowding_ratio": 1.1349473,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 60.76806735,
+      "auxiliary_score": -1.0,
+      "issue": "2025010",
+      "primary_score": 0.27607914,
+      "realized_blue_crowding_ratio": 1.42695617,
+      "realized_red_crowding_ratio": 1.12520212,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 84.7416863,
+      "auxiliary_score": -1.0,
+      "issue": "2025011",
+      "primary_score": -0.17696496,
+      "realized_blue_crowding_ratio": 0.83405282,
+      "realized_red_crowding_ratio": 0.81201725,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 47.83086075,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025012",
+      "primary_score": 0.13291774,
+      "realized_blue_crowding_ratio": 0.80306501,
+      "realized_red_crowding_ratio": 0.9376105,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 58.19915242,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025013",
+      "primary_score": 0.10891001,
+      "realized_blue_crowding_ratio": 0.77208436,
+      "realized_red_crowding_ratio": 0.83796062,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 77.74859355,
+      "auxiliary_score": -1.0,
+      "issue": "2025014",
+      "primary_score": 0.35435154,
+      "realized_blue_crowding_ratio": 1.4588037,
+      "realized_red_crowding_ratio": 1.24989937,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 8.48681196,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025015",
+      "primary_score": 0.2315661,
+      "realized_blue_crowding_ratio": 0.79243693,
+      "realized_red_crowding_ratio": 1.11719375,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 83.17990224,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025016",
+      "primary_score": 0.21562926,
+      "realized_blue_crowding_ratio": 0.62590345,
+      "realized_red_crowding_ratio": 0.80776427,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 86.96957425,
+      "auxiliary_score": -1.0,
+      "issue": "2025017",
+      "primary_score": -0.09331251,
+      "realized_blue_crowding_ratio": 0.9222224,
+      "realized_red_crowding_ratio": 0.89115258,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 78.89761564,
+      "auxiliary_score": -1.0,
+      "issue": "2025018",
+      "primary_score": -0.042091,
+      "realized_blue_crowding_ratio": 0.96090624,
+      "realized_red_crowding_ratio": 0.95491176,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 42.41999053,
+      "auxiliary_score": 0.6,
+      "issue": "2025019",
+      "primary_score": 0.06697422,
+      "realized_blue_crowding_ratio": 0.93341815,
+      "realized_red_crowding_ratio": 0.98746838,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 88.25938411,
+      "auxiliary_score": 0.6,
+      "issue": "2025020",
+      "primary_score": 0.4008148,
+      "realized_blue_crowding_ratio": 0.71653795,
+      "realized_red_crowding_ratio": 1.17801308,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 33.35624343,
+      "auxiliary_score": 0.6,
+      "issue": "2025021",
+      "primary_score": 0.04024619,
+      "realized_blue_crowding_ratio": 0.91368651,
+      "realized_red_crowding_ratio": 0.89060269,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 46.05613639,
+      "auxiliary_score": -1.0,
+      "issue": "2025022",
+      "primary_score": -0.08892722,
+      "realized_blue_crowding_ratio": 0.90527403,
+      "realized_red_crowding_ratio": 0.91687154,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 15.78077795,
+      "auxiliary_score": -1.0,
+      "issue": "2025023",
+      "primary_score": 0.33324876,
+      "realized_blue_crowding_ratio": 1.4509402,
+      "realized_red_crowding_ratio": 1.21555732,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 17.8784301,
+      "auxiliary_score": 0.6,
+      "issue": "2025024",
+      "primary_score": 0.34959913,
+      "realized_blue_crowding_ratio": 0.68287563,
+      "realized_red_crowding_ratio": 1.00152465,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 39.01503701,
+      "auxiliary_score": -1.0,
+      "issue": "2025025",
+      "primary_score": -0.13370194,
+      "realized_blue_crowding_ratio": 0.94579235,
+      "realized_red_crowding_ratio": 0.78680378,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 38.69429567,
+      "auxiliary_score": -1.0,
+      "issue": "2025026",
+      "primary_score": 0.01996964,
+      "realized_blue_crowding_ratio": 1.11020496,
+      "realized_red_crowding_ratio": 0.92973432,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 80.79630168,
+      "auxiliary_score": -1.0,
+      "issue": "2025027",
+      "primary_score": 0.06695719,
+      "realized_blue_crowding_ratio": 0.96037474,
+      "realized_red_crowding_ratio": 1.17353964,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 57.82365501,
+      "auxiliary_score": 0.6,
+      "issue": "2025028",
+      "primary_score": 0.22068792,
+      "realized_blue_crowding_ratio": 0.7717445,
+      "realized_red_crowding_ratio": 0.93921374,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 2.67420704,
+      "auxiliary_score": 11.5,
+      "issue": "2025029",
+      "primary_score": 3.07705841,
+      "realized_blue_crowding_ratio": 0.80223791,
+      "realized_red_crowding_ratio": 0.73533838,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2025030",
+      "primary_score": -0.11607497,
+      "realized_blue_crowding_ratio": 1.00117562,
+      "realized_red_crowding_ratio": 0.76667443,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 89.8142286,
+      "auxiliary_score": -1.0,
+      "issue": "2025031",
+      "primary_score": 0.10723393,
+      "realized_blue_crowding_ratio": 1.05152992,
+      "realized_red_crowding_ratio": 1.16293793,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 68.20858264,
+      "auxiliary_score": -1.0,
+      "issue": "2025032",
+      "primary_score": 0.04574071,
+      "realized_blue_crowding_ratio": 1.0627292,
+      "realized_red_crowding_ratio": 1.02875222,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 12.57098802,
+      "auxiliary_score": -1.0,
+      "issue": "2025033",
+      "primary_score": 0.26492078,
+      "realized_blue_crowding_ratio": 1.39083327,
+      "realized_red_crowding_ratio": 1.13900828,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 72.52670785,
+      "auxiliary_score": -1.0,
+      "issue": "2025034",
+      "primary_score": 0.1381641,
+      "realized_blue_crowding_ratio": 1.22246634,
+      "realized_red_crowding_ratio": 1.05386187,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 60.74759159,
+      "auxiliary_score": 0.6,
+      "issue": "2025035",
+      "primary_score": 0.22698637,
+      "realized_blue_crowding_ratio": 0.73971911,
+      "realized_red_crowding_ratio": 0.88135478,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 30.35606661,
+      "auxiliary_score": -1.0,
+      "issue": "2025036",
+      "primary_score": 0.01820632,
+      "realized_blue_crowding_ratio": 1.16586685,
+      "realized_red_crowding_ratio": 0.87054578,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 90.50647472,
+      "auxiliary_score": -1.0,
+      "issue": "2025037",
+      "primary_score": -0.05705688,
+      "realized_blue_crowding_ratio": 0.90353661,
+      "realized_red_crowding_ratio": 0.98234964,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 8.30372132,
+      "auxiliary_score": -1.0,
+      "issue": "2025038",
+      "primary_score": 0.32420207,
+      "realized_blue_crowding_ratio": 1.60753705,
+      "realized_red_crowding_ratio": 1.04086708,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 55.87962408,
+      "auxiliary_score": -1.0,
+      "issue": "2025039",
+      "primary_score": 0.10742405,
+      "realized_blue_crowding_ratio": 1.1989869,
+      "realized_red_crowding_ratio": 1.0158612,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 88.54789921,
+      "auxiliary_score": 0.6,
+      "issue": "2025040",
+      "primary_score": -0.13548357,
+      "realized_blue_crowding_ratio": 1.17114299,
+      "realized_red_crowding_ratio": 1.10554744,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 77.82623864,
+      "auxiliary_score": -1.0,
+      "issue": "2025041",
+      "primary_score": 0.13908931,
+      "realized_blue_crowding_ratio": 1.20672098,
+      "realized_red_crowding_ratio": 1.07145763,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2025042",
+      "primary_score": -0.12624975,
+      "realized_blue_crowding_ratio": 0.89681848,
+      "realized_red_crowding_ratio": 0.85068202,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 16.81298405,
+      "auxiliary_score": -1.0,
+      "issue": "2025043",
+      "primary_score": 0.15642371,
+      "realized_blue_crowding_ratio": 1.28404441,
+      "realized_red_crowding_ratio": 1.02880301,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 78.12368992,
+      "auxiliary_score": -1.0,
+      "issue": "2025044",
+      "primary_score": -0.05259065,
+      "realized_blue_crowding_ratio": 0.8634781,
+      "realized_red_crowding_ratio": 1.0313406,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 5.464871,
+      "auxiliary_score": 0.6,
+      "issue": "2025045",
+      "primary_score": 0.13246722,
+      "realized_blue_crowding_ratio": 0.72952478,
+      "realized_red_crowding_ratio": 0.66988895,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 6.44658378,
+      "auxiliary_score": 0.6,
+      "issue": "2025046",
+      "primary_score": 0.16711413,
+      "realized_blue_crowding_ratio": 0.6721705,
+      "realized_red_crowding_ratio": 0.61300335,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 43.65717719,
+      "auxiliary_score": -1.0,
+      "issue": "2025047",
+      "primary_score": -0.20818516,
+      "realized_blue_crowding_ratio": 0.92807255,
+      "realized_red_crowding_ratio": 0.65555713,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 18.70007424,
+      "auxiliary_score": -1.0,
+      "issue": "2025048",
+      "primary_score": -0.10006189,
+      "realized_blue_crowding_ratio": 1.102153,
+      "realized_red_crowding_ratio": 0.69772322,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 16.57418648,
+      "auxiliary_score": -1.0,
+      "issue": "2025049",
+      "primary_score": 0.31898085,
+      "realized_blue_crowding_ratio": 1.21731395,
+      "realized_red_crowding_ratio": 1.42064775,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 30.74898972,
+      "auxiliary_score": -1.0,
+      "issue": "2025050",
+      "primary_score": -0.13700753,
+      "realized_blue_crowding_ratio": 0.86931846,
+      "realized_red_crowding_ratio": 0.85666648,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 53.80645419,
+      "auxiliary_score": 0.6,
+      "issue": "2025051",
+      "primary_score": 0.15312962,
+      "realized_blue_crowding_ratio": 0.83554465,
+      "realized_red_crowding_ratio": 0.94445748,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 67.28387727,
+      "auxiliary_score": -1.0,
+      "issue": "2025052",
+      "primary_score": 0.26089314,
+      "realized_blue_crowding_ratio": 1.24839807,
+      "realized_red_crowding_ratio": 1.27338822,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 30.40239102,
+      "auxiliary_score": -1.0,
+      "issue": "2025053",
+      "primary_score": 0.1093418,
+      "realized_blue_crowding_ratio": 1.1672531,
+      "realized_red_crowding_ratio": 1.05143051,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 85.49133646,
+      "auxiliary_score": 0.6,
+      "issue": "2025054",
+      "primary_score": 0.15565607,
+      "realized_blue_crowding_ratio": 0.75894023,
+      "realized_red_crowding_ratio": 0.78098065,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 3.02289966,
+      "auxiliary_score": 11.5,
+      "issue": "2025055",
+      "primary_score": 2.1954055,
+      "realized_blue_crowding_ratio": 0.92070546,
+      "realized_red_crowding_ratio": 0.8137456,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 53.42145014,
+      "auxiliary_score": -1.0,
+      "issue": "2025056",
+      "primary_score": -0.09428546,
+      "realized_blue_crowding_ratio": 1.00900696,
+      "realized_red_crowding_ratio": 0.80242211,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 96.40995611,
+      "auxiliary_score": -1.0,
+      "issue": "2025057",
+      "primary_score": 0.04901357,
+      "realized_blue_crowding_ratio": 0.73011847,
+      "realized_red_crowding_ratio": 1.36790867,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 89.79758294,
+      "auxiliary_score": -1.0,
+      "issue": "2025058",
+      "primary_score": 0.10995542,
+      "realized_blue_crowding_ratio": 1.01309632,
+      "realized_red_crowding_ratio": 1.20681452,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 61.56328754,
+      "auxiliary_score": 0.6,
+      "issue": "2025059",
+      "primary_score": 0.08680978,
+      "realized_blue_crowding_ratio": 0.89904599,
+      "realized_red_crowding_ratio": 0.95152076,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 83.0820667,
+      "auxiliary_score": 0.6,
+      "issue": "2025060",
+      "primary_score": 0.18656662,
+      "realized_blue_crowding_ratio": 0.72999808,
+      "realized_red_crowding_ratio": 0.77912902,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 35.19935129,
+      "auxiliary_score": -1.0,
+      "issue": "2025061",
+      "primary_score": 0.16245134,
+      "realized_blue_crowding_ratio": 1.14255794,
+      "realized_red_crowding_ratio": 1.18234474,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 94.48997421,
+      "auxiliary_score": 0.6,
+      "issue": "2025062",
+      "primary_score": 0.2393427,
+      "realized_blue_crowding_ratio": 0.76061151,
+      "realized_red_crowding_ratio": 0.95203073,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 72.79998707,
+      "auxiliary_score": 0.6,
+      "issue": "2025063",
+      "primary_score": 0.27592944,
+      "realized_blue_crowding_ratio": 0.58711332,
+      "realized_red_crowding_ratio": 0.64350819,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 2.79227748,
+      "auxiliary_score": 13.1,
+      "issue": "2025064",
+      "primary_score": 1.33600331,
+      "realized_blue_crowding_ratio": 0.79440609,
+      "realized_red_crowding_ratio": 0.9075125,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 31.13494439,
+      "auxiliary_score": -1.0,
+      "issue": "2025065",
+      "primary_score": 0.1143608,
+      "realized_blue_crowding_ratio": 1.23662768,
+      "realized_red_crowding_ratio": 0.99209391,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 50.21954737,
+      "auxiliary_score": -1.0,
+      "issue": "2025066",
+      "primary_score": 0.17502791,
+      "realized_blue_crowding_ratio": 1.3805487,
+      "realized_red_crowding_ratio": 0.96950711,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 49.17804013,
+      "auxiliary_score": -1.0,
+      "issue": "2025067",
+      "primary_score": 0.17586165,
+      "realized_blue_crowding_ratio": 1.2275781,
+      "realized_red_crowding_ratio": 1.1241452,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 51.58075056,
+      "auxiliary_score": -1.0,
+      "issue": "2025068",
+      "primary_score": 0.34479215,
+      "realized_blue_crowding_ratio": 1.12099804,
+      "realized_red_crowding_ratio": 1.56858626,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 82.68441931,
+      "auxiliary_score": -1.0,
+      "issue": "2025069",
+      "primary_score": -0.19092326,
+      "realized_blue_crowding_ratio": 0.79659108,
+      "realized_red_crowding_ratio": 0.8215624,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 4.26194725,
+      "auxiliary_score": 11.5,
+      "issue": "2025070",
+      "primary_score": 1.26800459,
+      "realized_blue_crowding_ratio": 1.0257998,
+      "realized_red_crowding_ratio": 0.89540794,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 94.16181768,
+      "auxiliary_score": -1.0,
+      "issue": "2025071",
+      "primary_score": 0.02129872,
+      "realized_blue_crowding_ratio": 1.02984067,
+      "realized_red_crowding_ratio": 1.01275677,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 78.69226009,
+      "auxiliary_score": -1.0,
+      "issue": "2025072",
+      "primary_score": -0.12492149,
+      "realized_blue_crowding_ratio": 0.90438001,
+      "realized_red_crowding_ratio": 0.84577701,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 5.12958476,
+      "auxiliary_score": -1.0,
+      "issue": "2025073",
+      "primary_score": 0.08240535,
+      "realized_blue_crowding_ratio": 0.99929308,
+      "realized_red_crowding_ratio": 1.16551762,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 11.47929962,
+      "auxiliary_score": -1.0,
+      "issue": "2025074",
+      "primary_score": -0.18985557,
+      "realized_blue_crowding_ratio": 0.8028706,
+      "realized_red_crowding_ratio": 0.81741825,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 31.99174475,
+      "auxiliary_score": 0.6,
+      "issue": "2025075",
+      "primary_score": -0.08390513,
+      "realized_blue_crowding_ratio": 1.12596816,
+      "realized_red_crowding_ratio": 1.10931968,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 72.58913794,
+      "auxiliary_score": -1.0,
+      "issue": "2025076",
+      "primary_score": 0.45472367,
+      "realized_blue_crowding_ratio": 1.66944035,
+      "realized_red_crowding_ratio": 1.24000698,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 75.12484113,
+      "auxiliary_score": 0.6,
+      "issue": "2025077",
+      "primary_score": 0.34946407,
+      "realized_blue_crowding_ratio": 0.63780536,
+      "realized_red_crowding_ratio": 0.90209992,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": 0.6,
+      "issue": "2025078",
+      "primary_score": 0.06999115,
+      "realized_blue_crowding_ratio": 0.82072888,
+      "realized_red_crowding_ratio": 0.74558583,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 15.67565358,
+      "auxiliary_score": -1.0,
+      "issue": "2025079",
+      "primary_score": -0.12173488,
+      "realized_blue_crowding_ratio": 1.02609558,
+      "realized_red_crowding_ratio": 0.73043465,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 92.15295213,
+      "auxiliary_score": -1.0,
+      "issue": "2025080",
+      "primary_score": -0.00253404,
+      "realized_blue_crowding_ratio": 0.80674904,
+      "realized_red_crowding_ratio": 1.18818288,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 93.69715107,
+      "auxiliary_score": -1.0,
+      "issue": "2025081",
+      "primary_score": -0.14929593,
+      "realized_blue_crowding_ratio": 0.74743496,
+      "realized_red_crowding_ratio": 0.95397318,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 21.12094165,
+      "auxiliary_score": -1.0,
+      "issue": "2025082",
+      "primary_score": 0.02247467,
+      "realized_blue_crowding_ratio": 1.09276439,
+      "realized_red_crowding_ratio": 0.95218496,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 57.94358407,
+      "auxiliary_score": -1.0,
+      "issue": "2025083",
+      "primary_score": 0.0308144,
+      "realized_blue_crowding_ratio": 1.04201467,
+      "realized_red_crowding_ratio": 1.01961412,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 24.6445367,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025084",
+      "primary_score": 0.09501101,
+      "realized_blue_crowding_ratio": 0.7434563,
+      "realized_red_crowding_ratio": 0.76244919,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 32.25906114,
+      "auxiliary_score": 0.6,
+      "issue": "2025085",
+      "primary_score": -0.034804,
+      "realized_blue_crowding_ratio": 0.86226155,
+      "realized_red_crowding_ratio": 0.62736743,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 84.5508809,
+      "auxiliary_score": -1.0,
+      "issue": "2025086",
+      "primary_score": 0.07268695,
+      "realized_blue_crowding_ratio": 1.05737367,
+      "realized_red_crowding_ratio": 1.08800022,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 30.68330138,
+      "auxiliary_score": -1.0,
+      "issue": "2025087",
+      "primary_score": 0.15851459,
+      "realized_blue_crowding_ratio": 1.30804134,
+      "realized_red_crowding_ratio": 1.00898785,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 62.50545422,
+      "auxiliary_score": -1.0,
+      "issue": "2025088",
+      "primary_score": -0.17409618,
+      "realized_blue_crowding_ratio": 0.86414718,
+      "realized_red_crowding_ratio": 0.78766046,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 29.56564889,
+      "auxiliary_score": -1.0,
+      "issue": "2025089",
+      "primary_score": -0.04078475,
+      "realized_blue_crowding_ratio": 0.98931582,
+      "realized_red_crowding_ratio": 0.92911467,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 72.5571018,
+      "auxiliary_score": 0.6,
+      "issue": "2025090",
+      "primary_score": 0.28597821,
+      "realized_blue_crowding_ratio": 0.73030894,
+      "realized_red_crowding_ratio": 0.97863609,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 43.38191677,
+      "auxiliary_score": 0.6,
+      "issue": "2025091",
+      "primary_score": 0.03230199,
+      "realized_blue_crowding_ratio": 0.93613572,
+      "realized_red_crowding_ratio": 0.92410255,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 62.39761735,
+      "auxiliary_score": 0.6,
+      "issue": "2025092",
+      "primary_score": 0.07300687,
+      "realized_blue_crowding_ratio": 0.93394744,
+      "realized_red_crowding_ratio": 1.00069811,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 52.49463846,
+      "auxiliary_score": -1.0,
+      "issue": "2025093",
+      "primary_score": 0.18222557,
+      "realized_blue_crowding_ratio": 1.24580695,
+      "realized_red_crowding_ratio": 1.11864419,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2025094",
+      "primary_score": -0.19358001,
+      "realized_blue_crowding_ratio": 0.84115031,
+      "realized_red_crowding_ratio": 0.77168967,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 12.99423159,
+      "auxiliary_score": -1.0,
+      "issue": "2025095",
+      "primary_score": -0.12109465,
+      "realized_blue_crowding_ratio": 0.8878669,
+      "realized_red_crowding_ratio": 0.8699438,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 93.56852508,
+      "auxiliary_score": 0.33333333,
+      "issue": "2025096",
+      "primary_score": 0.22813409,
+      "realized_blue_crowding_ratio": 0.76292836,
+      "realized_red_crowding_ratio": 1.06114877,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 89.35809783,
+      "auxiliary_score": 0.6,
+      "issue": "2025097",
+      "primary_score": 0.11021002,
+      "realized_blue_crowding_ratio": 0.79864398,
+      "realized_red_crowding_ratio": 0.7774368,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 91.51060521,
+      "auxiliary_score": -1.0,
+      "issue": "2025098",
+      "primary_score": 0.37038924,
+      "realized_blue_crowding_ratio": 1.14946551,
+      "realized_red_crowding_ratio": 1.59131298,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 53.92134122,
+      "auxiliary_score": 0.6,
+      "issue": "2025099",
+      "primary_score": 0.40908822,
+      "realized_blue_crowding_ratio": 0.52972587,
+      "realized_red_crowding_ratio": 0.78357335,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 42.61865741,
+      "auxiliary_score": 0.6,
+      "issue": "2025100",
+      "primary_score": 0.09791681,
+      "realized_blue_crowding_ratio": 0.80228066,
+      "realized_red_crowding_ratio": 0.76085106,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 93.61263423,
+      "auxiliary_score": -1.0,
+      "issue": "2025101",
+      "primary_score": 0.12287021,
+      "realized_blue_crowding_ratio": 1.03026423,
+      "realized_red_crowding_ratio": 1.21547618,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 47.10685821,
+      "auxiliary_score": -1.0,
+      "issue": "2025102",
+      "primary_score": 0.30384509,
+      "realized_blue_crowding_ratio": 1.3730432,
+      "realized_red_crowding_ratio": 1.23464699,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 39.05693883,
+      "auxiliary_score": 0.6,
+      "issue": "2025103",
+      "primary_score": 0.17780595,
+      "realized_blue_crowding_ratio": 0.6523663,
+      "realized_red_crowding_ratio": 0.59081776,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 7.70227466,
+      "auxiliary_score": 0.6,
+      "issue": "2025104",
+      "primary_score": 0.25209056,
+      "realized_blue_crowding_ratio": 0.65798839,
+      "realized_red_crowding_ratio": 0.75175558,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 62.45161303,
+      "auxiliary_score": -1.0,
+      "issue": "2025105",
+      "primary_score": 0.20555777,
+      "realized_blue_crowding_ratio": 1.23237954,
+      "realized_red_crowding_ratio": 1.178736,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 59.36292702,
+      "auxiliary_score": 0.6,
+      "issue": "2025106",
+      "primary_score": 0.12093146,
+      "realized_blue_crowding_ratio": 0.82321873,
+      "realized_red_crowding_ratio": 0.85294412,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 18.96854942,
+      "auxiliary_score": -1.0,
+      "issue": "2025107",
+      "primary_score": -0.14498,
+      "realized_blue_crowding_ratio": 0.82984474,
+      "realized_red_crowding_ratio": 0.88019527,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 13.3562308,
+      "auxiliary_score": -1.0,
+      "issue": "2025108",
+      "primary_score": 0.05822637,
+      "realized_blue_crowding_ratio": 1.14499619,
+      "realized_red_crowding_ratio": 0.97145655,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 66.25935418,
+      "auxiliary_score": -1.0,
+      "issue": "2025109",
+      "primary_score": 0.29504876,
+      "realized_blue_crowding_ratio": 1.22484537,
+      "realized_red_crowding_ratio": 1.36525215,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 71.97662215,
+      "auxiliary_score": -1.0,
+      "issue": "2025110",
+      "primary_score": -0.01589578,
+      "realized_blue_crowding_ratio": 1.15874986,
+      "realized_red_crowding_ratio": 0.80945859,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 21.40719588,
+      "auxiliary_score": -1.0,
+      "issue": "2025111",
+      "primary_score": -0.01487028,
+      "realized_blue_crowding_ratio": 1.13090282,
+      "realized_red_crowding_ratio": 0.83935662,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 22.00152861,
+      "auxiliary_score": -1.0,
+      "issue": "2025112",
+      "primary_score": -0.01626676,
+      "realized_blue_crowding_ratio": 0.99886648,
+      "realized_red_crowding_ratio": 0.9686,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 71.07038831,
+      "auxiliary_score": 0.6,
+      "issue": "2025113",
+      "primary_score": 0.21424668,
+      "realized_blue_crowding_ratio": 0.70323383,
+      "realized_red_crowding_ratio": 0.77560778,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 54.98899173,
+      "auxiliary_score": -1.0,
+      "issue": "2025114",
+      "primary_score": -0.14611589,
+      "realized_blue_crowding_ratio": 0.96753411,
+      "realized_red_crowding_ratio": 0.7402341,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 83.20734341,
+      "auxiliary_score": -1.0,
+      "issue": "2025115",
+      "primary_score": -0.06729062,
+      "realized_blue_crowding_ratio": 0.66901116,
+      "realized_red_crowding_ratio": 1.19640761,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 40.20742726,
+      "auxiliary_score": -1.0,
+      "issue": "2025116",
+      "primary_score": 0.52385097,
+      "realized_blue_crowding_ratio": 1.89908549,
+      "realized_red_crowding_ratio": 1.14861646,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 29.47634597,
+      "auxiliary_score": -1.0,
+      "issue": "2025117",
+      "primary_score": -0.16258882,
+      "realized_blue_crowding_ratio": 0.80536623,
+      "realized_red_crowding_ratio": 0.86945613,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 83.7615442,
+      "auxiliary_score": -1.0,
+      "issue": "2025118",
+      "primary_score": -0.04168049,
+      "realized_blue_crowding_ratio": 0.96712739,
+      "realized_red_crowding_ratio": 0.94951163,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 27.94573809,
+      "auxiliary_score": -1.0,
+      "issue": "2025119",
+      "primary_score": 0.29994789,
+      "realized_blue_crowding_ratio": 1.33139702,
+      "realized_red_crowding_ratio": 1.26849877,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 23.97638637,
+      "auxiliary_score": -1.0,
+      "issue": "2025120",
+      "primary_score": -0.02934563,
+      "realized_blue_crowding_ratio": 1.14352211,
+      "realized_red_crowding_ratio": 0.79778662,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 93.59409089,
+      "auxiliary_score": -1.0,
+      "issue": "2025121",
+      "primary_score": 0.38124248,
+      "realized_blue_crowding_ratio": 1.18656441,
+      "realized_red_crowding_ratio": 1.57592054,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 63.71629426,
+      "auxiliary_score": 0.6,
+      "issue": "2025122",
+      "primary_score": 0.08438567,
+      "realized_blue_crowding_ratio": 0.84140909,
+      "realized_red_crowding_ratio": 0.81987134,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 51.79664143,
+      "auxiliary_score": -1.0,
+      "issue": "2025123",
+      "primary_score": -0.04734052,
+      "realized_blue_crowding_ratio": 0.88933434,
+      "realized_red_crowding_ratio": 1.01598462,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 20.72637568,
+      "auxiliary_score": 0.6,
+      "issue": "2025124",
+      "primary_score": 0.22145559,
+      "realized_blue_crowding_ratio": 0.63423846,
+      "realized_red_crowding_ratio": 0.63823579,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 30.61063659,
+      "auxiliary_score": -1.0,
+      "issue": "2025125",
+      "primary_score": 0.27701509,
+      "realized_blue_crowding_ratio": 1.25528513,
+      "realized_red_crowding_ratio": 1.29874505,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 37.97145261,
+      "auxiliary_score": -1.0,
+      "issue": "2025126",
+      "primary_score": -0.13366929,
+      "realized_blue_crowding_ratio": 0.97194367,
+      "realized_red_crowding_ratio": 0.76071774,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 67.31204875,
+      "auxiliary_score": -1.0,
+      "issue": "2025127",
+      "primary_score": 0.14916336,
+      "realized_blue_crowding_ratio": 1.11849471,
+      "realized_red_crowding_ratio": 1.17983201,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 83.65573919,
+      "auxiliary_score": -1.0,
+      "issue": "2025128",
+      "primary_score": 0.463268,
+      "realized_blue_crowding_ratio": 1.50835914,
+      "realized_red_crowding_ratio": 1.41817686,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 61.3421932,
+      "auxiliary_score": -1.0,
+      "issue": "2025129",
+      "primary_score": -0.09293774,
+      "realized_blue_crowding_ratio": 0.80643971,
+      "realized_red_crowding_ratio": 1.0076848,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 88.5305651,
+      "auxiliary_score": -1.0,
+      "issue": "2025130",
+      "primary_score": 0.53582411,
+      "realized_blue_crowding_ratio": 1.33878226,
+      "realized_red_crowding_ratio": 1.73286596,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 70.73783076,
+      "auxiliary_score": -1.0,
+      "issue": "2025131",
+      "primary_score": -0.18487151,
+      "realized_blue_crowding_ratio": 0.78431857,
+      "realized_red_crowding_ratio": 0.84593841,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 45.7470281,
+      "auxiliary_score": -1.0,
+      "issue": "2025132",
+      "primary_score": 0.05721359,
+      "realized_blue_crowding_ratio": 1.17861532,
+      "realized_red_crowding_ratio": 0.93581186,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 30.36423353,
+      "auxiliary_score": -1.0,
+      "issue": "2025133",
+      "primary_score": 0.33548236,
+      "realized_blue_crowding_ratio": 1.34080429,
+      "realized_red_crowding_ratio": 1.33016044,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 81.58384311,
+      "auxiliary_score": -1.0,
+      "issue": "2025134",
+      "primary_score": 0.11316264,
+      "realized_blue_crowding_ratio": 1.0368954,
+      "realized_red_crowding_ratio": 1.18942988,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 19.67678611,
+      "auxiliary_score": -1.0,
+      "issue": "2025135",
+      "primary_score": -0.00849303,
+      "realized_blue_crowding_ratio": 1.05190411,
+      "realized_red_crowding_ratio": 0.93110984,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 18.15711047,
+      "auxiliary_score": -1.0,
+      "issue": "2025136",
+      "primary_score": -0.11177214,
+      "realized_blue_crowding_ratio": 0.82592837,
+      "realized_red_crowding_ratio": 0.95052735,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 60.07430124,
+      "auxiliary_score": -1.0,
+      "issue": "2025137",
+      "primary_score": 0.16638802,
+      "realized_blue_crowding_ratio": 1.23693483,
+      "realized_red_crowding_ratio": 1.09584121,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 23.21105697,
+      "auxiliary_score": 0.6,
+      "issue": "2025138",
+      "primary_score": -0.19080293,
+      "realized_blue_crowding_ratio": 1.0789794,
+      "realized_red_crowding_ratio": 0.79214883,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 11.03120538,
+      "auxiliary_score": -1.0,
+      "issue": "2025139",
+      "primary_score": 0.01092988,
+      "realized_blue_crowding_ratio": 1.00330797,
+      "realized_red_crowding_ratio": 1.01855179,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 89.34514903,
+      "auxiliary_score": -1.0,
+      "issue": "2025140",
+      "primary_score": -0.088176,
+      "realized_blue_crowding_ratio": 0.85506266,
+      "realized_red_crowding_ratio": 0.96858534,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2025141",
+      "primary_score": -0.07554452,
+      "realized_blue_crowding_ratio": 0.85720383,
+      "realized_red_crowding_ratio": 0.99170714,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 24.17261919,
+      "auxiliary_score": -1.0,
+      "issue": "2025142",
+      "primary_score": -0.17234883,
+      "realized_blue_crowding_ratio": 0.96434953,
+      "realized_red_crowding_ratio": 0.69095281,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 33.58233501,
+      "auxiliary_score": -1.0,
+      "issue": "2025143",
+      "primary_score": -0.19964409,
+      "realized_blue_crowding_ratio": 0.81101177,
+      "realized_red_crowding_ratio": 0.78970005,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 15.35790268,
+      "auxiliary_score": 0.6,
+      "issue": "2025144",
+      "primary_score": 0.01654243,
+      "realized_blue_crowding_ratio": 0.8779651,
+      "realized_red_crowding_ratio": 0.76460806,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 25.0623138,
+      "auxiliary_score": 0.6,
+      "issue": "2025145",
+      "primary_score": -0.07554715,
+      "realized_blue_crowding_ratio": 1.01969126,
+      "realized_red_crowding_ratio": 0.89222647,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 95.15121671,
+      "auxiliary_score": -1.0,
+      "issue": "2025146",
+      "primary_score": -0.01483339,
+      "realized_blue_crowding_ratio": 0.90624762,
+      "realized_red_crowding_ratio": 1.0640856,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 27.34743815,
+      "auxiliary_score": -1.0,
+      "issue": "2025147",
+      "primary_score": 0.1994794,
+      "realized_blue_crowding_ratio": 1.29646151,
+      "realized_red_crowding_ratio": 1.1024973,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 58.36183639,
+      "auxiliary_score": 0.6,
+      "issue": "2025148",
+      "primary_score": 0.19864137,
+      "realized_blue_crowding_ratio": 0.80789311,
+      "realized_red_crowding_ratio": 0.97464758,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 62.57350746,
+      "auxiliary_score": -1.0,
+      "issue": "2025149",
+      "primary_score": -0.04791872,
+      "realized_blue_crowding_ratio": 0.97393957,
+      "realized_red_crowding_ratio": 0.93022299,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 83.24771326,
+      "auxiliary_score": -1.0,
+      "issue": "2025150",
+      "primary_score": 0.00523155,
+      "realized_blue_crowding_ratio": 0.98099836,
+      "realized_red_crowding_ratio": 1.02946474,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 81.60597528,
+      "auxiliary_score": -1.0,
+      "issue": "2025151",
+      "primary_score": 0.09959964,
+      "realized_blue_crowding_ratio": 1.10679995,
+      "realized_red_crowding_ratio": 1.09239933,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 35.55194527,
+      "auxiliary_score": 0.6,
+      "issue": "2026001",
+      "primary_score": 0.02063876,
+      "realized_blue_crowding_ratio": 0.95462726,
+      "realized_red_crowding_ratio": 0.94145748,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 28.74885687,
+      "auxiliary_score": -1.0,
+      "issue": "2026002",
+      "primary_score": -0.12302542,
+      "realized_blue_crowding_ratio": 0.75769689,
+      "realized_red_crowding_ratio": 0.99625227,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 93.04424042,
+      "auxiliary_score": 0.6,
+      "issue": "2026003",
+      "primary_score": 0.10713044,
+      "realized_blue_crowding_ratio": 0.85804239,
+      "realized_red_crowding_ratio": 0.90195414,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 45.86095706,
+      "auxiliary_score": -1.0,
+      "issue": "2026004",
+      "primary_score": 0.2015676,
+      "realized_blue_crowding_ratio": 1.08742666,
+      "realized_red_crowding_ratio": 1.31570853,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 11.40195107,
+      "auxiliary_score": 0.6,
+      "issue": "2026005",
+      "primary_score": -0.1171091,
+      "realized_blue_crowding_ratio": 0.99529254,
+      "realized_red_crowding_ratio": 0.75542538,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 53.17710046,
+      "auxiliary_score": 0.6,
+      "issue": "2026006",
+      "primary_score": 0.28310762,
+      "realized_blue_crowding_ratio": 0.71481167,
+      "realized_red_crowding_ratio": 0.93880092,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 80.50752234,
+      "auxiliary_score": -1.0,
+      "issue": "2026007",
+      "primary_score": 0.10464852,
+      "realized_blue_crowding_ratio": 1.02045087,
+      "realized_red_crowding_ratio": 1.18884616,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 14.73390916,
+      "auxiliary_score": -1.0,
+      "issue": "2026008",
+      "primary_score": -0.15004892,
+      "realized_blue_crowding_ratio": 0.81667942,
+      "realized_red_crowding_ratio": 0.88322274,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 48.69069733,
+      "auxiliary_score": 0.6,
+      "issue": "2026009",
+      "primary_score": 0.30932666,
+      "realized_blue_crowding_ratio": 0.82244072,
+      "realized_red_crowding_ratio": 1.22802291,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 89.77255227,
+      "auxiliary_score": -1.0,
+      "issue": "2026010",
+      "primary_score": 0.17677344,
+      "realized_blue_crowding_ratio": 0.91476923,
+      "realized_red_crowding_ratio": 1.43877764,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 8.36326233,
+      "auxiliary_score": -1.0,
+      "issue": "2026011",
+      "primary_score": -0.23993164,
+      "realized_blue_crowding_ratio": 0.8158125,
+      "realized_red_crowding_ratio": 0.70432423,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 43.82185574,
+      "auxiliary_score": -1.0,
+      "issue": "2026012",
+      "primary_score": 0.16682462,
+      "realized_blue_crowding_ratio": 1.24453885,
+      "realized_red_crowding_ratio": 1.08911039,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 55.99695418,
+      "auxiliary_score": -1.0,
+      "issue": "2026013",
+      "primary_score": -0.1766933,
+      "realized_blue_crowding_ratio": 0.83754118,
+      "realized_red_crowding_ratio": 0.80907221,
+      "selected_policy_id": "P_R01_005_B05"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 28.64894566,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026014",
+      "primary_score": 0.143718,
+      "realized_blue_crowding_ratio": 0.69358327,
+      "realized_red_crowding_ratio": 0.77674146,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 28.08655296,
+      "auxiliary_score": -1.0,
+      "issue": "2026015",
+      "primary_score": -0.18406878,
+      "realized_blue_crowding_ratio": 0.82066785,
+      "realized_red_crowding_ratio": 0.8111946,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 61.18178517,
+      "auxiliary_score": -1.0,
+      "issue": "2026016",
+      "primary_score": 0.09915962,
+      "realized_blue_crowding_ratio": 0.87025017,
+      "realized_red_crowding_ratio": 1.32806908,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 27.03363519,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026017",
+      "primary_score": 0.09398387,
+      "realized_blue_crowding_ratio": 0.8345032,
+      "realized_red_crowding_ratio": 0.91213974,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 43.88621339,
+      "auxiliary_score": -1.0,
+      "issue": "2026018",
+      "primary_score": 0.33304153,
+      "realized_blue_crowding_ratio": 1.46280457,
+      "realized_red_crowding_ratio": 1.20327849,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 52.98222132,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026019",
+      "primary_score": 0.07609356,
+      "realized_blue_crowding_ratio": 0.89061705,
+      "realized_red_crowding_ratio": 0.96988221,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 33.50352779,
+      "auxiliary_score": -1.0,
+      "issue": "2026020",
+      "primary_score": -0.26254083,
+      "realized_blue_crowding_ratio": 0.82542058,
+      "realized_red_crowding_ratio": 0.64949777,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 30.95631475,
+      "auxiliary_score": -1.0,
+      "issue": "2026021",
+      "primary_score": -0.17843868,
+      "realized_blue_crowding_ratio": 0.82469836,
+      "realized_red_crowding_ratio": 0.81842427,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 15.55392258,
+      "auxiliary_score": -1.0,
+      "issue": "2026022",
+      "primary_score": 0.07498242,
+      "realized_blue_crowding_ratio": 1.14488201,
+      "realized_red_crowding_ratio": 1.00508282,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 87.17438547,
+      "auxiliary_score": -1.0,
+      "issue": "2026023",
+      "primary_score": 0.08775326,
+      "realized_blue_crowding_ratio": 1.13086457,
+      "realized_red_crowding_ratio": 1.04464195,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 20.52628777,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026024",
+      "primary_score": -0.01444073,
+      "realized_blue_crowding_ratio": 0.77192419,
+      "realized_red_crowding_ratio": 0.59099219,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 23.45860101,
+      "auxiliary_score": -1.0,
+      "issue": "2026025",
+      "primary_score": -0.05752016,
+      "realized_blue_crowding_ratio": 1.02512446,
+      "realized_red_crowding_ratio": 0.85983523,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 90.48295806,
+      "auxiliary_score": -1.0,
+      "issue": "2026026",
+      "primary_score": 0.06677925,
+      "realized_blue_crowding_ratio": 1.09780813,
+      "realized_red_crowding_ratio": 1.03575037,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 35.35440436,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026027",
+      "primary_score": 0.06390759,
+      "realized_blue_crowding_ratio": 0.94193228,
+      "realized_red_crowding_ratio": 1.03103566,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 58.48750967,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026028",
+      "primary_score": 0.11515236,
+      "realized_blue_crowding_ratio": 0.80258551,
+      "realized_red_crowding_ratio": 0.90128056,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 49.18987313,
+      "auxiliary_score": -1.0,
+      "issue": "2026029",
+      "primary_score": 0.06439828,
+      "realized_blue_crowding_ratio": 1.1923357,
+      "realized_red_crowding_ratio": 0.93646087,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 28.84515568,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026030",
+      "primary_score": 0.03474774,
+      "realized_blue_crowding_ratio": 0.86869344,
+      "realized_red_crowding_ratio": 0.85065122,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 22.50606977,
+      "auxiliary_score": -1.0,
+      "issue": "2026031",
+      "primary_score": 0.28105572,
+      "realized_blue_crowding_ratio": 1.39041915,
+      "realized_red_crowding_ratio": 1.17169229,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 3.58891337,
+      "auxiliary_score": 12.83333333,
+      "issue": "2026032",
+      "primary_score": 1.75421844,
+      "realized_blue_crowding_ratio": 0.85134226,
+      "realized_red_crowding_ratio": 0.86413858,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 85.1703624,
+      "auxiliary_score": -1.0,
+      "issue": "2026033",
+      "primary_score": 0.03380513,
+      "realized_blue_crowding_ratio": 1.05322016,
+      "realized_red_crowding_ratio": 1.0143901,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 31.58449104,
+      "auxiliary_score": -1.0,
+      "issue": "2026034",
+      "primary_score": 0.1094601,
+      "realized_blue_crowding_ratio": 1.18918364,
+      "realized_red_crowding_ratio": 1.02973655,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 31.17667078,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026035",
+      "primary_score": 0.2120213,
+      "realized_blue_crowding_ratio": 0.69981564,
+      "realized_red_crowding_ratio": 0.92373533,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 49.70330838,
+      "auxiliary_score": -1.0,
+      "issue": "2026036",
+      "primary_score": 0.19114896,
+      "realized_blue_crowding_ratio": 1.25794551,
+      "realized_red_crowding_ratio": 1.12435241,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 9.109697,
+      "auxiliary_score": -1.0,
+      "issue": "2026037",
+      "primary_score": 0.00566616,
+      "realized_blue_crowding_ratio": 1.02852776,
+      "realized_red_crowding_ratio": 0.98280456,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 29.52754596,
+      "auxiliary_score": -1.0,
+      "issue": "2026038",
+      "primary_score": 0.02907662,
+      "realized_blue_crowding_ratio": 1.13548403,
+      "realized_red_crowding_ratio": 0.9226692,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 74.59077717,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026039",
+      "primary_score": 0.15762619,
+      "realized_blue_crowding_ratio": 0.81238389,
+      "realized_red_crowding_ratio": 1.00255886,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 7.47043776,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026040",
+      "primary_score": 0.08071845,
+      "realized_blue_crowding_ratio": 0.82916611,
+      "realized_red_crowding_ratio": 0.87671375,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 84.09413908,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026041",
+      "primary_score": 0.15162208,
+      "realized_blue_crowding_ratio": 0.83222758,
+      "realized_red_crowding_ratio": 1.02362345,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 28.75782013,
+      "auxiliary_score": -1.0,
+      "issue": "2026042",
+      "primary_score": 0.00730599,
+      "realized_blue_crowding_ratio": 1.02199831,
+      "realized_red_crowding_ratio": 0.99261366,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 62.91722001,
+      "auxiliary_score": -1.0,
+      "issue": "2026043",
+      "primary_score": 0.16714745,
+      "realized_blue_crowding_ratio": 0.95448215,
+      "realized_red_crowding_ratio": 1.37981274,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 35.1313249,
+      "auxiliary_score": -1.0,
+      "issue": "2026044",
+      "primary_score": -0.15969211,
+      "realized_blue_crowding_ratio": 0.91764845,
+      "realized_red_crowding_ratio": 0.76296733,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 37.09599376,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026045",
+      "primary_score": 0.02870456,
+      "realized_blue_crowding_ratio": 0.83445468,
+      "realized_red_crowding_ratio": 0.78150025,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 18.63901979,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026046",
+      "primary_score": 0.14659009,
+      "realized_blue_crowding_ratio": 0.67216737,
+      "realized_red_crowding_ratio": 0.74679247,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 37.91192025,
+      "auxiliary_score": -1.0,
+      "issue": "2026047",
+      "primary_score": 0.05346028,
+      "realized_blue_crowding_ratio": 1.14571941,
+      "realized_red_crowding_ratio": 0.96120115,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 23.80189613,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026048",
+      "primary_score": 0.09627064,
+      "realized_blue_crowding_ratio": 0.73551014,
+      "realized_red_crowding_ratio": 0.75172485,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 29.73487855,
+      "auxiliary_score": -1.0,
+      "issue": "2026049",
+      "primary_score": -0.10604566,
+      "realized_blue_crowding_ratio": 0.97604481,
+      "realized_red_crowding_ratio": 0.81186388,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 80.26014965,
+      "auxiliary_score": -1.0,
+      "issue": "2026050",
+      "primary_score": -0.01631268,
+      "realized_blue_crowding_ratio": 0.98642789,
+      "realized_red_crowding_ratio": 0.98094675,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 47.42317239,
+      "auxiliary_score": -1.0,
+      "issue": "2026051",
+      "primary_score": -0.00655962,
+      "realized_blue_crowding_ratio": 1.03657773,
+      "realized_red_crowding_ratio": 0.95030303,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 78.43218152,
+      "auxiliary_score": -1.0,
+      "issue": "2026052",
+      "primary_score": 0.14623937,
+      "realized_blue_crowding_ratio": 1.05897505,
+      "realized_red_crowding_ratio": 1.2335037,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2026053",
+      "primary_score": -0.1344287,
+      "realized_blue_crowding_ratio": 0.79377209,
+      "realized_red_crowding_ratio": 0.93737051,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 5.32096626,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026054",
+      "primary_score": 0.1221038,
+      "realized_blue_crowding_ratio": 0.64378026,
+      "realized_red_crowding_ratio": 0.65050803,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 0.8210599,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026055",
+      "primary_score": -0.01837001,
+      "realized_blue_crowding_ratio": 0.89630675,
+      "realized_red_crowding_ratio": 0.79043789,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 15.3380491,
+      "auxiliary_score": -1.0,
+      "issue": "2026056",
+      "primary_score": -0.12145511,
+      "realized_blue_crowding_ratio": 0.9798585,
+      "realized_red_crowding_ratio": 0.77723128,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 29.4777329,
+      "auxiliary_score": -1.0,
+      "issue": "2026057",
+      "primary_score": -0.06642504,
+      "realized_blue_crowding_ratio": 1.05798952,
+      "realized_red_crowding_ratio": 0.8091604,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 42.05610053,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026058",
+      "primary_score": 0.0481358,
+      "realized_blue_crowding_ratio": 0.88722486,
+      "realized_red_crowding_ratio": 0.90831302,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 78.08463087,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026059",
+      "primary_score": 0.11354699,
+      "realized_blue_crowding_ratio": 0.71884602,
+      "realized_red_crowding_ratio": 0.758504,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 95.18106191,
+      "auxiliary_score": -1.0,
+      "issue": "2026060",
+      "primary_score": -0.02893917,
+      "realized_blue_crowding_ratio": 0.78337108,
+      "realized_red_crowding_ratio": 1.15875057,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 83.58821332,
+      "auxiliary_score": -1.0,
+      "issue": "2026061",
+      "primary_score": 0.04737156,
+      "realized_blue_crowding_ratio": 1.05442703,
+      "realized_red_crowding_ratio": 1.0403161,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 59.29864354,
+      "auxiliary_score": -1.0,
+      "issue": "2026062",
+      "primary_score": 1.1224131,
+      "realized_blue_crowding_ratio": 2.33533637,
+      "realized_red_crowding_ratio": 1.90948983,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 37.5452976,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026063",
+      "primary_score": -0.02815616,
+      "realized_blue_crowding_ratio": 1.11276016,
+      "realized_red_crowding_ratio": 1.13162129,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 37.80548553,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026064",
+      "primary_score": 0.24865173,
+      "realized_blue_crowding_ratio": 0.63201612,
+      "realized_red_crowding_ratio": 0.883997,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 28.33386569,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026065",
+      "primary_score": 0.1589565,
+      "realized_blue_crowding_ratio": 0.72335603,
+      "realized_red_crowding_ratio": 0.85683971,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 39.50226821,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026066",
+      "primary_score": -0.03250854,
+      "realized_blue_crowding_ratio": 0.94376369,
+      "realized_red_crowding_ratio": 0.84125574,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 13.15721929,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026067",
+      "primary_score": 0.01877175,
+      "realized_blue_crowding_ratio": 0.78965462,
+      "realized_red_crowding_ratio": 0.68696788,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 21.57782062,
+      "auxiliary_score": -1.0,
+      "issue": "2026068",
+      "primary_score": -0.00657872,
+      "realized_blue_crowding_ratio": 1.08234151,
+      "realized_red_crowding_ratio": 0.90450106,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 3.08926813,
+      "auxiliary_score": 11.5,
+      "issue": "2026069",
+      "primary_score": 0.26873965,
+      "realized_blue_crowding_ratio": 1.51740759,
+      "realized_red_crowding_ratio": 0.99916368,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 84.10363027,
+      "auxiliary_score": -1.0,
+      "issue": "2026070",
+      "primary_score": 0.02867196,
+      "realized_blue_crowding_ratio": 0.93796719,
+      "realized_red_crowding_ratio": 1.11937674,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 5.44645471,
+      "auxiliary_score": -1.0,
+      "issue": "2026071",
+      "primary_score": 0.14433601,
+      "realized_blue_crowding_ratio": 1.02143499,
+      "realized_red_crowding_ratio": 1.26723704,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 54.50057608,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026072",
+      "primary_score": 0.101619,
+      "realized_blue_crowding_ratio": 0.76667767,
+      "realized_red_crowding_ratio": 0.81436745,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 76.28649,
+      "auxiliary_score": -1.0,
+      "issue": "2026073",
+      "primary_score": -0.06786587,
+      "realized_blue_crowding_ratio": 0.95762457,
+      "realized_red_crowding_ratio": 0.9066437,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 19.94663153,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026074",
+      "primary_score": 0.0037334,
+      "realized_blue_crowding_ratio": 0.85946239,
+      "realized_red_crowding_ratio": 0.77323744,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 50.883232,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026075",
+      "primary_score": 0.15343889,
+      "realized_blue_crowding_ratio": 0.68587909,
+      "realized_red_crowding_ratio": 0.78334294,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 44.27833738,
+      "auxiliary_score": -1.0,
+      "issue": "2026076",
+      "primary_score": 0.22988565,
+      "realized_blue_crowding_ratio": 1.33995741,
+      "realized_red_crowding_ratio": 1.11981388,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 45.55113829,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026077",
+      "primary_score": 0.09833098,
+      "realized_blue_crowding_ratio": 0.77732896,
+      "realized_red_crowding_ratio": 0.82554356,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 80.30747235,
+      "auxiliary_score": -1.0,
+      "issue": "2026078",
+      "primary_score": 0.18382117,
+      "realized_blue_crowding_ratio": 1.05680302,
+      "realized_red_crowding_ratio": 1.31083932,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 77.05536099,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026079",
+      "primary_score": 0.1393418,
+      "realized_blue_crowding_ratio": 0.65825677,
+      "realized_red_crowding_ratio": 0.70911156,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 34.01179924,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026080",
+      "primary_score": 0.11655801,
+      "realized_blue_crowding_ratio": 0.76399786,
+      "realized_red_crowding_ratio": 0.83977912,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 87.88961644,
+      "auxiliary_score": -1.0,
+      "issue": "2026081",
+      "primary_score": 0.09985863,
+      "realized_blue_crowding_ratio": 1.09447938,
+      "realized_red_crowding_ratio": 1.10523788,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 67.88100372,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026082",
+      "primary_score": 0.20188784,
+      "realized_blue_crowding_ratio": 0.77160526,
+      "realized_red_crowding_ratio": 1.02311778,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 4.79146941,
+      "auxiliary_score": 11.5,
+      "issue": "2026083",
+      "primary_score": 2.2449803,
+      "realized_blue_crowding_ratio": 0.94678148,
+      "realized_red_crowding_ratio": 0.81070087,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2026084",
+      "primary_score": -0.04232481,
+      "realized_blue_crowding_ratio": 0.94797835,
+      "realized_red_crowding_ratio": 0.96737203,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 97.15048121,
+      "auxiliary_score": -1.0,
+      "issue": "2026085",
+      "primary_score": 0.00322848,
+      "realized_blue_crowding_ratio": 0.87769259,
+      "realized_red_crowding_ratio": 1.12876438,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 10.95232391,
+      "auxiliary_score": -1.0,
+      "issue": "2026086",
+      "primary_score": 0.01308287,
+      "realized_blue_crowding_ratio": 0.84615711,
+      "realized_red_crowding_ratio": 1.18000864,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 98.26994521,
+      "auxiliary_score": -1.0,
+      "issue": "2026087",
+      "primary_score": -0.06842914,
+      "realized_blue_crowding_ratio": 0.94846652,
+      "realized_red_crowding_ratio": 0.9146752,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 35.41787872,
+      "auxiliary_score": -1.0,
+      "issue": "2026088",
+      "primary_score": 0.05067189,
+      "realized_blue_crowding_ratio": 0.81967347,
+      "realized_red_crowding_ratio": 1.2816703,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 3.19289003,
+      "auxiliary_score": 11.5,
+      "issue": "2026089",
+      "primary_score": 2.12042492,
+      "realized_blue_crowding_ratio": 0.78796165,
+      "realized_red_crowding_ratio": 0.81446299,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 38.27047592,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026090",
+      "primary_score": 0.0832699,
+      "realized_blue_crowding_ratio": 0.69286399,
+      "realized_red_crowding_ratio": 0.65464645,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 44.02075802,
+      "auxiliary_score": -1.0,
+      "issue": "2026091",
+      "primary_score": -0.15866886,
+      "realized_blue_crowding_ratio": 0.94459203,
+      "realized_red_crowding_ratio": 0.73807025,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 50.25671836,
+      "auxiliary_score": -1.0,
+      "issue": "2026092",
+      "primary_score": -0.05524913,
+      "realized_blue_crowding_ratio": 0.98648609,
+      "realized_red_crowding_ratio": 0.90301566,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 55.23451633,
+      "auxiliary_score": -1.0,
+      "issue": "2026093",
+      "primary_score": 0.24168218,
+      "realized_blue_crowding_ratio": 1.32263049,
+      "realized_red_crowding_ratio": 1.16073387,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 1,
+      "actual_red_liability_pct": 25.45347556,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026094",
+      "primary_score": 0.11340801,
+      "realized_blue_crowding_ratio": 0.69722389,
+      "realized_red_crowding_ratio": 0.72218917,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 6.60157368,
+      "auxiliary_score": -1.0,
+      "issue": "2026095",
+      "primary_score": -0.02691302,
+      "realized_blue_crowding_ratio": 1.05218165,
+      "realized_red_crowding_ratio": 0.89399231,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 37.8960217,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026096",
+      "primary_score": -0.00644218,
+      "realized_blue_crowding_ratio": 0.86433918,
+      "realized_red_crowding_ratio": 0.76101428,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 11,
+      "actual_red_liability_pct": 53.50170306,
+      "auxiliary_score": -1.0,
+      "issue": "2026097",
+      "primary_score": -0.1024308,
+      "realized_blue_crowding_ratio": 0.88518136,
+      "realized_red_crowding_ratio": 0.90995704,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 62.8175232,
+      "auxiliary_score": -1.0,
+      "issue": "2026098",
+      "primary_score": 0.19848617,
+      "realized_blue_crowding_ratio": 1.32573736,
+      "realized_red_crowding_ratio": 1.07123499,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 5,
+      "actual_red_liability_pct": 32.27711704,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026099",
+      "primary_score": 0.04714017,
+      "realized_blue_crowding_ratio": 0.70629586,
+      "realized_red_crowding_ratio": 0.60477344,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 61.64881537,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026100",
+      "primary_score": 0.08159057,
+      "realized_blue_crowding_ratio": 0.94205883,
+      "realized_red_crowding_ratio": 1.06661251,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 94.47567804,
+      "auxiliary_score": -1.0,
+      "issue": "2026101",
+      "primary_score": 0.10343284,
+      "realized_blue_crowding_ratio": 0.87728257,
+      "realized_red_crowding_ratio": 1.32958311,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 65.01478235,
+      "auxiliary_score": -1.0,
+      "issue": "2026102",
+      "primary_score": 0.16820763,
+      "realized_blue_crowding_ratio": 1.36596993,
+      "realized_red_crowding_ratio": 0.97044533,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 69.04955653,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026103",
+      "primary_score": 0.1191522,
+      "realized_blue_crowding_ratio": 0.7854137,
+      "realized_red_crowding_ratio": 0.88066058,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 28.08380786,
+      "auxiliary_score": -1.0,
+      "issue": "2026104",
+      "primary_score": -0.05822882,
+      "realized_blue_crowding_ratio": 0.92687473,
+      "realized_red_crowding_ratio": 0.95666763,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 30.17063873,
+      "auxiliary_score": -1.0,
+      "issue": "2026105",
+      "primary_score": 0.24081654,
+      "realized_blue_crowding_ratio": 1.45781441,
+      "realized_red_crowding_ratio": 1.02381867,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 34.64783778,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026106",
+      "primary_score": -0.24989933,
+      "realized_blue_crowding_ratio": 1.24879534,
+      "realized_red_crowding_ratio": 0.91486024,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 31.28734802,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026107",
+      "primary_score": 0.1406151,
+      "realized_blue_crowding_ratio": 0.86724477,
+      "realized_red_crowding_ratio": 1.05997148,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 85.00974399,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026108",
+      "primary_score": 0.09112612,
+      "realized_blue_crowding_ratio": 0.73712145,
+      "realized_red_crowding_ratio": 0.74412131,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 26.49054595,
+      "auxiliary_score": -1.0,
+      "issue": "2026109",
+      "primary_score": 0.07170503,
+      "realized_blue_crowding_ratio": 1.18500077,
+      "realized_red_crowding_ratio": 0.9584093,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 26.20725714,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026110",
+      "primary_score": 0.21459426,
+      "realized_blue_crowding_ratio": 0.68513196,
+      "realized_red_crowding_ratio": 0.90440847,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 9,
+      "actual_red_liability_pct": 11.21386404,
+      "auxiliary_score": -1.0,
+      "issue": "2026111",
+      "primary_score": 0.07857543,
+      "realized_blue_crowding_ratio": 1.12648529,
+      "realized_red_crowding_ratio": 1.03066557,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 86.81509226,
+      "auxiliary_score": -1.0,
+      "issue": "2026112",
+      "primary_score": 0.22644046,
+      "realized_blue_crowding_ratio": 1.21515209,
+      "realized_red_crowding_ratio": 1.23772882,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 25.78479557,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026113",
+      "primary_score": 0.10917586,
+      "realized_blue_crowding_ratio": 0.85224394,
+      "realized_red_crowding_ratio": 0.97209163,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 13,
+      "actual_red_liability_pct": 45.02143679,
+      "auxiliary_score": -1.0,
+      "issue": "2026114",
+      "primary_score": 0.46401645,
+      "realized_blue_crowding_ratio": 1.41752893,
+      "realized_red_crowding_ratio": 1.51050398,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 23.47599175,
+      "auxiliary_score": -1.0,
+      "issue": "2026115",
+      "primary_score": 0.06542328,
+      "realized_blue_crowding_ratio": 1.05533314,
+      "realized_red_crowding_ratio": 1.07551342,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 18.84450486,
+      "auxiliary_score": -1.0,
+      "issue": "2026116",
+      "primary_score": -0.04374115,
+      "realized_blue_crowding_ratio": 0.95315271,
+      "realized_red_crowding_ratio": 0.959365,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 61.10625232,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026117",
+      "primary_score": 0.02983581,
+      "realized_blue_crowding_ratio": 1.04946708,
+      "realized_red_crowding_ratio": 1.14211675,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 0,
+      "actual_red_liability_pct": 45.0029945,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026118",
+      "primary_score": -0.04858732,
+      "realized_blue_crowding_ratio": 0.93547058,
+      "realized_red_crowding_ratio": 0.79527633,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 22.74561996,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026119",
+      "primary_score": 0.05778694,
+      "realized_blue_crowding_ratio": 0.74646116,
+      "realized_red_crowding_ratio": 0.69300914,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 4,
+      "actual_red_liability_pct": 66.95312426,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026120",
+      "primary_score": -0.02366296,
+      "realized_blue_crowding_ratio": 0.84177055,
+      "realized_red_crowding_ratio": 0.68895833,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 12,
+      "actual_red_liability_pct": 37.73635128,
+      "auxiliary_score": -1.0,
+      "issue": "2026121",
+      "primary_score": -0.11740893,
+      "realized_blue_crowding_ratio": 0.90329832,
+      "realized_red_crowding_ratio": 0.86188381,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 42.56899223,
+      "auxiliary_score": -1.0,
+      "issue": "2026122",
+      "primary_score": 0.24560683,
+      "realized_blue_crowding_ratio": 1.48107937,
+      "realized_red_crowding_ratio": 1.01013429,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 7,
+      "actual_red_liability_pct": 26.10582453,
+      "auxiliary_score": -1.0,
+      "issue": "2026123",
+      "primary_score": -0.04820382,
+      "realized_blue_crowding_ratio": 0.99664838,
+      "realized_red_crowding_ratio": 0.90694399,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 14,
+      "actual_red_liability_pct": 53.66763948,
+      "auxiliary_score": -1.0,
+      "issue": "2026124",
+      "primary_score": 0.24441281,
+      "realized_blue_crowding_ratio": 1.10159867,
+      "realized_red_crowding_ratio": 1.38722694,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 89.3666879,
+      "auxiliary_score": -1.0,
+      "issue": "2026125",
+      "primary_score": 0.05466494,
+      "realized_blue_crowding_ratio": 1.02284856,
+      "realized_red_crowding_ratio": 1.08648132,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 35.76378656,
+      "auxiliary_score": -1.0,
+      "issue": "2026126",
+      "primary_score": -0.17381075,
+      "realized_blue_crowding_ratio": 0.75966165,
+      "realized_red_crowding_ratio": 0.89271686,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 2,
+      "actual_red_liability_pct": 2.03682755,
+      "auxiliary_score": 12.83333333,
+      "issue": "2026127",
+      "primary_score": 4.09162211,
+      "realized_blue_crowding_ratio": 0.66855469,
+      "realized_red_crowding_ratio": 0.68204853,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 54.52111833,
+      "auxiliary_score": -1.0,
+      "issue": "2026128",
+      "primary_score": -0.01806002,
+      "realized_blue_crowding_ratio": 0.9266874,
+      "realized_red_crowding_ratio": 1.03719256,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 8,
+      "actual_red_liability_pct": 59.86348902,
+      "auxiliary_score": -1.0,
+      "issue": "2026129",
+      "primary_score": 0.20938378,
+      "realized_blue_crowding_ratio": 1.15377685,
+      "realized_red_crowding_ratio": 1.2649907,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 68.5356141,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026130",
+      "primary_score": 0.0724293,
+      "realized_blue_crowding_ratio": 0.79158514,
+      "realized_red_crowding_ratio": 0.79750049,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 3,
+      "actual_red_liability_pct": 17.2805389,
+      "auxiliary_score": 0.33333333,
+      "issue": "2026131",
+      "primary_score": 0.05144132,
+      "realized_blue_crowding_ratio": 0.81095785,
+      "realized_red_crowding_ratio": 0.78781239,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 67.64315843,
+      "auxiliary_score": -1.0,
+      "issue": "2026132",
+      "primary_score": 0.00038187,
+      "realized_blue_crowding_ratio": 0.90549651,
+      "realized_red_crowding_ratio": 1.09526723,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 6,
+      "actual_red_liability_pct": 60.23752554,
+      "auxiliary_score": -1.0,
+      "issue": "2026133",
+      "primary_score": 0.14242249,
+      "realized_blue_crowding_ratio": 1.17997037,
+      "realized_red_crowding_ratio": 1.10487461,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 15,
+      "actual_red_liability_pct": 3.82002968,
+      "auxiliary_score": 11.5,
+      "issue": "2026134",
+      "primary_score": -1.07734298,
+      "realized_blue_crowding_ratio": 1.45710835,
+      "realized_red_crowding_ratio": 1.10882476,
+      "selected_policy_id": "P_R01_005_B06"
+    },
+    {
+      "actual_blue_crowding_rank": 10,
+      "actual_red_liability_pct": 100.0,
+      "auxiliary_score": -1.0,
+      "issue": "2026135",
+      "primary_score": -0.04093646,
+      "realized_blue_crowding_ratio": 0.93917491,
+      "realized_red_crowding_ratio": 0.97895216,
+      "selected_policy_id": "P_R01_005_B06"
+    }
+  ],
+  "rule_document_sha256": "bd9161fe5da2a0eebfcfb215000a7398f2d3b8556640564f545c0beaa8dfbb97",
+  "schema": "SSQ_V5_PHASE4_REAL_POLICY_GATE_1.0"
+}

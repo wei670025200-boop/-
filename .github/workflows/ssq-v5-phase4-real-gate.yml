@@ -1,0 +1,96 @@
+name: SSQ V5 Phase4 REAL policy gate
+
+on:
+  push:
+    branches:
+      - ssq-v5-shadow-integration-20261124
+    paths:
+      - 'phase4/REAL_POLICY_GATE_TRIGGER_20261124.lock'
+
+permissions:
+  contents: write
+
+jobs:
+  real-policy-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONPATH: .:ssq_v5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ssq-v5-shadow-integration-20261124
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install numpy
+        run: python -m pip install --disable-pip-version-check numpy
+      - name: Verify frozen inputs before the one real run
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          phase3=json.loads(Path("results/PHASE3_LOCAL_FIRST_RESULT.json").read_text("utf-8"))
+          assert phase3["artifact_sha256"]=="2d8a9c0ce6e32d653311356f20d1329d9c2ed8f6c7c544899b5b6d6ccf0f957a"
+          assert phase3["oos_gate_status"]=="PASS"
+          h=hashlib.sha256(Path("data/ssq_history.csv").read_bytes()).hexdigest()
+          print("FROZEN_PHASE3_ARTIFACT_PASS")
+          print("CURRENT_HISTORY_SHA",h)
+          print("PHASE3_ORIGINAL_HISTORY_SHA",phase3["ledger_sha256"])
+          print("SEMANTIC_REPLAY_WILL_BE_ENFORCED_IN_RUNNER")
+          PY
+      - name: Run the single real 400-draw nested policy gate and E2E
+        run: python ssq_v5/phase4_real_policy_gate_v5.py
+      - name: Build compact summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("results/PHASE4_POLICY_GATE_RESULT.json").read_text("utf-8"))
+          a=x["policy_gate_artifact"]
+          e=x["e2e"]
+          out={
+            "schema":"SSQ_V5_PHASE4_REAL_POLICY_GATE_SUMMARY_1.0",
+            "history_draws":x["history_draws"],
+            "history_range":x["history_range"],
+            "phase3_frozen_artifact_sha256":x["phase3_frozen_artifact_sha256"],
+            "history_csv_sha256":x["history_csv_sha256"],
+            "rule_document_sha256":x["rule_document_sha256"],
+            "source_git_commit_sha":x["git_commit_sha"],
+            "policy_gate_status":a["policy_gate_status"],
+            "selected_policy":a["selected_policy"],
+            "outer_oos_draws":a["outer_oos_draws"],
+            "outer_mean_score":a["outer_mean_score"],
+            "outer_ci95":a["outer_ci95"],
+            "auxiliary_mean_score":a["auxiliary_mean_score"],
+            "auxiliary_ci95":a["auxiliary_ci95"],
+            "candidate_selection_counts":a["candidate_selection_counts"],
+            "protocol_hyperparameters":a["protocol_hyperparameters"],
+            "oos_trace_sha256":a["oos_trace_sha256"],
+            "integrity_summary_sha256":a["integrity_summary_sha256"],
+            "e2e_target_issue":e["target_issue"],
+            "three_locks":e["locks"],
+            "production_eligible":e["production_eligible"],
+            "e2e_2":e["exercises"]["2"],
+            "e2e_8":e["exercises"]["8"]
+          }
+          Path("results/PHASE4_POLICY_GATE_SUMMARY.json").write_text(
+              json.dumps(out,ensure_ascii=False,indent=2,sort_keys=True),"utf-8")
+          print(json.dumps({
+            "policy_gate_status":out["policy_gate_status"],
+            "selected_policy":out["selected_policy"],
+            "outer_mean_score":out["outer_mean_score"],
+            "outer_ci95":out["outer_ci95"],
+            "auxiliary_mean_score":out["auxiliary_mean_score"],
+            "auxiliary_ci95":out["auxiliary_ci95"],
+            "production_eligible":out["production_eligible"],
+            "integrity_summary_sha256":out["integrity_summary_sha256"]
+          },sort_keys=True))
+          PY
+      - name: Commit immutable real-run outputs
+        run: |
+          git config user.name "ssq-phase4-gate-bot"
+          git config user.email "ssq-phase4-gate-bot@users.noreply.github.com"
+          git add results/PHASE4_POLICY_GATE_RESULT.json results/PHASE4_POLICY_GATE_SUMMARY.json
+          git commit -m "Phase4: freeze single real nested policy gate result"
+          git push origin HEAD:ssq-v5-shadow-integration-20261124

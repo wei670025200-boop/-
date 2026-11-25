@@ -1,7 +1,7 @@
 name: SSQ R3 extended archive evidence
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
 permissions:
   contents: read
 jobs:

@@ -1,0 +1,44 @@
+name: SSQ V5 production path smoke
+
+on:
+  push:
+    branches:
+      - ssq-v5-shadow-integration-20261124
+    paths:
+      - 'phase4/V5_PRODUCTION_PATH_SMOKE.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: .:ssq_v5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check numpy
+      - name: Positive V5 production smoke with explicit local promo balance
+        run: |
+          python - <<'PY'
+          from ssq_v5.runner_v5 import run_v5_local_production
+          out=run_v5_local_production(
+              2,
+              remaining_sixth_promo_rmb=560_000_000.0,
+              seed=bytes.fromhex("33"*32),
+          )
+          assert out["effective_route"]=="ANTI_CROWD_SPARSE_ZONE_V1", out
+          assert out["three_locks"]=={"phase3_oos_gate":"PASS","cusum_drift_gate":"OK","policy_gate":"PASS"}
+          assert out["blue_unique"] is True
+          assert len(out["tickets"])==2
+          assert all(t["plugin_statutory_rmb_breakdown"]["exposure_label"]=="PLUG_IN_STATUTORY_RMB_EXPOSURE" for t in out["tickets"])
+          print("V5_PRODUCTION_PATH_SMOKE_PASS")
+          print("TARGET",out["target_issue"])
+          print("POLICY",out["policy_id"])
+          print("BLUES",[t["blue"] for t in out["tickets"]])
+          PY
