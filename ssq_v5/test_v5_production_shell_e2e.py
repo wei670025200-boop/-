@@ -8,7 +8,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ssq_v5.runner_v5 import run_v5
+from ssq_v5.runner_v5 import run_v5, confirm_published_purchase
 from v4.local_production_shell import (
     GateBlockedError,
     next_issue_and_draw,
@@ -81,6 +81,7 @@ class TestV5ProductionShellE2E(unittest.TestCase):
             self.assertEqual(second["effective_route_mode"], "ANTI_CROWD_SPARSE_ZONE_V1")
             self.assertEqual(second["new_oos_error_count"], 1)
             self.assertIsInstance(second["latest_oos_abs_log_error"], float)
+            self.assertEqual(second["receipt"]["rule_regime_state"]["state_source"], "PREVIOUS_ISSUE_LEDGER")
             print("EDGE1_APPEND_CUSUM", json.dumps({
                 "target_issue": second["target_issue"],
                 "effective_route_mode": second["effective_route_mode"],
@@ -114,6 +115,14 @@ class TestV5ProductionShellE2E(unittest.TestCase):
             }
             self.assertEqual({p.name for p in pub.iterdir()}, expected)
             self.assertEqual(stat.S_IMODE((pub / "PRIVATE_SEED_AND_NONCE.json").stat().st_mode), 0o600)
+            private = json.loads((pub / "PRIVATE_SEED_AND_NONCE.json").read_text("utf-8"))
+            required = {
+                "algorithm_version","rng_model","input_manifest_sha256","twin_artifact_sha256",
+                "policy_artifact_sha256","sparse_pool_sha256","circuit_breaker_status",
+                "effective_route_mode","rule_regime_state","physical_slip_plan","seed_sha256","tickets"
+            }
+            self.assertTrue(required.issubset(private["commitment_body"]))
+            self.assertEqual(out["receipt"]["promo_eligibility"], "PLANNED_INELIGIBLE")
             led = open_production_ledger(ledger, GENESIS)
             self.assertTrue(led.verify_chain()[0])
 
@@ -240,6 +249,18 @@ class TestV5ProductionShellE2E(unittest.TestCase):
                 self.assertEqual(out["metrics"]["profit_guarantee"], "NONE")
                 if n == 16:
                     self.assertEqual(out["metrics"]["prize_coverage"], 1.0)
+                if n == 16:
+                    actual = []
+                    for slip in out["receipt"]["physical_slip_plan"]:
+                        actual.append({
+                            "slip_id": slip["slip_id"],
+                            "printed_amount_rmb": slip["amount_rmb"],
+                            "printed_bet_type": slip["bet_type"],
+                            "terminal_receipt_sha256": "a" * 64,
+                        })
+                    confirmed = confirm_published_purchase(out["published_dir"], actual)
+                    self.assertEqual(confirmed["promo_eligibility"], "RECEIPT_CONFIRMED_PARTIAL_ELIGIBLE")
+                    self.assertEqual(out["receipt"]["promo_eligibility"], "PLANNED_PARTIAL_ELIGIBLE")
                 rows.append({
                     "tickets": n,
                     "blues": blues,
