@@ -29,8 +29,8 @@ class DigitalTwin(unittest.TestCase):
         xf,yf,xb,yb,p=self.signal; yf=yf.copy(); yb=yb.copy(); yf[200:]+=1000;yb[200:]+=1000
         a=d.oos_arrays(xf,yf,xb,yb,p)
         self.assertEqual(a['prediction_front'][0],self.signal_arrays['prediction_front'][0]);self.assertEqual(a['prediction_back'][0],self.signal_arrays['prediction_back'][0])
-    def test_signal_gate(self): self.assertEqual(d.oos_diagnostics(self.signal_arrays)['provisional_oos_gate'],'PASS')
-    def test_noise_gate(self): self.assertEqual(d.oos_diagnostics(self.noise_arrays)['provisional_oos_gate'],'FAIL')
+    def test_signal_gate(self): self.assertEqual(d.oos_diagnostics(self.signal_arrays)['oos_gate'],'PASS')
+    def test_noise_gate(self): self.assertEqual(d.oos_diagnostics(self.noise_arrays)['oos_gate'],'FAIL')
     def test_mbb_reproducible(self): self.assertEqual(d.oos_diagnostics(self.signal_arrays),d.oos_diagnostics(self.signal_arrays))
     def test_mbb_settings(self):
         r=d.oos_diagnostics(self.signal_arrays)['front'];self.assertEqual((r['B'],r['block_length'],r['seed']),(5000,12,2026112501))

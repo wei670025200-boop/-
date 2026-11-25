@@ -66,7 +66,7 @@ def research_validators(csv_raw,schedule,report,statutory_raw,prereg_raw,accepte
         verify_integrity(accepted_integrity,actual)
         if report['integrity']!=accepted_integrity or twin['trained_through_issue']!=prefix['trained_through_issue'] or twin['policy_reference_ticket_count']!=REFERENCE_TICKET_COUNT:raise ValueError('POLICY_BINDING_MISMATCH')
         p=nested_select(a['actual_front'],a['actual_back'],[x['front_rank'] for x in ranks],[x['back_rank'] for x in ranks],REFERENCE_TICKET_COUNT,[x['front_eligible'] for x in ranks])
-        if canonical_json(p['trace'])!=canonical_json(trace['policy_trace']):raise ValueError('POLICY_TRACE_MISMATCH')
+        if canonical_json(p['trace'])!=canonical_json(trace['policy_trace']) or canonical_json(p['final_candidate_research_only'])!=canonical_json(twin['policy_selection_research_only']):raise ValueError('POLICY_TRACE_MISMATCH')
         return p['policy_gate']
     return {'DATA_GATE':data,'OOS_GATE':oos,'DRIFT_GATE':drift,'POLICY_GATE':policy}
 

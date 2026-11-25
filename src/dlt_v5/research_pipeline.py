@@ -27,7 +27,7 @@ def run_research(rows,csv_raw,statutory_raw,prereg_raw,git_commit_sha):
     e=errors(a['actual_front'],a['prediction_front'],a['actual_back'],a['prediction_back'])
     cutoff=REFERENCE_OOS_ROWS;ref=reference(e[:cutoff],issues[cutoff-1]);drift=evaluate(e[cutoff:],ref)
     f=fit_ridge(features['xf'],features['yf'],PARAMS['l2_alpha_front']);b=fit_back(features['xb'],features['yb'],features['pairs'])
-    prefix=prefix_receipt(csv_raw,rows[-1]['issue']);twin={'trained_through_issue':rows[-1]['issue'],'front':asdict(f),'back':asdict(b),'drift_reference':ref,'policy_reference_ticket_count':REFERENCE_TICKET_COUNT,'phase4_status':'LOCKED'}
+    prefix=prefix_receipt(csv_raw,rows[-1]['issue']);twin={'trained_through_issue':rows[-1]['issue'],'front':asdict(f),'back':asdict(b),'drift_reference':ref,'policy_reference_ticket_count':REFERENCE_TICKET_COUNT,'policy_selection_research_only':pol['final_candidate_research_only'],'phase4_status':'LOCKED'}
     trace={'issues':issues,'oos_arrays':a,'ranks':ranks,'policy_trace':pol['trace']}
     digests={'history_prefix_sha256':prefix['prefix_sha256'],'twin_artifact_sha256':sha256(canonical_json(twin)),'statutory_rule_sha256':sha256(statutory_raw),'prereg_spec_sha256':sha256(prereg_raw),'candidate_grid_sha256':sha256(canonical_json(POLICY_GRID)),'oos_trace_sha256':sha256(canonical_json(trace))}
     integrity=make_integrity(digests,git_commit_sha)

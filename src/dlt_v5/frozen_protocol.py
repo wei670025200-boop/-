@@ -30,8 +30,8 @@ def block_indices(n,seed):
     return (starts[:,:,None]+np.arange(length)).reshape(B,-1)[:,:n]
 
 def official_oos_gate(arrays):
-    from .digital_twin import oos_diagnostics
-    report=oos_diagnostics(arrays)
+    from .digital_twin import _individual_diagnostics
+    report=_individual_diagnostics(arrays)
     errors=[]
     for zone in ('front','back'):
         y,b,m=(np.asarray(arrays[k+'_'+zone],dtype=float) for k in ('actual','baseline','prediction'))
@@ -45,7 +45,6 @@ def official_oos_gate(arrays):
     f,b=report['front'],report['back']
     lo,hi=np.quantile(.5*(draws[0]+draws[1]),[.025,.975])
     passed=lo>0 and min(f['relative_improvement'],b['relative_improvement'])>0 and max(f['mbb_ci95'][0],b['mbb_ci95'][0])>0
-    report.pop('provisional_oos_gate',None)
     report.update(combined={'relative_improvement':.5*(f['relative_improvement']+b['relative_improvement']),'mbb_ci95':[float(lo),float(hi)],'block_length':12,'B':5000,'seed':COMBINED_SEED},oos_gate='PASS' if passed else 'FAIL',gate_rule='COMBINED_CI_POSITIVE_BOTH_MEANS_POSITIVE_AT_LEAST_ONE_INDIVIDUAL_CI_POSITIVE')
     return report
 

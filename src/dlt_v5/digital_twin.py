@@ -2,8 +2,7 @@
 Pre-data implementation choices: winsorize training y (not OOS y), raw feature
 scales, unpenalized intercept, EB shrinkage of back-Ridge training residuals
 with zero prior mean, average two ball offsets; paired noncircular MBB.
-The provisional OOS rule is both improvement CI lower bounds > 0.
-Production policy admission is deliberately not implemented here.
+Formal OOS gate is implemented in frozen_protocol; this module fits numerical components.
 """
 from dataclasses import dataclass
 from datetime import date
@@ -91,15 +90,18 @@ def oos_arrays(xf,yf,xb,yb,pairs,initial_train_size=200):
         basef.append(float(yf[:t].mean())); baseb.append(float(yb[:t].mean()))
     return {'actual_front':yf[initial_train_size:].tolist(),'actual_back':yb[initial_train_size:].tolist(),'prediction_front':front,'prediction_back':back,'baseline_front':basef,'baseline_back':baseb,'initial_train_size':initial_train_size}
 
-def oos_diagnostics(arrays):
+def _individual_diagnostics(arrays):
     f=mse_diagnostic(arrays['actual_front'],arrays['baseline_front'],arrays['prediction_front'],PARAMS['bootstrap_seed_front'])
     b=mse_diagnostic(arrays['actual_back'],arrays['baseline_back'],arrays['prediction_back'],PARAMS['bootstrap_seed_back'])
     p=arrays['prediction_back']; y=arrays['actual_back']
     rho=pv=None
     if len(set(p))>1 and len(set(y))>1:
         stat=spearmanr(p,y); rho=float(stat.statistic); pv=float(stat.pvalue)
-    passed=f['mbb_ci95'][0]>0 and b['mbb_ci95'][0]>0 and rho is not None
-    return {'front':f,'back':b,'back_spearman':{'rho':rho,'p_value':pv},'provisional_oos_gate':'PASS' if passed else 'FAIL','gate_rule':'BOTH_MBB_CI_LOWER_GT_ZERO_AND_SPEARMAN_DEFINED'}
+    return {'front':f,'back':b,'back_spearman':{'rho':rho,'p_value':pv}}
+
+def oos_diagnostics(arrays):
+    from .frozen_protocol import official_oos_gate
+    return official_oos_gate(arrays)
 
 def omission_set(history,n,lo,hi=None):
     """Prior rows only; not seen in provided history => age len(history); tie ascending."""

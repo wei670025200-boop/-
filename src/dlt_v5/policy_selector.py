@@ -32,7 +32,13 @@ def nested_select(yf,yb,front_rank,back_rank,ticket_count,front_eligible=None):
         out_f[t-warm]=hf[t];out_b[t-warm]=hb[t];expected_f.append(hi-lo);expected_b.append(effective_back_k(k,ticket_count)/66)
         trace.append({'index':t,'candidate':i,'inner':score,'front_hit':bool(hf[t]),'back_hit':bool(hb[t])})
     aa,bb=a[warm:],b[warm:];score=_score(aa,bb,out_f,out_b,10,30)
-    result={'policy_gate':'FAIL','outer_score':score,'front_hits':int(out_f.sum()),'back_hits':int(out_b.sum()),'valid_resample_fraction':0.,'mbb_ci95':None,'B':5000,'block_length':12,'seed':POLICY_SEED,'trace':trace,'primary_objective':PARAMS['primary'],'sparse_capture_lift':{'front':float(out_f.sum()/sum(expected_f)) if sum(expected_f)>0 else None,'back':float(out_b.sum()/sum(expected_b)) if sum(expected_b)>0 else None},'lift_note':'Diagnostic nominal band width / K/66; not a decision input.'}
+    final=None
+    for i,(hf,hb) in enumerate(masks):
+        candidate=_score(a,b,hf,hb,5,15)
+        if candidate is not None and (final is None or candidate['primary']>final['score']['primary']):
+            band,k=POLICY_GRID[i];final={'candidate':i,'front_band':band,'back_k':effective_back_k(k,ticket_count),'score':candidate}
+    counts={str(i):sum(x['candidate']==i for x in trace) for i in range(len(POLICY_GRID))}
+    result={'policy_gate':'FAIL','outer_score':score,'front_hits':int(out_f.sum()),'back_hits':int(out_b.sum()),'valid_resample_fraction':0.,'mbb_ci95':None,'B':5000,'block_length':12,'seed':POLICY_SEED,'trace':trace,'primary_objective':PARAMS['primary'],'selection_counts':counts,'final_candidate_research_only':final,'sparse_capture_lift':{'front':float(out_f.sum()/sum(expected_f)) if sum(expected_f)>0 else None,'back':float(out_b.sum()/sum(expected_b)) if sum(expected_b)>0 else None},'lift_note':'Diagnostic nominal band width / K/66; not a decision input.'}
     if score is None: return result
     ix=block_indices(len(aa),POLICY_SEED); draws=[]
     for sample in ix:
