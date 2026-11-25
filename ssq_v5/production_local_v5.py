@@ -65,6 +65,25 @@ def _sha256_file(path: str | Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _sha256_history_prefix(path: str | Path, trained_through_issue: str) -> str:
+    """Hash the immutable raw CSV prefix through trained_through_issue, allowing later rows to append."""
+    raw = Path(path).read_bytes()
+    lines = raw.splitlines(keepends=True)
+    if not lines:
+        raise RuntimeError("V5_POLICY_HISTORY_EMPTY")
+    kept = [lines[0]]
+    found = False
+    for line in lines[1:]:
+        issue = line.split(b",", 1)[0].decode("ascii", errors="strict").strip()
+        kept.append(line)
+        if issue == trained_through_issue:
+            found = True
+            break
+    if not found:
+        raise RuntimeError(f"V5_POLICY_TRAINED_ISSUE_MISSING:{trained_through_issue}")
+    return hashlib.sha256(b"".join(kept)).hexdigest()
+
+
 def _load_and_verify_policy_result(
     history_path: str | Path = DEFAULT_HISTORY_PATH,
     result_path: str | Path = POLICY_RESULT_PATH,
@@ -77,10 +96,11 @@ def _load_and_verify_policy_result(
     if int(art["outer_oos_draws"])!=400 or float(art["outer_ci95"][0])<=0.0:
         raise RuntimeError("V5_POLICY_GATE_ARTIFACT_INVALID")
 
-    history_sha=_sha256_file(history_path)
+    trained_issue=str(art["trained_through_issue"])
+    history_prefix_sha=_sha256_history_prefix(history_path, trained_issue)
     rule_sha=_sha256_file(rule_path)
-    if history_sha!=art["history_csv_sha256"]:
-        raise RuntimeError("V5_POLICY_HISTORY_HASH_MISMATCH")
+    if history_prefix_sha!=art["history_csv_sha256"]:
+        raise RuntimeError("V5_POLICY_HISTORY_PREFIX_HASH_MISMATCH")
     if rule_sha!=art["rule_document_sha256"]:
         raise RuntimeError("V5_POLICY_RULE_HASH_MISMATCH")
     if art["twin_artifact_sha256"]!=PHASE3_FROZEN_ARTIFACT:
@@ -122,7 +142,9 @@ def validate_v5_production_artifacts(
         "policy_gate_status":result["policy_gate_artifact"]["policy_gate_status"],
         "policy_integrity_summary_sha256":result["policy_gate_artifact"]["integrity_summary_sha256"],
         "selected_policy":result["policy_gate_artifact"]["selected_policy"],
-        "history_csv_sha256":result["history_csv_sha256"],
+        "trained_through_issue":result["policy_gate_artifact"]["trained_through_issue"],
+        "training_history_prefix_sha256":result["policy_gate_artifact"]["history_csv_sha256"],
+        "current_history_csv_sha256":_sha256_file(history_path),
         "rule_document_sha256":result["rule_document_sha256"],
     }
 
@@ -140,16 +162,32 @@ def run_v5_local_production(
     art=policy_result["policy_gate_artifact"]
     records=_to_records(history_path)
 
-    twin,trace=run_expanding_window_oos_calibration(records)
-    if twin.oos_gate_status!="PASS" or twin.artifact_sha256!=PHASE3_FROZEN_ARTIFACT:
+    trained_issue=str(art["trained_through_issue"])
+    trained_pos=next((i for i,r in enumerate(records) if r.issue==trained_issue), None)
+    if trained_pos is None:
+        return {
+            "effective_route":V4_FALLBACK_ROUTE,
+            "fallback_reason":f"V5_TRAINING_PREFIX_MISSING:{trained_issue}",
+            "v4":run_v4_local(ticket_count,history_path,seed=seed),
+        }
+    frozen_records=records[:trained_pos+1]
+    frozen_twin,frozen_trace=run_expanding_window_oos_calibration(frozen_records)
+    if frozen_twin.oos_gate_status!="PASS" or frozen_twin.artifact_sha256!=PHASE3_FROZEN_ARTIFACT:
         return {
             "effective_route":V4_FALLBACK_ROUTE,
             "fallback_reason":"V5_OOS_GATE_LOCKED",
             "v4":run_v4_local(ticket_count,history_path,seed=seed),
         }
 
+    # Later completed draws are legitimate append-only updates under the same frozen algorithm.
+    # They update the production fit and drift trace, but do not rewrite the frozen Phase-3 gate.
+    if len(records)>len(frozen_records):
+        twin,trace=run_expanding_window_oos_calibration(records)
+    else:
+        twin,trace=frozen_twin,frozen_trace
+
     recent=[float(x["abs_log_err_combined"]) for x in trace]
-    cb=evaluate_cusum_circuit_breaker(recent,float(twin.oos_metrics["oos_mean_abs_log_err"]))
+    cb=evaluate_cusum_circuit_breaker(recent,float(frozen_twin.oos_metrics["oos_mean_abs_log_err"]))
     if cb.tripped:
         return {
             "effective_route":V4_FALLBACK_ROUTE,
