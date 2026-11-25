@@ -1,7 +1,7 @@
 name: SSQ Shanghai historical second-prize API
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
 permissions:
   contents: read
 jobs:
