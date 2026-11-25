@@ -1,4 +1,12 @@
 from __future__ import annotations
+import math
+
+def _nonnegative_rmb(value):
+    if isinstance(value,bool): raise ValueError('INVALID_RMB')
+    try: v=float(value)
+    except (ValueError,TypeError,OverflowError) as exc: raise ValueError('INVALID_RMB') from exc
+    if not math.isfinite(v) or v<0: raise ValueError('INVALID_RMB')
+    return v
 
 def tier_for_matches(f,b):
     m=(f,b)
@@ -12,9 +20,13 @@ def tier_for_matches(f,b):
     return None
 
 def fixed_awards(pool_after_rmb):
+    pool_after_rmb=_nonnegative_rmb(pool_after_rmb)
     return {'g3':6666,'g4':380,'g5':200,'g6':18,'g7':7} if pool_after_rmb>=800_000_000 else {'g3':5000,'g4':300,'g5':150,'g6':15,'g7':5}
 
 def plug_in_statutory_rmb_exposure(tickets,outcome,pool_after_rmb,g1_basic_rmb,g2_basic_rmb,promo_balance_remaining_rmb=None):
+    pool_after_rmb=_nonnegative_rmb(pool_after_rmb)
+    g1_basic_rmb=_nonnegative_rmb(g1_basic_rmb);g2_basic_rmb=_nonnegative_rmb(g2_basic_rmb)
+    if promo_balance_remaining_rmb is not None: promo_balance_remaining_rmb=_nonnegative_rmb(promo_balance_remaining_rmb)
     of=set(outcome['front']);ob=set(outcome['back']);fixed=fixed_awards(pool_after_rmb)
     rows=[];gross={'g1':0.0,'g2':0.0,'fixed':0.0}
     for t in tickets:
