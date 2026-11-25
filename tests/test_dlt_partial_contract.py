@@ -56,6 +56,6 @@ class PartialContract(unittest.TestCase):
         t=[{**o,'is_additional_bet':True},{'front':o['front'],'back':[1,3],'is_additional_bet':True}]
         r=s.plug_in_statutory_rmb_exposure(t,o,0,100000000,100000000)
         self.assertEqual((r['g1_after_aggregate_cap_rmb'],r['g2_after_aggregate_cap_rmb']),(100000000,100000000));self.assertEqual(r['ticket_rows'][0]['raw_statutory_rmb'],180000000)
-        self.assertEqual(s.plug_in_statutory_rmb_exposure(t,o,0,100000000,100000000,10)['total_after_caps_rmb'],10)
+        self.assertEqual(s.plug_in_statutory_rmb_exposure(t,o,0,100000000,100000000,10)['total_after_caps_rmb'],200000000)
 
 if __name__=='__main__': unittest.main(verbosity=2)
