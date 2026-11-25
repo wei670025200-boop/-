@@ -138,3 +138,19 @@ def latest_back_rankings(model,history):
     ordered=sorted(zip(pairs,map(float,scores)),key=lambda x:(x[1],x[0]))
     ball=sorted(zip(range(1,13),model.ball_bias),key=lambda x:(-x[1],x[0]))
     return {'ball_bias_high_to_low':[{'ball':i,'bias':v} for i,v in ball],'low_top10':[{'pair':p,'score':v} for p,v in ordered[:10]],'high_top10':[{'pair':p,'score':v} for p,v in sorted(ordered,key=lambda x:(-x[1],x[0]))[:10]]}
+
+def feature_history_frozen(rows):
+    """Final holiday calendar, including +/-3 days and year boundaries."""
+    from .frozen_protocol import calendar_pulse
+    fs=[];bs=[];xf=[];xb=[];yf=[];yb=[];issues=[];prev_date=None;prev_issue=-1
+    for row in rows:
+        d=date.fromisoformat(row['date']);issue=int(row['issue'])
+        if issue<=prev_issue or (prev_date is not None and d<=prev_date): raise ValueError('HISTORY_ORDER')
+        f=_balls(tuple(int(row['f'+str(i)]) for i in range(1,6)),35,5)
+        b=_balls(tuple(int(row['b'+str(i)]) for i in range(1,3)),12,2)
+        if fs:
+            xf.append(front_features(f,previous=fs[-1],calendar_pulse_numbers=calendar_pulse(d),omit_chase_numbers=omission_set(fs,35,12,20)))
+            xb.append(back_features(b,previous=bs[-1],omit_chase_numbers=omission_set(bs,12,12)))
+            a,z=targets(row['sales_rmb'],row);yf.append(a);yb.append(z);issues.append(row['issue'])
+        fs.append(f);bs.append(b);prev_issue=issue;prev_date=d
+    return {'xf':xf,'yf':yf,'xb':xb,'yb':yb,'pairs':bs[1:],'issues':issues,'front_history':fs,'back_history':bs}
