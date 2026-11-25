@@ -52,6 +52,7 @@ from v4.local_production_shell import (
     GateBlockedError,
     canonical_json,
     commit_production_bundle,
+    assert_issue_not_already_committed,
     inherit_special_rule_state,
     local_promo_evidence,
     next_issue_and_draw,
@@ -261,6 +262,7 @@ def run_v5_local_production(
         now_utc=now_utc,
     )
     ledger = open_production_ledger(ledger_path=ledger_path, genesis_path=genesis_path)
+    assert_issue_not_already_committed(ledger, timing["target_issue"], output_root)
     previous_state, state_source = inherit_special_rule_state(
         ledger,
         latest.issue,
