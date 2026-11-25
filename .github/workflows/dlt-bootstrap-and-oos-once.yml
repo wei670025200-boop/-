@@ -39,30 +39,30 @@ jobs:
         with:
           python-version: '3.13'
       - name: Install frozen numeric dependencies
-        run: python -m pip install numpy==2.3.5 scipy==1.17.0 cryptography==46.0.4
+        run: python3 -u -m pip install numpy==2.3.5 scipy==1.17.0 cryptography==46.0.4
       - name: Re-run frozen Stage 1 regression and src zero-network scan
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest discover -s tests -p 'test_dlt*.py' -v 2>&1 | tee dlt_oos_artifacts/stage1_regression.log
+          python3 -u -m unittest discover -s tests -p 'test_dlt*.py' -v 2>&1 | tee dlt_oos_artifacts/stage1_regression.log
           grep -F "Ran 163 tests" dlt_oos_artifacts/stage1_regression.log
           grep -Fx "OK" dlt_oos_artifacts/stage1_regression.log
-          python audits/dlt_static_network_scan.py | tee dlt_oos_artifacts/static_scan.json
+          python3 -u audits/dlt_static_network_scan.py | tee dlt_oos_artifacts/static_scan.json
       - name: Fetch approved 17500 TXT once, hard-audit 780 rows, then export
         shell: bash
         run: |
           set -euo pipefail
-          python3 tools/bootstrap_once/export_dlt_local_ledger.py --audit-out dlt_oos_artifacts/source_selfcheck.json 2>&1 | tee dlt_oos_artifacts/export_selfcheck.log
+          python3 -u tools/bootstrap_once/export_dlt_local_ledger.py --audit-out dlt_oos_artifacts/source_selfcheck.json 2>&1 | tee dlt_oos_artifacts/export_selfcheck.log
       - name: Validate canonical history ledger
         shell: bash
         run: |
           set -euo pipefail
-          PYTHONPATH=src python3 validate_dlt_history_export.py | tee dlt_oos_artifacts/data_validation.json
+          PYTHONPATH=src python3 -u validate_dlt_history_export.py | tee dlt_oos_artifacts/data_validation.json
       - name: Commit ledger and durable once-only claim to independent branch
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
+          python3 -u - <<'PY'
           import os,json
           from pathlib import Path
           from dlt_v5.frozen_protocol import sha256,canonical_json
@@ -83,7 +83,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          PYTHONPATH=src python3 run_step2_real_oos_once.py 2>&1 | tee dlt_oos_artifacts/real_oos.log
+          PYTHONPATH=src python3 -u run_step2_real_oos_once.py 2>&1 | tee dlt_oos_artifacts/real_oos.log
       - name: Upload complete Stage2 evidence
         if: always()
         uses: actions/upload-artifact@v4
