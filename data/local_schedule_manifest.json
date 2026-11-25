@@ -1,0 +1,43 @@
+{
+  "schema": "SSQ_LOCAL_SCHEDULE_MANIFEST_1.0",
+  "timezone": "Asia/Shanghai",
+  "draw_weekdays_bjt": [
+    1,
+    3,
+    6
+  ],
+  "draw_time_bjt": "21:15",
+  "coverage_start_bjt": "2026-01-01",
+  "coverage_end_bjt": "2027-12-31",
+  "years": {
+    "2026": {
+      "lottery_suspension_status": "FROZEN_OFFICIAL",
+      "source_document": "财政部关于2026年彩票市场休市安排的公告",
+      "source_reference": "中华人民共和国财政部公告2025年第14号",
+      "suspended_dates_bjt": [
+        "2026-02-14",
+        "2026-02-15",
+        "2026-02-16",
+        "2026-02-17",
+        "2026-02-18",
+        "2026-02-19",
+        "2026-02-20",
+        "2026-02-21",
+        "2026-02-22",
+        "2026-02-23",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03",
+        "2026-10-04"
+      ]
+    },
+    "2027": {
+      "lottery_suspension_status": "PENDING_OFFICIAL_PUBLICATION",
+      "source_document": null,
+      "source_reference": "2027 lottery-market suspension notice not published as of 2026-11-25",
+      "suspended_dates_bjt": []
+    }
+  },
+  "unresolved_year_policy": "FAIL_CLOSED",
+  "local_first": true
+}
