@@ -118,6 +118,42 @@ jobs:
           print("ACTIVE_PRODUCTION_ZERO_NETWORK_PASS")
           PY
 
+      - name: Verify frozen 2026135 ledger genesis matches local historical replay
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from ssq_v5.offline_local_v5 import _to_records
+          from ssq_v5.phase4_real_policy_gate_v5 import _regime_states
+          rows=_to_records("data/ssq_history.csv")
+          states=_regime_states(rows)
+          genesis=json.loads(Path("data/production_ledger_genesis.json").read_text("utf-8"))
+          assert rows[-1].issue=="2026135"
+          assert genesis["frozen_through_issue"]=="2026135"
+          assert bool(states[-1][0])==bool(genesis["special_rule_active"])
+          assert bool(states[-1][1])==bool(genesis["fuyun_prize_active"])
+          print("LEDGER_GENESIS_STATE_REPLAY_PASS", states[-1], genesis["special_rule_active"])
+          PY
+
+      - name: CLI dry-run smoke must not touch production runtime
+        run: |
+          rm -rf runtime
+          python -m ssq_v5.cli_produce \
+            --tickets 2 \
+            --promo-remaining 560000000 \
+            --dry-run \
+            --now-utc 2026-11-25T00:00:00Z > /tmp/cli-dryrun.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("/tmp/cli-dryrun.json").read_text("utf-8"))
+          assert x["effective_route_mode"]=="ANTI_CROWD_SPARSE_ZONE_V1"
+          assert x["target_issue"]=="2026136"
+          assert str(x["published_dir"]).startswith("/tmp/ssq_v5_dryrun_")
+          assert not Path("runtime").exists()
+          print("CLI_DRY_RUN_NO_PRODUCTION_POLLUTION_PASS", x["target_issue"], x["published_dir"])
+          PY
+
       - name: Assert obsolete V5 heuristic selectors are absent
         run: |
           python - <<'PY'
