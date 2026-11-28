@@ -1,0 +1,110 @@
+name: SSQ Sichuan 2025 structured HTML evidence
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-sichuan-2025-html.yml'
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sichuan 2025 official structured detail pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/search evidence/detail
+          python - <<'PY'
+          import concurrent.futures,datetime,hashlib,html,json,pathlib,re,subprocess,time
+          from urllib.parse import quote,urljoin
+          ROOT=pathlib.Path('evidence')
+          BASE='https://www.scflcp.com.cn'
+          issues=[f'2025{i:03d}' for i in range(1,152)]
+          def run(args):
+              return subprocess.run(args,capture_output=True,text=True)
+          def curl(url,body,headers,max_time='25'):
+              return subprocess.run(['curl','-fsSL','--retry','2','--connect-timeout','8','--max-time',max_time,'-A','Mozilla/5.0','-D',str(headers),'-o',str(body),url],capture_output=True,text=True)
+          def one(issue):
+              sb=ROOT/'search'/f'{issue}.html'; sh=ROOT/'search'/f'{issue}.headers'
+              qurl=BASE+'/search.htm?q='+quote(issue)
+              p=curl(qurl,sb,sh,'20')
+              rec={'issue':issue,'search_url':qurl,'search_exit':p.returncode}
+              if p.returncode!=0 or not sb.exists():
+                  rec['status']='SEARCH_FAIL'; rec['stderr']=p.stderr[-500:]; return rec
+              raw=sb.read_text(encoding='utf-8',errors='ignore')
+              # Accept absolute or relative SSQ detail links; exact issue text must appear near candidate or be verified in fetched detail.
+              links=re.findall(r'(?:href=["\'])(https?://www\.scflcp\.com\.cn/ssq/\d+\.jhtml|/ssq/\d+\.jhtml)',raw,re.I)
+              seen=[]
+              for x in links:
+                  u=urljoin(BASE,x)
+                  if u not in seen: seen.append(u)
+              rec['candidate_urls']=seen
+              for idx,u in enumerate(seen[:20],1):
+                  db=ROOT/'detail'/f'{issue}_{idx}.html'; dh=ROOT/'detail'/f'{issue}_{idx}.headers'
+                  d=curl(u,db,dh,'20')
+                  if d.returncode!=0 or not db.exists(): continue
+                  txt=db.read_text(encoding='utf-8',errors='ignore')
+                  plain=re.sub(r'<[^>]+>',' ',html.unescape(txt))
+                  plain=re.sub(r'\s+',' ',plain)
+                  if issue not in plain or '双色球' not in plain: continue
+                  rec['status']='OK'; rec['detail_url']=u; rec['detail_body']=str(db); rec['detail_headers']=str(dh)
+                  rec['detail_sha256']=hashlib.sha256(db.read_bytes()).hexdigest()
+                  rec['detail_headers_sha256']=hashlib.sha256(dh.read_bytes()).hexdigest()
+                  # Parsed fields are audit convenience only; raw bytes are authoritative.
+                  mdate=re.search(r'开奖日期[：:]?\s*(20\d{2})[-年](\d{1,2})[-月](\d{1,2})',plain)
+                  rec['date']=f"{mdate.group(1)}-{int(mdate.group(2)):02d}-{int(mdate.group(3)):02d}" if mdate else None
+                  msale=re.search(r'本期销售金额[：:]?\s*([\d,]+)\s*元',plain)
+                  rec['sales_rmb']=int(msale.group(1).replace(',','')) if msale else None
+                  # Prize rows in page text after HTML stripping.
+                  m1=re.search(r'一等奖\s+([\d,]+)\s+([\d,.]+)',plain)
+                  m2=re.search(r'二等奖\s+([\d,]+)\s+([\d,.]+)',plain)
+                  rec['first_prize_winners']=int(m1.group(1).replace(',','')) if m1 else None
+                  rec['second_prize_winners']=int(m2.group(1).replace(',','')) if m2 else None
+                  nums=re.findall(r'(?<!\d)(0?[1-9]|[12]\d|3[0-3])(?!\d)',plain)
+                  rec['parse_note']='numbers_not_trusted_from_generic_scan'
+                  return rec
+              rec['status']='NO_MATCHING_DETAIL'
+              return rec
+          rows=[]
+          with concurrent.futures.ThreadPoolExecutor(max_workers=12) as ex:
+              for r in ex.map(one,issues):
+                  rows.append(r); print(r['issue'],r['status'])
+          ok=[r for r in rows if r.get('status')=='OK']
+          manifest={
+            'schema':'SSQ-SICHUAN-2025-STRUCTURED-HTML-v1',
+            'fetched_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'requested_issues':len(issues),'ok_rows':len(ok),
+            'rows':rows
+          }
+          (ROOT/'MANIFEST.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('OK_ROWS',len(ok),'SECOND_COMPLETE',sum(r.get('second_prize_winners') is not None for r in ok))
+          PY
+          mkdir -p evidence/final4
+          cat > evidence/final4/urls.tsv <<'EOF'
+2024020 https://www.scflcp.com.cn/ssq/823124134.jhtml
+2024021 https://www.scflcp.com.cn/ssq/823124195.jhtml
+2024023 https://www.scflcp.com.cn/ssq/823124299.jhtml
+2024027 https://www.scflcp.com.cn/ssq/823124606.jhtml
+EOF
+          while read issue url; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "evidence/final4/$issue.headers" -o "evidence/final4/$issue.html" "$url"
+          done < evidence/final4/urls.tsv
+          python - <<'PY'
+          import pathlib,re,json,hashlib,html
+          out=[]
+          for p in sorted(pathlib.Path('evidence/final4').glob('2024*.html')):
+              issue=p.stem; s=p.read_text(encoding='utf-8',errors='ignore'); plain=re.sub(r'<[^>]+>',' ',html.unescape(s)); plain=re.sub(r'\s+',' ',plain)
+              date=re.search(r'开奖日期[：:]\s*(20\d{2}-\d{2}-\d{2})',plain)
+              sale=re.search(r'本期销售金额[：:]\s*([\d,]+)\s*元',plain)
+              pool=re.search(r'下期一等奖奖池累计金额[：:]\s*([\d,]+)\s*元',plain)
+              balls=re.search(r'中奖号码\s*((?:\d{1,2}\s+){6}\d{1,2})',plain)
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',plain)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',plain)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',balls.group(1))] if balls else []
+              hp=p.with_suffix('.headers')
+              out.append({'issue':issue,'date':date.group(1) if date else None,'sales_rmb':int(sale.group(1).replace(',','')) if sale else None,'reds':sorted(nums[:6]) if len(nums)>=7 else None,'blue':nums[6] if len(nums)>=7 else None,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'pool_rmb':int(pool.group(1).replace(',','')) if pool else None,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(hp.read_bytes()).hexdigest()})
+          pathlib.Path('evidence/final4/PARSED.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('FINAL4',json.dumps(out,ensure_ascii=False))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-sichuan-2025-structured-html
+          path: evidence

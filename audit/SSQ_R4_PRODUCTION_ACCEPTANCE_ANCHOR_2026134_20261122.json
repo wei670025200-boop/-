@@ -1,0 +1,14 @@
+{
+  "schema": "SSQ-R4-EXTERNAL-ANCHOR-v1",
+  "classification": "ENGINEERING_ACCEPTANCE_ONLY_DO_NOT_BET",
+  "target_issue": 2026134,
+  "commitment_sha256": "edd576de7415a19894f37fc5224c90454d4d7a59fd9a3b09076407b498a16160",
+  "ledger_record_sha256": "c72dc5c45f358603f6f2752d3632af8d2cc51731deb05ddd24a93fad3d09afc7",
+  "generated_utc": "2026-11-22T12:07:33.153248+00:00",
+  "draw_at_utc": "2026-11-22T13:15:00+00:00",
+  "route": "UNIFORM_ONLY_NO_FILTER",
+  "tickets_published": false,
+  "private_seed_published": false,
+  "does_not_supersede_user_selection": true,
+  "user_selection_commitment_preserved": "9272af6638a428cb2d398a31f09dbc9cc0886355afa163bd1852b3df5b553381"
+}

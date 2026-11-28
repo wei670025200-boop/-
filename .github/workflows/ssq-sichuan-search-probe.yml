@@ -1,0 +1,88 @@
+name: SSQ Sichuan search probe
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ssq-sichuan-search-probe.yml'
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe Sichuan site search
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          for q in 2025001 2025148; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "probe/${q}.headers" -o "probe/${q}.html" "https://www.scflcp.com.cn/search.htm?q=${q}"
+            echo "QUERY=${q}"
+            grep -Eo 'https?://[^"]+|/ssq/[0-9]+\.jhtml' "probe/${q}.html" | grep -E '/ssq/' | head -20 || true
+          done
+          echo "=== SICHUAN_2024_FINAL4_RAW ==="
+          mkdir -p probe/sc_final4
+          cat > probe/sc_final4/urls.tsv <<'EOF'
+2024020 https://www.scflcp.com.cn/ssq/823124134.jhtml
+2024021 https://www.scflcp.com.cn/ssq/823124195.jhtml
+2024023 https://www.scflcp.com.cn/ssq/823124299.jhtml
+2024027 https://www.scflcp.com.cn/ssq/823124606.jhtml
+EOF
+          while read issue url; do
+            curl -fsSL --retry 3 --connect-timeout 10 --max-time 30 -A "Mozilla/5.0" -D "probe/sc_final4/$issue.headers" -o "probe/sc_final4/$issue.html" "$url"
+          done < probe/sc_final4/urls.tsv
+          python - <<'PY'
+          import pathlib,re,json,hashlib
+          out=[]
+          for p in sorted(pathlib.Path('probe/sc_final4').glob('2024*.html')):
+              issue=p.stem; s=p.read_text(encoding='utf-8',errors='ignore')
+              txt=re.sub(r'<[^>]+>',' ',s); txt=re.sub(r'&nbsp;',' ',txt); txt=re.sub(r'\s+',' ',txt)
+              date=re.search(r'开奖日期[：:]\s*(20\d{2}-\d{2}-\d{2})',txt)
+              sale=re.search(r'本期销售金额[：:]\s*([\d,]+)\s*元',txt)
+              pool=re.search(r'下期一等奖奖池累计金额[：:]\s*([\d,]+)\s*元',txt)
+              balls=re.search(r'中奖号码\s*((?:\d{1,2}\s+){6}\d{1,2})',txt)
+              first=re.search(r'一等奖\s+(\d+)\s+([\d,]+)',txt)
+              second=re.search(r'二等奖\s+(\d+)\s+([\d,]+)',txt)
+              nums=[int(x) for x in re.findall(r'\d{1,2}',balls.group(1))] if balls else []
+              out.append({'issue':issue,'date':date.group(1) if date else None,'sales_rmb':int(sale.group(1).replace(',','')) if sale else None,'reds':sorted(nums[:6]) if len(nums)>=7 else None,'blue':nums[6] if len(nums)>=7 else None,'first_count':int(first.group(1)) if first else None,'first_money':int(first.group(2).replace(',','')) if first else None,'second_count':int(second.group(1)) if second else None,'second_money':int(second.group(2).replace(',','')) if second else None,'pool_rmb':int(pool.group(1).replace(',','')) if pool else None,'body_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'headers_sha256':hashlib.sha256(p.with_suffix('.headers').read_bytes()).hexdigest()})
+          pathlib.Path('probe/sc_final4/PARSED.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+          echo "=== SICHUAN_2024023_ID_PROBE ==="
+          mkdir -p probe/sc2024023
+          seq 823124259 823124460 | xargs -P 20 -I{} bash -c '
+            code=$(curl -L -sS --connect-timeout 4 --max-time 10 -A "Mozilla/5.0" -D "probe/sc2024023/{}.headers" -o "probe/sc2024023/{}.html" -w "%{http_code}" "https://www.scflcp.com.cn/ssq/{}.jhtml" || true)
+            if [ "$code" = "200" ] && grep -q "第2024023期" "probe/sc2024023/{}.html"; then
+              echo "{}|https://www.scflcp.com.cn/ssq/{}.jhtml" >> probe/SC2024023_MATCH.txt
+            else
+              rm -f "probe/sc2024023/{}.html" "probe/sc2024023/{}.headers"
+            fi
+          '
+          cat probe/SC2024023_MATCH.txt 2>/dev/null || true
+          echo "=== HEBEI_PAGINATION_PROBE ==="
+          base='https://www.yzfcw.com/api/cms/content/lottery?sid=846994348564549&cid=849209070977093'
+          declare -A urls
+          urls[ps1000]="$base&ps=1000"
+          urls[pn2]="$base&ps=500&pn=2"
+          urls[page2]="$base&ps=500&page=2"
+          urls[pageNo2]="$base&ps=500&pageNo=2"
+          urls[p2]="$base&ps=500&p=2"
+          urls[offset500]="$base&ps=500&offset=500"
+          urls[start500]="$base&ps=500&start=500"
+          for k in "${!urls[@]}"; do
+            u="${urls[$k]}"
+            curl -fsSL --retry 2 --connect-timeout 10 --max-time 30 -A 'Mozilla/5.0' -D "probe/hebei_$k.headers" -o "probe/hebei_$k.json" "$u" || true
+          done
+          python - <<'PY'
+          import json,glob,os
+          out={}
+          for p in sorted(glob.glob('probe/hebei_*.json')):
+              k=os.path.basename(p)[6:-5]
+              try:
+                  o=json.load(open(p,encoding='utf-8')); d=o.get('data') or {}; rows=d.get('rows') or []
+                  out[k]={'code':o.get('code'),'total':d.get('total'),'rows':len(rows),'first_issue':rows[0].get('issueNo') if rows else None,'last_issue':rows[-1].get('issueNo') if rows else None}
+              except Exception as e: out[k]={'error':repr(e)}
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          open('probe/HEBEI_RESULT.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ssq-sichuan-search-probe
+          path: probe
